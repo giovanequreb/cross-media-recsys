@@ -4,6 +4,9 @@
 # Secrets
 .env
 
+# Raw downloads (large, reproducible from the scripts in src/)
+data/raw/
+
 # Python
 __pycache__/
 *.pyc
