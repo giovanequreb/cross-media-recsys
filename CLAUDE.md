@@ -73,9 +73,17 @@ Da chat → Claude Code. Adam incolla qui il blocco che ricevi dalla chat.
 - Passo 3 (proposta di Claude Code, da confermare in chat): descrizioni in inglese per i 20 film/serie e i 50 brani, da salvare accanto ai dati (es. colonna `description`). Domande aperte: chi le scrive (Claude in chat/Claude Code, con le audio features come base per i brani), lunghezza e stile (1-2 frasi su mood, ritmo, atmosfera), controllo manuale prima degli embeddings.
 - Dopo: embeddings + raccomandazioni per coseno (media degli embedding dei film graditi → brani più vicini).
 
+**Dove riprendere (sessione chiusa il 2026-09-21):** il Passo 3 non è ancora iniziato. Serve la risposta di Adam alle domande aperte qui sopra (chi scrive le descrizioni, stile, controllo manuale). Nessuna modifica pendente nel repo, ultimo commit `7f0feb1`.
+
+**In sospeso, non bloccanti:**
+- Valutare se rigenerare la chiave TMDB (è stata incollata in chat).
+- Pulire i suffissi nei titoli dei brani (`- Remastered`, `- Radio Edit`, `(feat. ...)`), se serve.
+- Aggiungere il logo TMDB al README quando ci sarà una UI.
+- Prima del Livello 2: controllo di fattibilità su Amazon Reviews'23 (quanti utenti hanno recensito sia `Movies_and_TV` sia `CDs_and_Vinyl`; verificare licenza d'uso).
+
 ## Log
 
 Una riga per passo completato: data, cosa, commit.
 
 - 2026-09-21 — Passo 1: ambiente, struttura, `.gitignore`, `requirements.txt`, smoke test `(3, 384)` — commit `56d5f64` (setup), `45b0a35` (smoke test); README e CLAUDE.md nel commit `bb621cd` (docs).
-- 2026-09-21 — Passo 2: dataset minimo, 20 film/serie (TMDB) e 50 brani (Hugging Face) in CSV, `.env.example` — commit `a567604` (titoli), `2b676d6` (brani), `c3e33d1` (`.env.example`); README e CLAUDE.md nel commit docs successivo.
+- 2026-09-21 — Passo 2: dataset minimo, 20 film/serie (TMDB) e 50 brani (Hugging Face) in CSV, `.env.example` — commit `a567604` (titoli), `2b676d6` (brani), `c3e33d1` (`.env.example`); README e CLAUDE.md nel commit `7f0feb1` (docs).
