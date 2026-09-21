@@ -1,0 +1,51 @@
+track_id,title,artist,album,genre_label,popularity,danceability,energy,valence,acousticness,instrumentalness,tempo
+6ZFbXIJkuI1dVNWvzJzown,Time,Hans Zimmer,Inception (Music from the Motion Picture),german,72,0.286,0.0968,0.0395,0.178,0.696,62.881
+6kkwzB6hXLIONkEk9JciA6,Weightless,Marconi Union,The Ambient Zone Just Music Cafe Vol 4,ambient,68,0.139,0.22,0.0789,0.856,0.831,71.432
+56oReVXIfUO9xkX7pHmEU0,On the Nature of Daylight,"Max Richter, Louisa Fuller, Natalia Bonner, John Metcalfe, Philip Sheppard, Chris Worsey",The Blue Notebooks (15 Years),ambient,65,0.065,0.341,0.0334,0.154,0.854,65.38
+1vgSaC0BPlL6LEm4Xsx59J,An Ending (Ascent) - Remastered 2005,Brian Eno,Apollo,ambient,59,0.257,0.0906,0.0451,0.932,0.985,67.46
+3weNRklVDqb4Rr5MhKBR3D,Nuvole Bianche,Ludovico Einaudi,Una Mattina,ambient,73,0.191,0.0582,0.0454,0.961,0.89,132.614
+2MZSXhq4XDJWu6coGoXX1V,Avril 14th,Aphex Twin,Drukqs,ambient,64,0.558,0.0259,0.37,0.996,0.871,157.811
+5u5aVJKjSMJr4zesMPz7bL,"Clair de Lune, L. 32","Claude Debussy, Martin Jones",Debussy: Clair De Lune and Other Piano Favourites,classical,68,0.335,0.00532,0.0397,0.994,0.912,65.832
+5NGtFXVpXSvwunEIGeviY3,Gymnopédie No. 1,"Erik Satie, Philippe Entremont",Erik Satie & Friends,classical,70,0.468,0.0127,0.356,0.994,0.937,72.776
+14rZjW3RioG7WesZhYESso,"Comptine d'un autre été, l'après-midi",Yann Tiersen,Le Fabuleux destin d'Amélie Poulain (Bande originale du film),ambient,73,0.483,0.192,0.0542,0.991,0.908,100.848
+3gFQOMoUwlR6aUZj81gCzu,One Summer Day,Joe Hisaishi,Spirited Away Soundtrack,anime,65,0.41,0.196,0.0622,0.953,0.892,78.823
+0U0ldCRmgCqhVvD6ksG63j,Nightcall,Kavinsky,Nightcall,alternative,73,0.532,0.874,0.361,0.00842,0.012,91.038
+6ei4QrpcciclGH593uHKo8,A Real Hero,"Electric Youth, College",Innerworld (Deluxe Edition),synth-pop,59,0.705,0.443,0.376,0.744,0.556,112.001
+0VjIjW4GlUZAMYd2vXMi3b,Blinding Lights,The Weeknd,After Hours,pop,91,0.514,0.73,0.334,0.00146,9.54e-05,171.005
+6GyFP1nfCDB8lbD2bG0Hq9,Midnight City,M83,"Hurry up, We're Dreaming",french,76,0.507,0.729,0.272,0.0182,1.4e-06,105.013
+2Y0iGXY6m6immVb2ktbseM,Little Dark Age,MGMT,Little Dark Age,alt-rock,83,0.705,0.712,0.62,0.0102,0.000855,97.512
+2Foc5Q5nqNiosCNqttzHof,Get Lucky (feat. Pharrell Williams & Nile Rodgers) - Radio Edit,"Daft Punk, Pharrell Williams, Nile Rodgers",Get Lucky (feat. Pharrell Williams & Nile Rodgers) [Radio Edit],electro,82,0.794,0.811,0.862,0.0426,1.07e-06,116.047
+79CUrU5o2KAVDTNm4x3eGU,Firestarter,The Prodigy,The Fat of the Land,breakbeat,64,0.545,0.948,0.355,0.00335,0.364,141.507
+67Hna13dNDkZvBpTXRIaOJ,Teardrop,Massive Attack,Mezzanine,electronic,71,0.615,0.419,0.216,0.0173,0.497,76.997
+3Ty7OTBNSigGEpeW2PqcsC,Glory Box,Portishead,Dummy,electronic,71,0.51,0.434,0.207,0.177,0.516,119.695
+052z2UsE2wPrHsBJ9tly0g,Playground Love,"Air, Gordon Tracks",The Virgin Suicides (Original Motion Picture Score),ambient,63,0.33,0.423,0.117,0.265,0.731,143.086
+1ujxjsoNvh4XgS2fUNwkZ2,Space Song,Beach House,Depression Cherry,indie-pop,73,0.509,0.79,0.625,0.218,0.125,147.073
+0yc6Gst2xkRu0eMLeRMGCX,Apocalypse,Cigarettes After Sex,Cigarettes After Sex,ambient,84,0.37,0.467,0.182,0.0205,0.572,94.485
+1LzNfuep1bnAUR9skqdHCK,Fade Into You,Mazzy Star,So Tonight That I Might See,alt-rock,79,0.42,0.33,0.175,0.245,0.000679,157.143
+2usrT8QIbIk9y0NEtQwS4j,Intro,The xx,xx,indie-pop,73,0.617,0.778,0.152,0.459,0.925,100.363
+7eqoqGkKwgOaWNNHx90uEZ,Nights,Frank Ocean,Blonde,soul,80,0.457,0.551,0.428,0.427,1.15e-06,89.87
+52Bg6oaos7twR7IUtEpqcE,Between The Bars,Elliott Smith,Either/Or,indie-pop,65,0.522,0.074,0.342,0.929,0.765,135.298
+3pRaLNL3b8x5uBOcsgvdqM,Hallelujah,Jeff Buckley,Grace,singer-songwriter,71,0.324,0.136,0.0831,0.931,0.00117,97.256
+3B3eOgLJSqPEA0RfboIQVM,Skinny Love,Bon Iver,"For Emma, Forever Ago",folk,73,0.592,0.263,0.109,0.845,5.68e-06,76.366
+4KROoGIaPaR1pBHPnR3bwC,Pink Moon,Nick Drake,Pink Moon,british,70,0.642,0.427,0.404,0.871,0.0904,82.344
+63OQupATfueTdZMWTxW03A,Karma Police,Radiohead,OK Computer,alt-rock,76,0.36,0.501,0.324,0.0638,9.32e-05,74.807
+1YQWosTIljIvxAgHWTp7KP,Take Five,The Dave Brubeck Quartet,Time Out,jazz,66,0.454,0.26,0.598,0.539,0.00078,174.322
+4vLYewWIvqHfKtJDk8c8tq,"So What (feat. John Coltrane, Cannonball Adderley & Bill Evans)","Miles Davis, John Coltrane, Cannonball Adderley, Bill Evans",Kind Of Blue (Legacy Edition),jazz,61,0.532,0.151,0.211,0.706,0.00136,136.759
+6Rqn2GFlmvmV4w9Ala0I1e,Feeling Good,Nina Simone,I Put A Spell On You,blues,73,0.399,0.326,0.546,0.864,0.0,79.206
+4l9hml2UCnxoNI3yCdL1BW,My Funny Valentine,Chet Baker,Chet Baker Sings,jazz,63,0.438,0.00756,0.277,0.941,0.00643,133.32
+6ek9SiEj5a65WIs2EV7qiM,Son Of A Preacher Man,Dusty Springfield,Dusty In Memphis,british,73,0.404,0.43,0.641,0.538,0.0,180.061
+4JLcAU2xY90qTkTSNM1lUa,Bang Bang (My Baby Shot Me Down),Nancy Sinatra,How Does That Grab You?,folk,66,0.433,0.174,0.366,0.982,0.101,95.802
+2grjqo0Frpf2okIBiifQKs,September,"Earth, Wind & Fire","The Best Of Earth, Wind & Fire Vol. 1",disco,83,0.697,0.832,0.979,0.168,0.00131,125.926
+32OlwWuMpZ6b0aN2RZOeMS,Uptown Funk (feat. Bruno Mars),"Mark Ronson, Bruno Mars",Uptown Special,dance,83,0.856,0.609,0.928,0.00801,8.15e-05,114.988
+0GjEhVFGZW8afUYGChu3Rr,Dancing Queen,ABBA,Arrival,swedish,83,0.543,0.87,0.754,0.358,0.000939,100.804
+5T8EDUDqKcs6OSOwEsfqG7,Don't Stop Me Now - Remastered 2011,Queen,Jazz (2011 Remaster),rock,82,0.559,0.868,0.609,0.0475,0.000176,156.295
+6dGnYIeXmHdcikdzNNDMm2,Here Comes The Sun - Remastered 2009,The Beatles,Abbey Road (Remastered),british,82,0.557,0.54,0.394,0.0339,0.00248,129.171
+2GYHyAoLWpkxLVa4oYTVko,Alors on danse - Radio Edit,Stromae,Cheese,house,78,0.791,0.59,0.714,0.0994,0.00203,119.951
+59WN2psjkt1tyaxjspN8fp,Killing In The Name,Rage Against The Machine,Rage Against The Machine - XX (20th Anniversary Special Edition),alt-rock,80,0.466,0.833,0.661,0.0266,0.0,88.785
+4CeeEOM32jQcH3eN9Q2dGj,Smells Like Teen Spirit,Nirvana,Nevermind (Remastered),alt-rock,83,0.502,0.912,0.72,2.55e-05,0.000173,116.761
+2MuWTIM3b0YEAskbeeFE1i,Master Of Puppets,Metallica,Master Of Puppets (Remastered),hard-rock,81,0.543,0.836,0.56,0.000647,0.431,105.173
+7KXjTSCq5nL1LoYtL7XAwS,HUMBLE.,Kendrick Lamar,DAMN.,hip-hop,84,0.908,0.621,0.421,0.000282,5.39e-05,150.011
+3Wrjm47oTz2sjIgck11l5e,Beggin',Måneskin,Chosen,indie-pop,86,0.714,0.8,0.589,0.127,0.0,134.002
+5HNCy40Ni5BZJFw1TKzRsC,Comfortably Numb,Pink Floyd,The Wall,psych-rock,74,0.472,0.366,0.171,0.15,0.312,127.163
+5EY6yQXMCtX5EbkC0ru0LV,La vie en rose,"Andrea Bocelli, Édith Piaf",Passione (Remastered),opera,57,0.344,0.404,0.441,0.829,0.0,80.778
+1TfqLAPs4K3s2rJMoCokcS,Sweet Dreams (Are Made of This) - Remastered,"Eurythmics, Annie Lennox, Dave Stewart",Sweet Dreams (Are Made Of This),rock,82,0.692,0.711,0.875,0.225,0.0,125.135
