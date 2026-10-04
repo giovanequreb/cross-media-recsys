@@ -34,7 +34,8 @@ Piano in tre livelli:
 ```
 cross-media-recsys/
 ├── data/            # titles.csv (film/serie), tracks.csv (brani), descriptions.csv (descrizioni in 3 parti), soundtrack_pairs.csv (coppie film/brano), embeddings.npz (vettori), model.json (parametri del modello), raw/ (download grezzi, ignorata da git)
-├── src/             # smoke_test.py, fetch_titles.py, build_tracks.py, embed.py, model.py, recommend.py, evaluate.py, check_overlap.py
+├── src/             # smoke_test.py, fetch_titles.py, build_tracks.py, embed.py, model.py, recommend.py, evaluate.py, export_app.py, check_overlap.py
+├── app/             # index.html (web app statica), data.js (generato), tmdb.svg
 ├── notebooks/       # esperimenti esplorativi
 ├── requirements.txt
 ├── .env.example     # modello per la chiave TMDB (.env è ignorato da git)
@@ -63,6 +64,12 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
   - [x] `src/recommend.py`: `python src/recommend.py "Drive" "Amélie" --top 5`; con più titoli fa la media dei punteggi.
   - [x] `src/evaluate.py`: controllo sulle 57 coppie, confronto tra configurazioni e ricerca a griglia dei pesi con cross-validation a 5 fold per titolo.
   - [x] Risultati (MRR, caso = 0.06): solo trama 0.07; solo emozioni 0.31; solo riferimenti 0.74; pesi uguali 0.57; pesi del modello senza correzione hub 0.61; **modello 0.65** (hit@1 0.56, hit@5 0.75, hit@10 0.82). Correzione hub: il brano più ripetuto nei top-5 passa da 17 titoli su 57 a 9.
+- Fatto (app web):
+  - [x] `app/index.html`: pagina statica senza backend e senza dipendenze (HTML + CSS + JS in un file). Si scelgono i titoli, tre slider cambiano i pesi in tempo reale, una casella attiva la correzione hub, ogni brano ha il link a Spotify e i pulsanti 👍/👎. La formula in JS è la stessa di `src/model.py`.
+  - [x] I voti restano nel `localStorage` del browser e si scaricano come `feedback.json` (titoli scelti, brano, voto, pesi in uso, data): sono i dati per imparare i pesi.
+  - [x] `src/export_app.py` genera `app/data.js` (titoli, brani, descrizioni, similarità per parte; circa 165 KB). **Va rieseguito** dopo ogni modifica a descrizioni, embeddings o `data/model.json`.
+  - [x] Avvio: `python -m http.server 5173 --directory app` (configurato anche in `.claude/launch.json` come server `app`), oppure doppio clic su `app/index.html`.
+  - [x] Logo e avviso TMDB nel footer dell'app.
 - Fatto (verso il Livello 2): `src/check_overlap.py` legge in streaming (niente su disco) i file rating-only di Amazon Reviews'23, `CDs_and_Vinyl` (4.772.071 voti, 1.754.118 utenti) e `Movies_and_TV` (17.158.519 voti). Utenti con almeno N voti in **entrambi** i domini: N≥1 713.375; N≥3 123.527; N≥5 54.260; N≥10 17.292; N≥20 5.153. **Il Livello 2 è fattibile**: la soglia indicativa (alcune migliaia di utenti con ≥3-5 voti per dominio) è superata di molto. Dura circa 2 minuti.
 - Versioni installate: Python 3.12.3, `sentence-transformers` 6.1.0, `torch` 2.14.0, `numpy` 2.5.3, `pandas` 3.0.6, `scikit-learn` 1.9.1, `httpx` 0.28.1, `huggingface_hub` 1.32.0, `python-dotenv` 1.2.3 (aggiunta nel Passo 2; lista completa in `requirements.txt`)
 - Problemi / cose da sapere:
@@ -100,14 +107,14 @@ Aggiornato il 2026-10-04. Il Livello 1 è **completo e pubblicato su GitHub**: d
 **Prossimi passi possibili (da decidere):**
 - Far provare i consigli ad Adam e a 5-10 persone, come previsto prima del Livello 2.
 - Livello 2: scegliere il modello (es. fattorizzazione di matrice / two-tower sugli utenti con ≥5 voti per dominio) e come collegare i prodotti Amazon a titoli e brani veri (servono i metadati).
-- Adam vuole che il progetto diventi un **mini modello di raccomandazione**: il passo naturale è raccogliere giudizi veri ("questo brano ci sta / non ci sta" per un film) e imparare pesi e correzioni da quelli, invece che fissarli a mano.
+- Pubblicare l'app (es. GitHub Pages: richiede di spostarla in `docs/` o di usare una GitHub Action, ed è una modifica alle impostazioni del repo).
+- Adam vuole che il progetto diventi un **mini modello di raccomandazione**: il passo naturale è raccogliere giudizi veri con l'app ("questo brano ci sta / non ci sta" per un film) e imparare pesi e correzioni da quelli, invece che fissarli a mano.
 - Provare un modello di embedding più capace (`all-mpnet-base-v2`, `bge-base`): circa 400 MB, attenzione allo spazio su disco.
 - Allargare ancora il catalogo dei brani generando le descrizioni con uno script e un'API LLM (a pagamento).
 
 **In sospeso, non bloccanti:**
 - Valutare se rigenerare la chiave TMDB (è stata incollata in chat).
 - Pulire i suffissi nei titoli dei brani (`- Remastered`, `- Radio Edit`, `(feat. ...)`), se serve.
-- Aggiungere il logo TMDB al README quando ci sarà una UI.
 
 ## Log
 
@@ -120,3 +127,4 @@ Una riga per passo completato: data, cosa, commit.
 - 2026-10-04 — Fattibilità Livello 2: 54.260 utenti con ≥5 voti sia in film sia in musica su Amazon Reviews'23 — commit `0e524da`.
 - 2026-10-04 — Descrizioni riscritte su richiesta di Adam (emozioni, trama leggera, riferimenti pop), embeddings rigenerati, MRR 0.63 — commit `a8cff33`.
 - 2026-10-04 — Passo 5: dataset a 57 titoli e 93 brani, descrizioni in tre parti, modello a pesi con correzione hub, controllo su 57 coppie (MRR 0.65) — commit `34e9bbc` (modello); dataset nel commit precedente.
+- 2026-10-04 — App web statica (`app/`) con pesi regolabili e raccolta dei voti; `src/export_app.py`.
