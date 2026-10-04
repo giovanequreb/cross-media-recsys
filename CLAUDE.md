@@ -69,6 +69,8 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
   - [x] Risultati precedenti con 93 brani (MRR, caso = 0.06): solo trama 0.07; solo emozioni 0.31; solo ambientazione 0.49; solo riferimenti 0.74; pesi uguali 0.66; **modello 0.67** (hit@1 0.58, hit@5 0.81, hit@10 0.86, rank medio 5.6). Prima dell'ambientazione il modello era a 0.65 con hit@5 0.75. Correzione hub: il brano più ripetuto nei top-5 passa da 17 titoli su 57 a 9.
 - Fatto (app web):
   - [x] `app/index.html`: pagina statica senza backend e senza dipendenze (HTML + CSS + JS in un file). Si scelgono i titoli, uno slider per ogni parte della descrizione cambia i pesi in tempo reale, una casella attiva la correzione hub, ogni brano ha il link a Spotify e i pulsanti 👍/👎. La formula in JS è la stessa di `src/model.py`.
+  - [x] **Rating mode** (casella sopra i risultati): mostra gli 8 migliori più 3 brani "a sorpresa" pescati tra le posizioni 9-60, in ordine mescolato e senza posizione né barra del punteggio. L'ordine è deterministico per ogni selezione, quindi non cambia dopo un voto. Ogni voto salva anche `rank` (posizione vera) e `wildcard`.
+  - [x] Piano concordato con Adam per i voti: un film alla volta, tutti gli 11 brani, circa 20-25 film diversi tra loro, slider sui valori di default; poi scaricare `feedback.json` e metterlo nella cartella del progetto per imparare i pesi.
   - [x] I voti restano nel `localStorage` del browser e si scaricano come `feedback.json` (titoli scelti, brano, voto, pesi in uso, data): sono i dati per imparare i pesi.
   - [x] `src/export_app.py` genera `app/data.js` (titoli, brani, descrizioni, similarità per parte; circa 430 KB). **Va rieseguito** dopo ogni modifica a descrizioni, embeddings o `data/model.json`.
   - [x] Avvio: `python -m http.server 5173 --directory app` (configurato anche in `.claude/launch.json` come server `app`), oppure doppio clic su `app/index.html`.
@@ -134,3 +136,4 @@ Una riga per passo completato: data, cosa, commit.
 - 2026-10-04 — Quarta parte `setting` (ambientazione) su richiesta di Adam: modello a 4 pesi, MRR 0.67, hit@5 0.81.
 - 2026-10-04 — Catalogo allargato a 200 brani (107 nuovi con descrizioni in quattro parti); MRR 0.61 su 200, consigli più vari.
 - 2026-10-04 — 54 titoli nuovi (111 in tutto), 83 coppie, modello di embedding cambiato in `BAAI/bge-small-en-v1.5` dopo un confronto tra 8 modelli; MRR 0.61.
+- 2026-10-04 — Rating mode nell'app (lista mescolata con 3 brani a sorpresa) per raccogliere i voti di Adam.
