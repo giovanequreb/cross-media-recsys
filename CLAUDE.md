@@ -78,6 +78,7 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
   - [x] `src/export_app.py` genera `app/data.js` (titoli, brani, descrizioni, similarità per parte; circa 430 KB). **Va rieseguito** dopo ogni modifica a descrizioni, embeddings o `data/model.json`.
   - [x] Avvio: `python -m http.server 5173 --directory app` (configurato anche in `.claude/launch.json` come server `app`), oppure doppio clic su `app/index.html`.
   - [x] Logo e avviso TMDB nel footer dell'app.
+  - [x] **App pubblicata** (2026-10-05, con l'ok di Adam): https://giovanequreb.github.io/cross-media-recsys/ . GitHub Pages è in modalità "GitHub Actions"; il workflow `.github/workflows/pages.yml` ripubblica la cartella `app/` a ogni push su `main` che tocca `app/` (circa 30 secondi). Quindi dopo `src/export_app.py` basta committare e fare push perché il sito si aggiorni. I voti restano nel browser di chi vota: chi prova l'app deve scaricare `feedback.json` e mandarlo ad Adam.
 - Fatto (verso il Livello 2): `src/check_overlap.py` legge in streaming (niente su disco) i file rating-only di Amazon Reviews'23, `CDs_and_Vinyl` (4.772.071 voti, 1.754.118 utenti) e `Movies_and_TV` (17.158.519 voti). Utenti con almeno N voti in **entrambi** i domini: N≥1 713.375; N≥3 123.527; N≥5 54.260; N≥10 17.292; N≥20 5.153. **Il Livello 2 è fattibile**: la soglia indicativa (alcune migliaia di utenti con ≥3-5 voti per dominio) è superata di molto. Dura circa 2 minuti.
 - Versioni installate: Python 3.12.3, `sentence-transformers` 6.1.0, `torch` 2.14.0, `numpy` 2.5.3, `pandas` 3.0.6, `scikit-learn` 1.9.1, `httpx` 0.28.1, `huggingface_hub` 1.32.0, `python-dotenv` 1.2.3 (aggiunta nel Passo 2; lista completa in `requirements.txt`)
 - Problemi / cose da sapere:
@@ -115,7 +116,6 @@ Aggiornato il 2026-10-04. Il Livello 1 è **completo e pubblicato su GitHub**: d
 **Prossimi passi possibili (da decidere):**
 - Far provare i consigli ad Adam e a 5-10 persone, come previsto prima del Livello 2.
 - Livello 2: scegliere il modello (es. fattorizzazione di matrice / two-tower sugli utenti con ≥5 voti per dominio) e come collegare i prodotti Amazon a titoli e brani veri (servono i metadati).
-- Pubblicare l'app (es. GitHub Pages: richiede di spostarla in `docs/` o di usare una GitHub Action, ed è una modifica alle impostazioni del repo).
 - Dopo l'aggiunta dell'ambientazione Adam ha provato l'app e ha detto che i consigli funzionano bene (2026-10-04). Limiti noti che restano: catalogo ancora limitato (200 brani), modello di embedding piccolo, pesi fissati a mano.
 - Adam vuole che il progetto diventi un **mini modello di raccomandazione**: il passo naturale è raccogliere giudizi veri con l'app ("questo brano ci sta / non ci sta" per un film) e imparare pesi e correzioni da quelli, invece che fissarli a mano.
 - Allargare ancora il catalogo dei brani generando le descrizioni con uno script e un'API LLM (a pagamento).
@@ -141,3 +141,4 @@ Una riga per passo completato: data, cosa, commit.
 - 2026-10-04 — 54 titoli nuovi (111 in tutto), 83 coppie, modello di embedding cambiato in `BAAI/bge-small-en-v1.5` dopo un confronto tra 8 modelli; MRR 0.61.
 - 2026-10-04 — Rating mode nell'app (lista mescolata con 3 brani a sorpresa) per raccogliere i voti di Adam.
 - 2026-10-05 — Parte `sound` (MRR da 0.61 a 0.68), `tone` sperimentale a peso 0, registi da TMDB, player Spotify nell'app.
+- 2026-10-05 — App pubblicata su GitHub Pages con deploy automatico — commit `390f202`.

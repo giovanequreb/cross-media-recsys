@@ -2,6 +2,8 @@
 
 Recommend **music** based on your taste in **movies and TV series**.
 
+**Try it: [giovanequreb.github.io/cross-media-recsys](https://giovanequreb.github.io/cross-media-recsys/)**
+
 Most recommenders stay inside one domain: they suggest songs because you liked other songs. This project tries the opposite: if you love a slow, melancholic sci-fi film, which tracks would fit that same mood? It is inspired by the Podiums app, where taste is captured through pairwise comparisons instead of star ratings.
 
 > **Status: work in progress.** The environment is set up and Level 1 works end to end: 113 movies/series and 200 tracks with five-facet descriptions, embeddings, a small weighted similarity model, a command-line recommender and a static web app. Levels 2 and 3 are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
@@ -109,7 +111,7 @@ With several liked titles, each track gets the average of its scores. The number
 
 ### Web app
 
-A small static web app, with no backend, runs the same model in the browser:
+A small static web app, with no backend, runs the same model in the browser. It is live at **[giovanequreb.github.io/cross-media-recsys](https://giovanequreb.github.io/cross-media-recsys/)** and is redeployed by a GitHub Actions workflow on every push that changes `app/`. To run it locally:
 
 ```bash
 python -m http.server 5173 --directory app
@@ -255,6 +257,7 @@ cross-media-recsys/
 - [x] Level 1: static web app with live facet weights and feedback export
 - [x] Level 1: 111 titles and 200 tracks, embedding model chosen by comparison (`bge-small-en-v1.5`)
 - [x] Level 1: `sound` facet, experimental `tone` facet, directors, in-page Spotify player
+- [x] Level 1: web app published on GitHub Pages
 - [x] Level 2: feasibility check on Amazon Reviews 2023 (movie/music user overlap)
 - [ ] Level 2: train on Amazon Reviews (movies + CDs)
 - [ ] Level 3: pairwise comparisons (Elo / Bradley-Terry) and web app
