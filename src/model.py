@@ -13,14 +13,13 @@ The second term removes "hub" tracks: a track that is fairly similar to every
 title would otherwise show up in everyone's recommendations.
 
 That formula, with hand-set weights, is the baseline. On top of it there is a
-trained model (see src/train.py): a logistic regression that learns from
-data/curated.csv, a list of tracks hand-picked for each title. Its inputs are
+trained model (see src/train.py): a small neural network with two "towers", one
+for titles and one for tracks. Each tower turns an item's description vectors
+into 64 numbers, and the network is trained so that a title ends up close to the
+tracks hand-picked for it in data/curated.csv. The final score adds the
+network's score and the baseline score, each put on the same scale first.
 
-- every facet of the title against every facet of the track (5 x 5 similarities),
-- the tone similarity and the baseline score,
-- "neighbours": how often the track was picked for titles similar to this one.
-
-The parameters of both live in data/model.json.
+The baseline parameters live in data/model.json, the network in data/towers.npz.
 """
 
 import json
@@ -36,6 +35,7 @@ TITLE_TONE_PATH = PROJECT_ROOT / "data" / "title_tone.csv"
 EMBEDDINGS_PATH = PROJECT_ROOT / "data" / "embeddings.npz"
 TONE_FEATURES = ["energy", "valence"]
 CURATED_PATH = PROJECT_ROOT / "data" / "curated.csv"
+TOWERS_PATH = PROJECT_ROOT / "data" / "towers.npz"
 MODEL_PATH = PROJECT_ROOT / "data" / "model.json"
 
 
@@ -112,63 +112,33 @@ def load_curated(title_ids: list[str], track_ids: list[str]) -> np.ndarray:
     return picked
 
 
-def title_similarity(title_vectors: np.ndarray, facets: list[str], weights: dict[str, float]) -> np.ndarray:
-    """Return a (titles, titles) matrix: how alike two titles are, using the facet weights."""
-    facet_weights = np.array([weights[facet] for facet in facets])
-    per_facet = np.einsum("afd,bfd->fab", title_vectors, title_vectors)
-    return np.tensordot(facet_weights / facet_weights.sum(), per_facet, axes=1)
+def standardise(scores: np.ndarray) -> np.ndarray:
+    """Put a score matrix on a common scale: mean 0, standard deviation 1."""
+    return (scores - scores.mean()) / scores.std()
 
 
-def neighbour_scores(
-    between_titles: np.ndarray, picked: np.ndarray, known: np.ndarray, sharpness: float
-) -> np.ndarray:
-    """For every title, the share of similar titles for which each track was picked.
+def tower_scores(title_vectors: np.ndarray, track_vectors: np.ndarray, towers: dict[str, np.ndarray]) -> np.ndarray:
+    """Run both towers and return the (titles, tracks) similarity of their outputs.
 
-    Only the titles in `known` lend their picks, and a title never uses its own:
-    that is what lets the score be tested on titles the model has not seen.
+    Each tower is one linear layer: output = input @ weight.T + bias, then scaled
+    to unit length, so the score is a cosine similarity in the learned space.
     """
-    closeness = np.exp(sharpness * between_titles[:, known])
-    closeness[known, np.arange(len(known))] = 0  # leave each title's own picks out
-    return (closeness @ picked[known].astype(float)) / closeness.sum(axis=1, keepdims=True)
-
-
-def feature_names(facets: list[str]) -> list[str]:
-    """Names of the trained model's inputs, in order."""
-    return [f"{a}~{b}" for a in facets for b in facets] + ["tone", "baseline", "neighbours"]
-
-
-def build_features(known: np.ndarray, sharpness: float) -> tuple[list[str], list[str], np.ndarray, np.ndarray]:
-    """Return (title ids, track ids, features, picked).
-
-    features has shape (titles, tracks, inputs); `known` are the row numbers of
-    the titles whose hand-picked tracks may be used by the neighbours input.
-    """
-    all_facets, title_ids, track_ids, similarities = load_facet_scores()
-    weights, hub_correction = load_model()
-    facets, title_vectors, track_vectors = load_vectors()
-    picked = load_curated(title_ids, track_ids)
-
-    # cross[a, b] = facet a of every title against facet b of every track
-    cross = np.einsum("tad,kbd->abtk", title_vectors, track_vectors)
-    baseline = score_matrix(all_facets, similarities, weights, hub_correction)
-    between_titles = title_similarity(title_vectors, facets, weights)
-    neighbours = neighbour_scores(between_titles, picked, known, sharpness)
-
-    columns = [cross[a, b] for a in range(len(facets)) for b in range(len(facets))]
-    columns += [similarities[all_facets.index("tone")], baseline, neighbours]
-    return title_ids, track_ids, np.stack(columns, axis=-1), picked
+    titles = title_vectors.reshape(len(title_vectors), -1) @ towers["title_weight"].T + towers["title_bias"]
+    tracks = track_vectors.reshape(len(track_vectors), -1) @ towers["track_weight"].T + towers["track_bias"]
+    titles /= np.linalg.norm(titles, axis=1, keepdims=True)
+    tracks /= np.linalg.norm(tracks, axis=1, keepdims=True)
+    return titles @ tracks.T
 
 
 def trained_score_matrix() -> tuple[list[str], list[str], np.ndarray]:
-    """Return (title ids, track ids, scores) from the trained model in data/model.json.
+    """Return (title ids, track ids, scores): the network's score plus the baseline score."""
+    if not TOWERS_PATH.exists():
+        raise SystemExit("Trained model not found: run `python src/train.py` first.")
+    all_facets, title_ids, track_ids, similarities = load_facet_scores()
+    weights, hub_correction = load_model()
+    _, title_vectors, track_vectors = load_vectors()
+    towers = {name: values.astype(np.float32) for name, values in np.load(TOWERS_PATH).items()}
 
-    Tracks hand-picked for a title get `curated_boost` added, so for titles in the
-    catalogue the curated list itself counts, not only what was learned from it.
-    """
-    trained = json.loads(MODEL_PATH.read_text())["trained"]
-    title_ids, track_ids, features, picked = build_features(
-        known=np.arange(len(pd.read_csv(TITLES_PATH))), sharpness=trained["neighbour_sharpness"]
-    )
-    standardised = (features - np.array(trained["mean"])) / np.array(trained["scale"])
-    scores = standardised @ np.array(trained["coefficients"]) + trained["intercept"]
-    return title_ids, track_ids, scores + trained["curated_boost"] * picked
+    learned = tower_scores(title_vectors, track_vectors, towers)
+    baseline = score_matrix(all_facets, similarities, weights, hub_correction)
+    return title_ids, track_ids, standardise(learned) + standardise(baseline)

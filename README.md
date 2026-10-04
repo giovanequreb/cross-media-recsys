@@ -49,29 +49,32 @@ score = Σ over facets of  weight[facet] × cosine(title[facet], track[facet])
 
 #### The trained model
 
-Text similarity alone sometimes produces matches that are plainly wrong (a jazz film getting garage rock because both descriptions say "tense"). To fix that, the model is trained on examples.
+Text similarity alone sometimes produces matches that are plainly wrong (a jazz film getting garage rock because both descriptions say "tense"). To fix that, a small neural network is trained on examples.
 
-[`data/curated.csv`](data/curated.csv) holds 2,464 (title, track) matches: for each of the 238 titles, about ten tracks hand-picked from the catalogue. [`src/train.py`](src/train.py) fits a logistic regression that separates picked pairs from all the others, using 28 inputs:
+[`data/curated.csv`](data/curated.csv) holds 2,464 (title, track) matches: for each of the 238 titles, about ten tracks hand-picked from the catalogue. They are **training data only**: nothing is looked up at recommendation time.
 
-- every facet of the title against every facet of the track (5 × 5 similarities), so that a title's *sound* can also be matched with a track's *references*;
-- the tone similarity and the baseline score;
-- **neighbours**: how often the track was picked for titles similar to this one, never counting the title's own picks.
+[`src/train.py`](src/train.py) trains a **two-tower network** in PyTorch. One tower (a linear layer) turns a title's five description vectors (1,920 numbers) into 64 numbers; a second tower does the same for a track. Training pulls each title towards its picked tracks and away from the other 500-odd, with a cross-entropy loss over all tracks. Dropout and weight decay keep a network with about 250,000 weights from simply memorising 238 titles. The final score adds the network's score and the baseline score, each standardised first.
 
-Tested on titles the model has not seen (5-fold cross-validation by title):
+```
+title vectors (5 × 384) ─► title tower ─► 64-d ─┐
+                                                ├─► cosine ─► + baseline score ─► ranking
+track vectors (5 × 384) ─► track tower ─► 64-d ─┘
+```
+
+Tested on titles the network has not seen (5-fold cross-validation by title):
 
 | | Precision@10 | Recall@50 | Titles with no good track in the top 10 |
 | --- | --- | --- | --- |
 | Baseline (hand-set weights) | 0.288 | 0.615 | 4.2% |
-| **Trained model** | **0.365** | **0.729** | **2.5%** |
+| Network alone | 0.325 | 0.690 | 8.4% |
+| **Network + baseline** | **0.373** | **0.739** | **3.4%** |
 
-The strongest inputs are the baseline score and the neighbours, followed by the title's sound against the track's references.
+On the titles it was trained on, precision@10 is 0.80. That gap between 0.80 and 0.37 is the honest picture: the network has largely learned the examples it was shown, and carries over part of that to new titles. More and better examples are what would close it.
 
-For a title that is in the catalogue, its own hand-picked tracks also get a fixed bonus, so the curated list counts directly and the model fills in and orders the rest. The cross-validation numbers above do not use that bonus: they describe what happens with a new title.
-
-The curated matches were chosen by the same LLM that wrote the descriptions (Claude), from knowledge of the works, not by listeners. They are a stand-in for real feedback: ratings collected in the web app are meant to replace them.
+The curated matches were chosen by the same LLM that wrote the descriptions (Claude), from knowledge of the works, not by listeners. In effect the network distils a large model's judgement into a tiny one that runs anywhere. They are a stand-in for real feedback: ratings collected in the web app are meant to replace them.
 
 ```bash
-python src/train.py   # cross-validates, then saves the trained model to data/model.json
+python src/train.py   # cross-validates, then saves the network to data/towers.npz (about 40 seconds on a laptop CPU)
 ```
 
 ### Level 2 — Trained model
@@ -214,7 +217,8 @@ Level 1 uses a small, hand-picked dataset (committed in `data/`):
 | `data/soundtrack_pairs.csv` | 126 (title, track) pairs where the track is famously used in the title | Hand-picked |
 | `data/embeddings.npz` | 384-d unit vectors stored as float16, shape (786 items, 5 facets, 384) | Built by `src/embed.py` |
 | `data/title_tone.csv` | Energy and valence (0 to 1) of each title, for the experimental `tone` facet | Hand-set |
-| `data/model.json` | Baseline parameters (facet weights, hub correction) and the trained model (coefficients, scaling) | Hand-set and written by `src/train.py` |
+| `data/model.json` | Baseline parameters: facet weights and hub correction | Hand-set |
+| `data/towers.npz` | Weights of the trained two-tower network | Written by `src/train.py` |
 
 The catalogue grew in steps: 20 titles and 50 tracks chosen to cover very different moods; then famous title/song pairs for the soundtrack check; then several batches of popular titles and of tracks across genres (classical, jazz, soul, disco, rock, metal, punk, new wave, hip-hop, pop, electronic, folk, country, Latin, reggae). Tracks are limited to what the source dataset contains.
 
@@ -262,8 +266,8 @@ cross-media-recsys/
 │   ├── fetch_titles.py  # builds data/titles.csv from the TMDB API
 │   ├── build_tracks.py  # builds data/tracks.csv from the Hugging Face dataset
 │   ├── embed.py         # builds data/embeddings.npz from the descriptions
-│   ├── model.py         # baseline scoring and the trained model's inputs
-│   ├── train.py         # trains the model on data/curated.csv, with cross-validation
+│   ├── model.py         # baseline scoring and the trained network's scoring
+│   ├── train.py         # trains the two-tower network on data/curated.csv, with cross-validation
 │   ├── recommend.py     # recommends tracks from the titles you like
 │   ├── evaluate.py      # soundtrack check, ablation and weight grid search
 │   ├── export_app.py    # builds app/data.js for the web app
@@ -282,7 +286,8 @@ cross-media-recsys/
 | --- | --- |
 | Language | Python 3.12 |
 | Embeddings | `sentence-transformers` (`BAAI/bge-small-en-v1.5`) on PyTorch |
-| Numerics, data and training | `numpy`, `pandas`, `scikit-learn` (logistic regression) |
+| Numerics and data | `numpy`, `pandas` |
+| Training | PyTorch (two-tower network) |
 | Data access | `httpx` (TMDB API), `huggingface_hub`, `python-dotenv` |
 
 ## Roadmap
@@ -299,7 +304,7 @@ cross-media-recsys/
 - [x] Level 1: web app published on GitHub Pages
 - [x] Level 1: catalogue grown to 238 titles and 548 tracks
 - [x] Level 1: in-app learning from ratings and near-duplicate filter
-- [x] Level 1: model trained on 2,464 curated matches, cross-validated on unseen titles
+- [x] Level 1: two-tower neural network trained on 2,464 curated matches, cross-validated on unseen titles
 - [x] Level 2: feasibility check on Amazon Reviews 2023 (movie/music user overlap)
 - [ ] Level 2: train on Amazon Reviews (movies + CDs)
 - [ ] Level 3: pairwise comparisons (Elo / Bradley-Terry) and web app

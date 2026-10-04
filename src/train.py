@@ -1,38 +1,79 @@
-"""Train the recommender on the curated picks and save it to data/model.json.
+"""Train the recommender network on the curated picks and save it to data/towers.npz.
 
 data/curated.csv lists, for every title, about ten tracks hand-picked as good
-matches. A logistic regression learns to tell picked (title, track) pairs from
-all the others, using the inputs built in src/model.py.
+matches. A small "two-tower" network learns from them: one linear layer turns a
+title's description vectors into 64 numbers, another does the same for a track,
+and training pulls each title towards its picked tracks and away from the rest.
 
-The model is first tested on titles it has not seen (5-fold cross-validation by
-title), compared with the hand-weighted baseline, and then fitted on everything.
+The network is first tested on titles it has not seen (5-fold cross-validation
+by title), compared with the hand-weighted baseline, and then trained on all.
 """
 
-import json
-
 import numpy as np
-import pandas as pd
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
+import torch
+from torch import nn
+from torch.nn import functional as F
 
-from model import MODEL_PATH, TITLES_PATH, build_features, feature_names, load_vectors
+from model import (
+    TOWERS_PATH, load_curated, load_facet_scores, load_model, load_vectors,
+    score_matrix, standardise, tower_scores,
+)
 
 FOLDS = 5
-NEIGHBOUR_SHARPNESS = 20.0  # higher = only very similar titles lend their picks
-REGULARISATION = 0.3  # the C of LogisticRegression: smaller = simpler model
-CURATED_BOOST = 3.0  # added to the score of tracks hand-picked for the title itself
-BASELINE_COLUMN = -2  # position of the "baseline" input, see model.feature_names
+DIMENSIONS = 64  # size of the space both towers map into
+DROPOUT = 0.5  # share of inputs hidden at each step, so the network cannot just memorise
+WEIGHT_DECAY = 0.05  # keeps the weights small, for the same reason
+LEARNING_RATE = 0.001
+EPOCHS = 100
+BATCH_SIZE = 32
 
 
-def fit(features: np.ndarray, picked: np.ndarray, rows: np.ndarray) -> tuple[StandardScaler, LogisticRegression]:
-    """Fit the model on the (title, track) pairs of the given title rows."""
-    inputs = features[rows].reshape(-1, features.shape[-1])
-    targets = picked[rows].reshape(-1)
-    scaler = StandardScaler().fit(inputs)
-    # Picked pairs are about 2% of all pairs: "balanced" stops the model from just saying no.
-    model = LogisticRegression(C=REGULARISATION, class_weight="balanced", max_iter=500)
-    model.fit(scaler.transform(inputs), targets)
-    return scaler, model
+class Towers(nn.Module):
+    """Two linear layers, one per medium, that map into a shared space."""
+
+    def __init__(self, inputs: int) -> None:
+        super().__init__()
+        self.title = nn.Linear(inputs, DIMENSIONS)
+        self.track = nn.Linear(inputs, DIMENSIONS)
+        self.dropout = nn.Dropout(DROPOUT)
+        self.sharpness = nn.Parameter(torch.tensor(2.5))  # learned scale of the similarities
+
+    def forward(self, titles: torch.Tensor, tracks: torch.Tensor) -> torch.Tensor:
+        """Return one row per title with a score for every track."""
+        title_points = F.normalize(self.title(self.dropout(titles)), dim=1)
+        track_points = F.normalize(self.track(self.dropout(tracks)), dim=1)
+        return title_points @ track_points.T * self.sharpness.exp()
+
+
+def train(title_vectors: np.ndarray, track_vectors: np.ndarray, picked: np.ndarray, rows: np.ndarray) -> dict:
+    """Train the towers on the given title rows and return their weights as arrays."""
+    torch.manual_seed(0)
+    titles = torch.tensor(title_vectors.reshape(len(title_vectors), -1))
+    tracks = torch.tensor(track_vectors.reshape(len(track_vectors), -1))
+    targets = torch.tensor(picked, dtype=torch.float32)
+
+    network = Towers(titles.shape[1])
+    optimiser = torch.optim.AdamW(network.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
+    network.train()
+    for _ in range(EPOCHS):
+        shuffled = torch.tensor(rows)[torch.randperm(len(rows))]
+        for start in range(0, len(shuffled), BATCH_SIZE):
+            batch = shuffled[start : start + BATCH_SIZE]
+            scores = network(titles[batch], tracks)
+            # For each title, the picked tracks should get the highest probabilities
+            # among all tracks (cross-entropy averaged over that title's picks).
+            log_probabilities = F.log_softmax(scores, dim=1)
+            loss = -(log_probabilities * targets[batch]).sum(dim=1) / targets[batch].sum(dim=1)
+            optimiser.zero_grad()
+            loss.mean().backward()
+            optimiser.step()
+
+    return {
+        "title_weight": network.title.weight.detach().numpy(),
+        "title_bias": network.title.bias.detach().numpy(),
+        "track_weight": network.track.weight.detach().numpy(),
+        "track_bias": network.track.bias.detach().numpy(),
+    }
 
 
 def report(scores: np.ndarray, picked: np.ndarray, rows: np.ndarray) -> np.ndarray:
@@ -47,48 +88,37 @@ def report(scores: np.ndarray, picked: np.ndarray, rows: np.ndarray) -> np.ndarr
 
 
 def main() -> None:
-    title_count = len(pd.read_csv(TITLES_PATH))
-    order = np.random.default_rng(0).permutation(title_count)
+    all_facets, title_ids, track_ids, similarities = load_facet_scores()
+    weights, hub_correction = load_model()
+    _, title_vectors, track_vectors = load_vectors()
+    picked = load_curated(title_ids, track_ids)
+    baseline = score_matrix(all_facets, similarities, weights, hub_correction)
 
-    baseline_results, trained_results = [], []
+    order = np.random.default_rng(0).permutation(len(title_ids))
+    results: dict[str, list[np.ndarray]] = {"baseline (hand-set weights)": [], "network alone": [], "network + baseline": []}
     for fold in range(FOLDS):
         test = order[fold::FOLDS]
-        train = np.setdiff1d(order, test)
-        # Only the training titles lend their picks to the neighbours input.
-        _, _, features, picked = build_features(known=train, sharpness=NEIGHBOUR_SHARPNESS)
-        scaler, model = fit(features, picked, train)
-        scores = model.decision_function(scaler.transform(features.reshape(-1, features.shape[-1])))
-        trained_results.append(report(scores.reshape(picked.shape), picked, test))
-        baseline_results.append(report(features[..., BASELINE_COLUMN], picked, test))
+        towers = train(title_vectors, track_vectors, picked, rows=np.setdiff1d(order, test))
+        learned = tower_scores(title_vectors, track_vectors, towers)
+        results["baseline (hand-set weights)"].append(report(baseline, picked, test))
+        results["network alone"].append(report(learned, picked, test))
+        results["network + baseline"].append(report(standardise(learned) + standardise(baseline), picked, test))
 
     print(f"Tested on unseen titles ({FOLDS}-fold cross-validation, {picked.sum()} curated picks)")
-    print(f"{'':<28}{'precision@10':>13}{'recall@50':>11}{'no hit in top 10':>18}")
-    for name, results in (("hand-set weights", baseline_results), ("trained model", trained_results)):
-        precision, recall, no_hit = np.mean(results, axis=0)
-        print(f"{name:<28}{precision:>13.3f}{recall:>11.3f}{no_hit:>17.1%}")
+    print(f"{'':<30}{'precision@10':>13}{'recall@50':>11}{'no hit in top 10':>18}")
+    for name, folds in results.items():
+        precision, recall, no_hit = np.mean(folds, axis=0)
+        print(f"{name:<30}{precision:>13.3f}{recall:>11.3f}{no_hit:>17.1%}")
 
-    # Final model: fitted on every title.
-    everything = np.arange(title_count)
-    _, _, features, picked = build_features(known=everything, sharpness=NEIGHBOUR_SHARPNESS)
-    scaler, model = fit(features, picked, everything)
+    # Final network: trained on every title.
+    everything = np.arange(len(title_ids))
+    towers = train(title_vectors, track_vectors, picked, rows=everything)
+    np.savez_compressed(TOWERS_PATH, **{name: values.astype(np.float16) for name, values in towers.items()})
 
-    facets, _, _ = load_vectors()
-    names = feature_names(facets)
-    saved = json.loads(MODEL_PATH.read_text())
-    saved["trained"] = {
-        "features": names,
-        "mean": scaler.mean_.round(6).tolist(),
-        "scale": scaler.scale_.round(6).tolist(),
-        "coefficients": model.coef_[0].round(6).tolist(),
-        "intercept": round(float(model.intercept_[0]), 6),
-        "neighbour_sharpness": NEIGHBOUR_SHARPNESS,
-        "curated_boost": CURATED_BOOST,
-    }
-    MODEL_PATH.write_text(json.dumps(saved, indent=2) + "\n")
-
-    strongest = sorted(zip(names, model.coef_[0]), key=lambda pair: -abs(pair[1]))[:8]
-    print("\nStrongest inputs: " + ", ".join(f"{name} {weight:+.2f}" for name, weight in strongest))
-    print(f"Saved the trained model to {MODEL_PATH.name}")
+    final = standardise(tower_scores(title_vectors, track_vectors, towers)) + standardise(baseline)
+    precision, recall, no_hit = report(final, picked, everything)
+    print(f"{'on the titles it trained on':<30}{precision:>13.3f}{recall:>11.3f}{no_hit:>17.1%}")
+    print(f"\nSaved the network to {TOWERS_PATH.name}")
 
 
 if __name__ == "__main__":
