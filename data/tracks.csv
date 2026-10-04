@@ -92,3 +92,110 @@ track_id,title,artist,album,genre_label,popularity,danceability,energy,valence,a
 48i055G1OT5KxGGftwFxWy,"Oh, Pretty Woman",Roy Orbison,"Oh, Pretty Woman",r-n-b,73,0.619,0.603,0.958,0.712,0.0,127.433
 2q6fxAvSpqXR4jx9Ne7RGz,"Main Title - From The ""Game Of Thrones"" Soundtrack",Ramin Djawadi,Game Of Thrones (Music From The HBO Series),german,62,0.197,0.603,0.232,0.302,0.794,169.881
 6iLzFJhs4ATwJn7P1utZIJ,Light of the Seven,Ramin Djawadi,Game of Thrones (Music from the HBO® Series - Season 6),german,61,0.273,0.102,0.0583,0.903,0.721,120.378
+0ROMalDdNg3L2HoZP4qFyJ,"The Four Seasons - Winter in F Minor, RV. 297: I. Allegro non molto","Antonio Vivaldi, Adrian Chandler, La Serenissima","The Four Seasons & Concertos for Bassoon and Violin ""in tromba marina""",classical,63,0.4,0.247,0.394,0.818,0.64,162.078
+7xfSCgVOkQJhVxnqzepATH,"Moonlight Sonata (First Movement from Piano Sonata No. 14, Op. 27 No. 2)","Ludwig van Beethoven, Luke Woodapple",Peaceful Moments (One Hour of Relaxing Instrumentals),classical,59,0.216,0.199,0.339,0.991,0.916,178.876
+17i5jLpzndlQhbS4SrTd0B,"Cello Suite No. 1 in G Major, BWV 1007: I. Prélude","Johann Sebastian Bach, Yo-Yo Ma","Bach: Cello Suites Nos. 1, 5 & 6",classical,69,0.275,0.157,0.304,0.89,0.842,73.289
+1VNvsvEsUpuUCbHpVop1vo,"Nocturne No. 2 in E-Flat Major, Op. 9 No. 2","Frédéric Chopin, Daniel Barenboim",Chopin: Nocturnes,classical,67,0.442,0.00919,0.0929,0.984,0.936,79.314
+3oHSL6pt9LpNrQZuQGu9wL,"Requiem, K. 626: Lacrimosa","Wolfgang Amadeus Mozart, Michael Finnissy, Academy of Ancient Music, Stephen Cleobury, Choir of King's College, Cambridge",Mozart: Requiem Realisations,classical,62,0.162,0.0898,0.0413,0.944,0.917,132.047
+2e8MxBgVWMSQmxb2zcuCoq,"Die Walkure, Act III: Ride of the Valkyries","Richard Wagner, Budapest Symphony Orchestra, György Lehel","Wagner, R.: Orchestral Music From Operas",opera,53,0.251,0.219,0.0965,0.929,0.933,89.997
+2xizRhme7pYeITbH1NLLGt,"Tchaikovsky: Swan Lake, Op. 20, Act II: No. 10, Scene. Moderato","Pyotr Ilyich Tchaikovsky, André Previn, London Symphony Orchestra",Tchaikovsky: Swan Lake,classical,65,0.136,0.164,0.071,0.911,0.916,58.303
+3zLTPuucd3e6TxZnu2dlVS,"Bagatelle No. 25 in A Minor, WoO 59 ""Für Elise""","Ludwig van Beethoven, Igor Levit","Für Elise, Bagatelle No. 25 in A Minor, WoO 59",classical,64,0.289,0.0306,0.118,0.987,0.911,125.61
+1BncfTJAWxrsxyT9culBrj,Experience,"Ludovico Einaudi, Daniel Hope, I Virtuosi Italiani",In A Time Lapse,ambient,79,0.447,0.449,0.036,0.934,0.961,92.468
+2agBDIr9MYDUducQPC1sFU,River Flows In You,Yiruma,Yiruma 2nd Album 'First Love' (The Original & the Very First Recording),classical,71,0.315,0.22,0.116,0.987,0.943,145.195
+3tJjZMHLqhD8DaGgdBICnc,Saturn,Sleeping At Last,Atlas: I,ambient,68,0.263,0.237,0.0461,0.638,0.305,73.024
+5626KdflSKfeDK7RJQfSrE,Says,Nils Frahm,Spaces,ambient,53,0.217,0.23,0.0742,0.862,0.898,149.76
+6Xajr512QEGAZ20bqAWkyT,Near Light,Ólafur Arnalds,Living Room Songs,ambient,54,0.477,0.348,0.0867,0.931,0.949,117.94
+5CQ30WqJwcep0pYcV4AMNc,Stairway to Heaven - Remaster,Led Zeppelin,Led Zeppelin IV (Deluxe Edition),hard-rock,79,0.338,0.34,0.197,0.58,0.0032,82.433
+78lgmZwycJ3nzsdgmPPGNx,Immigrant Song - Remaster,Led Zeppelin,Led Zeppelin III (Remaster),hard-rock,78,0.564,0.932,0.619,0.013,0.169,112.937
+6mFkJmJqdDVQ1REhVfGgd1,Wish You Were Here,Pink Floyd,Wish You Were Here,psych-rock,77,0.481,0.262,0.375,0.735,0.0114,122.861
+57bgtoPSgt236HzfBOd8kj,Thunderstruck,AC/DC,The Razors Edge,hard-rock,84,0.502,0.89,0.259,0.000147,0.0117,133.52
+2zYzyRzz6pRmhPzyfMEC8s,Highway to Hell,AC/DC,Highway to Hell,hard-rock,85,0.574,0.913,0.423,0.061,0.00158,115.728
+0bVtevEgtDIeRjCJbK3Lmv,Welcome To The Jungle,Guns N' Roses,Appetite For Destruction,hard-rock,80,0.447,0.954,0.331,0.0235,0.403,123.453
+4u7EnebtmKWzUH433cf5Qv,Bohemian Rhapsody - Remastered 2011,Queen,A Night At The Opera (2011 Remaster),rock,82,0.414,0.404,0.224,0.271,0.0,71.105
+63T7DJ1AFDD6Bn8VzG6JE8,"Paint It, Black",The Rolling Stones,Aftermath,british,80,0.464,0.795,0.612,0.0493,0.00244,158.691
+6H3kDe7CGoWYBabAeVWGiD,Gimme Shelter,The Rolling Stones,Let It Bleed,british,77,0.634,0.63,0.489,0.447,0.039,118.628
+3BQHpFgAp4l80e1XslIjNI,Yesterday - Remastered 2009,The Beatles,Help! (Remastered),british,76,0.332,0.179,0.315,0.879,0.0,96.529
+2EqlS6tkEnglzr7tkKAAYD,Come Together - Remastered 2009,The Beatles,Abbey Road (Remastered),british,77,0.533,0.376,0.187,0.0302,0.248,165.007
+14XWXWv5FoCbFzLksawpEe,Riders on the Storm,The Doors,L.A. Woman,psych-rock,73,0.55,0.722,0.716,0.25,0.0129,103.886
+2aoo2jlRnM3A0NyLQqMN2f,All Along the Watchtower,Jimi Hendrix,Electric Ladyland,blues,77,0.438,0.805,0.564,0.00255,5.69e-05,113.253
+40riOy7x9W7GXjyGp4pjAv,Hotel California - 2013 Remaster,Eagles,Hotel California (2013 Remaster),country,84,0.579,0.508,0.609,0.00574,0.000494,147.125
+37Tmv4NnfQeb0ZgUC4fOJj,Sultans Of Swing,Dire Straits,Dire Straits,rock,81,0.733,0.794,0.931,0.0614,0.0367,148.174
+34iOH7LY3vme5rQxsVILZ4,Love Will Tear Us Apart - 2020 Remaster,Joy Division,Love Will Tear Us Apart,punk-rock,69,0.527,0.923,0.899,0.000541,0.765,146.924
+4NnWuGQujzWUEg0uZokO5M,Just Like Heaven,The Cure,"Kiss Me, Kiss Me, Kiss Me",punk,73,0.437,0.94,0.48,0.0524,0.000573,151.417
+1QFh8OH1e78dGd3VyJZCAC,Boys Don't Cry,The Cure,Three Imaginary Boys,punk-rock,77,0.462,0.836,0.671,0.00517,0.0,168.766
+31MOjWj3CT3dCQsMV2b8Wu,Blue Monday '88,New Order,The Best of New Order,synth-pop,66,0.681,0.893,0.951,6.47e-05,0.383,130.475
+1i6N76fftMZhijOzFQ5ZtL,Psycho Killer - 2005 Remaster,Talking Heads,Talking Heads '77 (Deluxe Version),funk,78,0.721,0.521,0.942,0.0708,0.00545,123.118
+0cGG2EouYCEEC3xfa0tDFV,Tainted Love,Soft Cell,Non-Stop Erotic Cabaret,synth-pop,79,0.5,0.501,0.623,0.462,0.0,144.438
+4RvWPyQ5RL0ao9LPZeSouE,Everybody Wants To Rule The World,Tears For Fears,Songs From The Big Chair (Super Deluxe Edition),synth-pop,87,0.645,0.795,0.535,0.347,0.00389,112.067
+2WfaOiMkCvy7F5fcp2zZ8L,Take on Me,a-ha,Hunting High and Low,rock,85,0.573,0.902,0.876,0.018,0.00125,84.412
+2374M0fQpWi3dLnB54qaLX,Africa,TOTO,Toto IV,rock,83,0.671,0.373,0.732,0.257,8.01e-05,92.718
+4bHsxqR3GMrXTxEPLuK5ue,Don't Stop Believin',Journey,Escape (Bonus Track Version),hard-rock,83,0.5,0.748,0.514,0.127,0.0,118.852
+1JSTJqkT5qHq8MDJnJbRE1,Every Breath You Take,The Police,Synchronicity (Remastered 2003),rock,86,0.82,0.452,0.74,0.543,0.00294,117.401
+7o9uu2GDtVDr9nsR7ZRN73,Time After Time,Cyndi Lauper,She's So Unusual,disco,76,0.726,0.449,0.294,0.487,1.34e-06,130.388
+2fuCquhmrzHpu5xcA1ci9x,Under Pressure - Remastered 2011,"Queen, David Bowie",Hot Space (2011 Remaster),rock,79,0.671,0.712,0.462,0.429,0.0,113.805
+7azo4rpSUh8nXgtonC6Pkq,Thriller,Michael Jackson,Scream,soul,70,0.764,0.887,0.72,0.0816,0.00011,118.427
+54X78diSLoUDI3joC2bjMz,Purple Rain,Prince,Purple Rain,funk,75,0.367,0.452,0.189,0.0353,0.00228,113.066
+70LcF31zb1H0PyJoS1Sx1r,Creep,Radiohead,Pablo Honey,alt-rock,85,0.515,0.43,0.104,0.0097,0.000133,91.844
+0z1o5L7HJx562xZSATcIpY,Exit Music (For A Film),Radiohead,OK Computer,alt-rock,73,0.293,0.276,0.195,0.224,0.122,121.603
+10nyNJ6zNy2YVYLrcwLccB,No Surprises,Radiohead,OK Computer,alt-rock,82,0.255,0.393,0.118,0.0577,0.00361,76.426
+5FVd6KXrgO9B3JPmC8OPst,Do I Wanna Know?,Arctic Monkeys,AM,garage,88,0.548,0.532,0.405,0.186,0.000263,85.03
+57Xjny5yNzAcsxnusKmAfA,Reptilia,The Strokes,Room On Fire,alt-rock,75,0.489,0.649,0.77,0.000603,0.713,158.009
+0d28khcov6AiegSCpG5TuT,Feel Good Inc.,Gorillaz,Demon Days,alternative,84,0.818,0.705,0.772,0.00836,0.00233,138.559
+1RKUoGiLEbcXN4GY4spQDx,Clint Eastwood,Gorillaz,Gorillaz,alternative,76,0.663,0.694,0.525,0.0253,0.0,167.953
+60a0Rd6pjrkxjPbaKzXjfq,In the End,Linkin Park,Hybrid Theory (Bonus Edition),alternative,85,0.556,0.864,0.4,0.00958,0.0,105.143
+2DlHlPMa4M17kufBvI2lEN,Chop Suey!,System Of A Down,Toxicity,alternative,83,0.417,0.934,0.287,0.000278,0.0015,127.066
+5awDvzxWfd53SSrsRZ8pXO,Du hast,Rammstein,Sehnsucht,alt-rock,75,0.64,0.922,0.716,0.00369,0.055,125.105
+28cnXtME493VX9NOw9cIUh,Hurt,Johnny Cash,American IV: The Man Comes Around,country,74,0.534,0.392,0.163,0.649,0.000227,90.379
+3dPQuX8Gs42Y7b454ybpMR,Seven Nation Army,The White Stripes,Elephant,alt-rock,84,0.743,0.446,0.278,0.0039,0.118,123.596
+7EZC6E7UjZe63f1jRmkWxt,Zombie,The Cranberries,No Need To Argue (The Complete Sessions 1994-1995),rock,82,0.309,0.649,0.312,0.0158,0.00591,166.915
+5qqabIl2vWzo9ApSC317sa,Wonderwall - Remastered,Oasis,(What's The Story) Morning Glory? [Remastered],rock,78,0.378,0.896,0.469,0.000452,0.0,174.302
+57iDDD9N9tTWe75x6qhStw,Bitter Sweet Symphony,The Verve,Urban Hymns (Remastered 2016),alt-rock,80,0.356,0.917,0.518,0.0335,0.0,171.176
+31AOj9sFz2gM0O3hMARRBx,Losing My Religion,R.E.M.,Out Of Time (25th Anniversary Edition),alt-rock,84,0.666,0.855,0.803,0.179,1.2e-06,125.639
+2EoOZnxNgtmZaD8uUmz2nD,Black Hole Sun,Soundgarden,Superunknown (Deluxe Edition),alt-rock,77,0.35,0.828,0.147,0.000217,0.000161,105.435
+003vvx7Niy0yvhvHt4a68B,Mr. Brightside,The Killers,Hot Fuss,alternative,86,0.352,0.911,0.236,0.00121,0.0,148.033
+503OTo2dSqe7qk76rgsbep,Still D.R.E.,"Dr. Dre, Snoop Dogg",2001,funk,84,0.816,0.775,0.527,0.16,0.00031,93.431
+3ia3dJETSOllPsv3LJkE35,California Love - Original Version,"2Pac, Roger, Dr. Dre",Greatest Hits,funk,79,0.763,0.85,0.761,0.0304,1.21e-06,91.519
+5ByAIlEEnxYdvpnezg7HTX,Juicy - 2005 Remaster,The Notorious B.I.G.,Ready to Die (The Remaster),hardcore,76,0.889,0.818,0.782,0.47,0.0,96.063
+2xLMifQCjDGFmkHkpNLD9h,SICKO MODE,Travis Scott,ASTROWORLD,hip-hop,83,0.834,0.73,0.446,0.00513,0.0,155.008
+1DIXPcTDzTj8ZMHt3PDt8p,Gangsta's Paradise,"Coolio, L.V.",Gangsta's Paradise,funk,89,0.647,0.514,0.386,0.0655,0.0,79.975
+119c93MHjrDLJTApCVGpvx,"C.R.E.A.M. (Cash Rules Everything Around Me) (feat. Method Man, Raekwon, Inspectah Deck & Buddha Monk)","Wu-Tang Clan, Method Man, Raekwon, Inspectah Deck, Buddha Monk",Enter The Wu-Tang (36 Chambers) [Expanded Edition],hardcore,75,0.479,0.549,0.576,0.57,0.0235,180.985
+0trHOzAhNpGCsGBEu7dOJo,N.Y. State of Mind,Nas,Illmatic,hardcore,72,0.665,0.91,0.887,0.0394,0.0,84.099
+2Fxmhks0bxGSBdJ92vM42m,bad guy,Billie Eilish,"WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?",electro,84,0.701,0.425,0.562,0.328,0.13,135.128
+4SSnFejRGlZikf02HLewEF,bury a friend,Billie Eilish,"WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?",electro,76,0.905,0.389,0.196,0.74,0.162,120.046
+0u2P5u6lvoDfwTYjAADbn4,lovely (with Khalid),"Billie Eilish, Khalid",lovely (with Khalid),pop,89,0.351,0.296,0.12,0.934,0.0,115.284
+3bNv3VuUOKgrf5hu3YcuRo,Someone Like You,Adele,21,british,81,0.556,0.319,0.294,0.893,0.0,135.187
+4OSBTYWVwsQhGLF9NHvIbR,Rolling in the Deep,Adele,21,british,81,0.73,0.769,0.507,0.138,0.0,104.948
+7MXVkk9YMctZqd1Srtv4MB,Starboy,"The Weeknd, Daft Punk",Starboy,pop,90,0.679,0.587,0.486,0.141,6.35e-06,186.003
+3dYD57lRAUcMHufyqn9GcI,Take Me To Church,Hozier,Hozier,singer-songwriter,83,0.566,0.664,0.437,0.634,0.0,128.945
+1ixbwbeBi5ufN4noUKmW5a,Paper Planes,M.I.A.,Kala,indie-pop,77,0.447,0.848,0.485,0.033,7.46e-05,172.253
+0pqnGHJpmpxLKifKRmU6WP,Believer,Imagine Dragons,Evolve,rock,88,0.776,0.78,0.666,0.0622,0.0,124.949
+7kXmJwrZGIhDaLT9sNo3ut,Hey Boy Hey Girl,The Chemical Brothers,Surrender,breakbeat,65,0.632,0.92,0.363,0.119,0.508,127.001
+2XQSgmtEY2titXhfY414dy,Roygbiv,Boards of Canada,Music Has The Right To Children,ambient,59,0.631,0.521,0.118,0.0201,0.923,84.033
+6evpAJCR5GeeHDGgv3aXb3,Archangel,Burial,Untrue,dub,50,0.604,0.851,0.553,0.457,0.548,135.125
+1FL9DHDSED6lxNMDJUJQvB,The Model - 2009 Remaster,Kraftwerk,The Man-Machine (2009 Remaster),techno,59,0.708,0.683,0.463,0.00122,0.643,123.602
+7uv632EkfwYhXoqf8rhYrg,Angel,Massive Attack,Mezzanine,electronic,63,0.714,0.309,0.0671,0.0157,0.807,107.346
+6Sy9BUbgFse0n0LPA5lwy5,Sandstorm,Darude,"Before the Storm, Special Edition",trance,70,0.528,0.965,0.587,0.141,0.985,136.065
+0nrRP2bk19rLc0orkWPQk2,Wake Me Up,Avicii,True,dance,85,0.532,0.783,0.643,0.0038,0.0012,124.08
+65r94rVdiMwqXyQFEr3tqT,Resonance,Home,Odyssey,chill,71,0.566,0.74,0.419,0.0352,0.849,170.098
+1s9i7W8zx7Nxx78MUIsvjV,Outro,M83,"Hurry up, We're Dreaming",french,65,0.162,0.256,0.0784,0.0332,0.0923,108.893
+1k1Bqnv2R0uJXQN4u6LKYt,Ain't No Sunshine,Bill Withers,Just As I Am,funk,79,0.527,0.415,0.515,0.457,1.72e-05,78.169
+3zBhihYUHBmGd2bcQIobrF,(Sittin' On) the Dock of the Bay,Otis Redding,The Dock of the Bay (Mono),blues,76,0.769,0.367,0.535,0.684,1.62e-05,103.621
+3FAclTFfvUuQYnEsptbK8w,Back To Black,Amy Winehouse,Back To Black (Deluxe Edition),british,81,0.403,0.422,0.378,0.134,2.05e-05,122.728
+4Hhv2vrOTy89HFRcjU3QOx,At Last,Etta James,At Last!,blues,75,0.274,0.348,0.328,0.547,0.0133,87.43
+1qCQTy0fTXerET4x8VHyr9,What A Wonderful World,Louis Armstrong,What A Wonderful World,jazz,73,0.399,0.258,0.192,0.792,1.86e-06,108.174
+0aWMVrwxPNYkKmFthzmpRi,Blue in Green (feat. John Coltrane & Bill Evans),"Miles Davis, John Coltrane, Bill Evans",Kind Of Blue (Legacy Edition),jazz,63,0.421,0.0162,0.154,0.808,0.0024,110.479
+3898C4AbdbptwYet6547e5,The Girl From Ipanema,"Stan Getz, João Gilberto, Astrud Gilberto",The Girl From Ipanema - The Bossa Nova Years,jazz,68,0.664,0.194,0.443,0.909,3.85e-05,129.863
+7pKfPomDEeI4TPT6EOYjn9,Imagine - Remastered 2010,John Lennon,Imagine,rock,77,0.547,0.257,0.169,0.907,0.183,75.752
+75FYqcxt1YEAtqDLrOeIJn,Three Little Birds,Bob Marley & The Wailers,Exodus,reggae,78,0.826,0.49,0.627,0.00916,4.41e-06,74.126
+18GiV1BaXzPVYpp9rmOg0E,Blowin' in the Wind,Bob Dylan,The Freewheelin' Bob Dylan,country,68,0.38,0.0993,0.44,0.914,2.32e-05,174.874
+3AhXZa8sUQht0UEdBJgpGc,Like a Rolling Stone,Bob Dylan,Highway 61 Revisited,country,70,0.482,0.721,0.557,0.731,0.0,95.263
+7yzbimr8WVyAtBX3Eg6UL9,Hallelujah,Leonard Cohen,Various Positions,folk,64,0.28,0.344,0.232,0.715,0.00642,171.143
+1ILEK6NRfxoseoPnolRcVA,Holocene,Bon Iver,Bon Iver (10th Anniversary Edition),folk,66,0.374,0.304,0.147,0.943,0.298,147.969
+2SpEHTbUuebeLkgs9QB7Ue,Jolene,Dolly Parton,Jolene,country,73,0.674,0.537,0.809,0.566,0.0,110.578
+1QbOvACeYanja5pbnJbAmk,"Take Me Home, Country Roads",John Denver,"The John Denver Collection, Vol 1: Take Me Home Country Roads",country,75,0.38,0.43,0.547,0.546,1.71e-05,82.204
+7e89621JPkKaeDSTQ3avtg,Sweet Home Alabama,Lynyrd Skynyrd,Second Helping (Expanded Edition),country,81,0.596,0.605,0.886,0.181,0.000331,97.798
+1jJci4qxiYcOHhQR247rEU,Kids,MGMT,Oracular Spectacular,alt-rock,78,0.451,0.931,0.172,0.00076,0.0049,122.961
+7w87IxuO7BDcJ3YUqCyMTT,Pumped Up Kicks,Foster The People,Torches,indie,84,0.733,0.71,0.965,0.145,0.115,127.975
+2QjOHCTQ1Jl3zawyYOpxh6,Sweater Weather,The Neighbourhood,I Love You.,alt-rock,93,0.612,0.807,0.398,0.0495,0.0177,124.053
+7yq4Qj7cqayVTp3FF9CWbm,Riptide,Vance Joy,Dream Your Life Away,folk,82,0.484,0.731,0.51,0.431,0.0,101.654
+1K3LRUEcUz5FMtPYyg0F45,Ho Hey,The Lumineers,The Lumineers (Deluxe Edition),folk,79,0.682,0.471,0.421,0.765,0.0,79.907
