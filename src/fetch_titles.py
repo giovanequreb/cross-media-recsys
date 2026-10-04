@@ -168,13 +168,20 @@ def fetch_title(client: httpx.Client, api_key: str, query: str, year: int, media
         raise SystemExit(f"No TMDB result for {query!r} ({year}, {media_type})")
 
     tmdb_id = search["results"][0]["id"]
-    details = get_json(client, f"/{media_type}/{tmdb_id}", auth)
+    details = get_json(client, f"/{media_type}/{tmdb_id}", {**auth, "append_to_response": "credits"})
+
+    # Movies have a director in the crew; TV series have creators instead.
+    if media_type == "movie":
+        directors = [person["name"] for person in details["credits"]["crew"] if person["job"] == "Director"]
+    else:
+        directors = [person["name"] for person in details["created_by"]]
 
     return {
         "tmdb_id": tmdb_id,
         "title": details[fields["title"]],
         "year": int(details[fields["date"]][:4]),
         "type": media_type,
+        "director": ", ".join(directors),
         "genres": "|".join(genre["name"] for genre in details["genres"]),
         "overview": details["overview"],
     }

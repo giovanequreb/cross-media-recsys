@@ -48,7 +48,7 @@ def mrr(scores: np.ndarray, pairs: list[tuple[int, int]]) -> float:
     return float(np.mean(1 / pair_ranks(scores, pairs)))
 
 
-def weight_grid(facets: list[str], steps: int = 10) -> list[dict[str, float]]:
+def weight_grid(facets: list[str], steps: int = 5) -> list[dict[str, float]]:
     """All weight combinations in steps of 1/steps that sum to 1."""
     return [
         dict(zip(facets, (part / steps for part in parts)))

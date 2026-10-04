@@ -1,7 +1,7 @@
 """Build data/embeddings.npz: one vector per description facet.
 
-Each row of data/descriptions.csv describes an item in four facets (emotions,
-plot, setting, references). Every facet is embedded separately with a local
+Each row of data/descriptions.csv describes an item in five facets (emotions,
+plot, setting, sound, references). Every facet is embedded separately with a local
 sentence-transformers model, so the recommender can weigh them differently.
 The item's own title and artist are never part of the text.
 """
@@ -13,7 +13,7 @@ import pandas as pd
 from sentence_transformers import SentenceTransformer
 
 MODEL_NAME = "BAAI/bge-small-en-v1.5"
-FACETS = ["emotions", "plot", "setting", "references"]
+FACETS = ["emotions", "plot", "setting", "sound", "references"]
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DESCRIPTIONS_PATH = PROJECT_ROOT / "data" / "descriptions.csv"
 OUTPUT_PATH = PROJECT_ROOT / "data" / "embeddings.npz"

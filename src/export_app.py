@@ -18,6 +18,8 @@ OUTPUT_PATH = PROJECT_ROOT / "app" / "data.js"
 def main() -> None:
     facets, title_ids, track_ids, similarities = load_facet_scores()
     weights, hub_correction = load_model()
+    # Facets that have a text description ("tone" is numeric and has none).
+    text_facets = [facet for facet in facets if facet != "tone"]
 
     descriptions = pd.read_csv(DESCRIPTIONS_PATH, dtype=str).set_index("item_id")
     titles = pd.read_csv(TITLES_PATH, dtype=str).set_index("tmdb_id").loc[title_ids]
@@ -29,12 +31,12 @@ def main() -> None:
         "hubCorrection": hub_correction,
         "titles": [
             {"id": item_id, "title": row["title"], "year": row["year"], "type": row["type"],
-             **descriptions.loc[item_id, facets].to_dict()}
+             "director": row["director"], **descriptions.loc[item_id, text_facets].to_dict()}
             for item_id, row in titles.iterrows()
         ],
         "tracks": [
             {"id": item_id, "title": row["title"], "artist": row["artist"],
-             **descriptions.loc[item_id, facets].to_dict()}
+             **descriptions.loc[item_id, text_facets].to_dict()}
             for item_id, row in tracks.iterrows()
         ],
         # similarities[facet][title][track], rounded to keep the file small

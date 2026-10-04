@@ -65,6 +65,10 @@
     .vote[aria-pressed="true"].nearly { background: #f2c4c4; border-color: #f2c4c4; }
     .vote[aria-pressed="true"].down { background: var(--bad); border-color: var(--bad); }
     .vote[aria-pressed="true"].unknown { background: var(--muted); border-color: var(--muted); }
+    .play { border: 1px solid var(--line); background: transparent; color: var(--text); border-radius: 8px; height: 32px; padding: 0 10px; cursor: pointer; font: inherit; font-size: 13px; flex: none; }
+    .play[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+    .player { margin: 10px 0 0 30px; }
+    .player iframe { width: 100%; height: 80px; border: 0; border-radius: 12px; display: block; }
     .legend { color: var(--muted); font-size: 12px; margin: 0 0 14px; }
     .legend b { color: var(--text); }
     .bar { height: 4px; background: var(--line); border-radius: 2px; margin: 8px 0 8px 30px; overflow: hidden; }
@@ -101,7 +105,7 @@
           <label class="check"><input type="checkbox" id="hub"> Hide tracks that fit everything</label>
           <button class="link" id="reset">Reset to model defaults</button>
         </div>
-        <p class="hint">Weights are normalised to 100%. The defaults come from <code>data/model.json</code>.</p>
+        <p class="hint">Weights are normalised to 100%. The defaults come from <code>data/model.json</code>. <b>tone</b> compares energy and positivity; it is experimental and off by default.</p>
       </section>
     </div>
 
@@ -207,6 +211,7 @@
           title.title + " ", element("small", { textContent: title.year }),
         ]);
         chip.setAttribute("aria-pressed", state.selected.has(title.id));
+        chip.title = (title.type === "tv" ? "Created by " : "Directed by ") + title.director;
         chip.onclick = () => {
           state.selected.has(title.id) ? state.selected.delete(title.id) : state.selected.add(title.id);
           render();
@@ -215,7 +220,8 @@
       });
     $("chips").replaceChildren(...chips);
     const count = state.selected.size;
-    $("selection-count").textContent = count ? `${count} selected` : "";
+    const chosen = DATA.titles.filter((title) => state.selected.has(title.id));
+    $("selection-count").textContent = chosen.map((title) => `${title.title} — ${title.director}`).join(" · ");
     $("clear").disabled = count === 0;
   }
 
@@ -254,28 +260,53 @@
       });
     }
     saveFeedback();
-    renderResults();
+    refreshVotes();
   }
 
-  function renderResults() {
+  // Update the pressed buttons and the counter without rebuilding the list,
+  // so a track that is playing is not interrupted by a vote.
+  function refreshVotes() {
+    for (const row of document.querySelectorAll(".track")) {
+      const current = voteFor(row.dataset.trackId);
+      for (const node of row.querySelectorAll(".vote")) {
+        node.setAttribute("aria-pressed", current?.vote === node.dataset.vote);
+      }
+    }
     const count = state.feedback.length;
     $("feedback-count").textContent = count ? `${count} rating${count === 1 ? "" : "s"} saved in this browser` : "Rate tracks to help tune the model";
     $("export").disabled = count === 0;
+  }
 
+  function renderResults() {
     if (state.selected.size === 0) {
+      refreshVotes();
       $("results").replaceChildren(element("p", { className: "empty", textContent: "Select at least one title to see recommendations." }));
       return;
     }
     const results = recommend();
     const best = Math.max(...results.map((item) => item.score), 1e-9);
     const rows = results.map(({ track, score, rank, wildcard }, index) => {
-      const current = voteFor(track.id);
       const button = (vote, label, symbol) => {
         const node = element("button", { className: `vote ${vote}`, type: "button", textContent: symbol, title: label });
+        node.dataset.vote = vote;
         node.setAttribute("aria-label", `${label}: ${track.title}`);
-        node.setAttribute("aria-pressed", current?.vote === vote);
         node.onclick = () => setVote(track.id, vote, rank, wildcard);
         return node;
+      };
+      // The Spotify player is only loaded when asked for, one iframe per track.
+      const player = element("div", { className: "player", hidden: true });
+      const play = element("button", { className: "play", type: "button", textContent: "▶ Listen" });
+      play.setAttribute("aria-expanded", "false");
+      play.setAttribute("aria-label", `Listen to ${track.title}`);
+      play.onclick = () => {
+        const open = player.hidden;
+        player.hidden = !open;
+        play.setAttribute("aria-expanded", open);
+        play.textContent = open ? "■ Close" : "▶ Listen";
+        player.replaceChildren(...(open ? [element("iframe", {
+          src: `https://open.spotify.com/embed/track/${track.id}`, title: `Spotify player: ${track.title}`,
+          loading: "lazy", allow: "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture",
+        })] : []));
       };
       const link = element("a", { href: `https://open.spotify.com/track/${track.id}`, target: "_blank", rel: "noopener", textContent: track.title });
       const bar = element("span");
@@ -283,10 +314,11 @@
       const barRow = element("div", { className: "bar" }, [bar]);
       // In rating mode the position and the score bar are hidden, so the vote is not influenced.
       barRow.style.visibility = state.blind ? "hidden" : "visible";
-      return element("div", { className: "track" }, [
+      const row = element("div", { className: "track" }, [
         element("div", { className: "track-head" }, [
           element("span", { className: "rank", textContent: state.blind ? "·" : index + 1 }),
           element("span", { className: "name" }, [link, element("span", { className: "artist", textContent: " — " + track.artist })]),
+          play,
           element("span", { className: "votes" }, [
             button("up", "Fits", "++"), button("partly", "Fits a little", "+"),
             button("nearly", "Doesn't fit, but not far off", "−"), button("down", "Doesn't fit at all", "−−"),
@@ -294,10 +326,14 @@
           ]),
         ]),
         barRow,
-        element("p", { className: "why" }, [element("b", { textContent: track.emotions + " " }), track.references]),
+        element("p", { className: "why" }, [element("b", { textContent: track.emotions + " " }), track.sound + " " + track.references]),
+        player,
       ]);
+      row.dataset.trackId = track.id;
+      return row;
     });
     $("results").replaceChildren(...rows);
+    refreshVotes();
   }
 
   function render() { renderChips(); renderResults(); }
