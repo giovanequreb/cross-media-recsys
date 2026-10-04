@@ -34,7 +34,7 @@ Piano in tre livelli:
 ```
 cross-media-recsys/
 ├── data/            # titles.csv (film/serie), tracks.csv (brani), descriptions.csv (descrizioni di mood), embeddings.npz (vettori), raw/ (download grezzi, ignorata da git)
-├── src/             # smoke_test.py, fetch_titles.py, build_tracks.py, embed.py, recommend.py, evaluate.py
+├── src/             # smoke_test.py, fetch_titles.py, build_tracks.py, embed.py, recommend.py, evaluate.py, check_overlap.py
 ├── notebooks/       # esperimenti esplorativi
 ├── requirements.txt
 ├── .env.example     # modello per la chiave TMDB (.env è ignorato da git)
@@ -64,6 +64,7 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
   - [x] `src/recommend.py`: `python src/recommend.py "Drive" "Amélie" --top 5` → media dei vettori dei titoli graditi, rinormalizzata, poi prodotto scalare con i 50 brani. I titoli si cercano senza distinguere maiuscole, anche per sottostringa (`"mad max"`)
   - [x] `src/evaluate.py`: controllo sulle 5 coppie titolo/brano della propria colonna sonora presenti nel dataset. Risultato: rank 1, 1, 3, 1, 24 su 50; MRR 0.68 contro 0.09 del caso
   - [x] Varietà: sui 20 titoli, nei top-5 compaiono 36 brani diversi su 50 (nessun brano "pigliatutto")
+- Fatto (verso il Livello 2): `src/check_overlap.py` legge in streaming (niente su disco) i file rating-only di Amazon Reviews'23, `CDs_and_Vinyl` (4.772.071 voti, 1.754.118 utenti) e `Movies_and_TV` (17.158.519 voti). Utenti con almeno N voti in **entrambi** i domini: N≥1 713.375; N≥3 123.527; N≥5 54.260; N≥10 17.292; N≥20 5.153. **Il Livello 2 è fattibile**: la soglia indicativa (alcune migliaia di utenti con ≥3-5 voti per dominio) è superata di molto. Dura circa 2 minuti.
 - Versioni installate: Python 3.12.3, `sentence-transformers` 6.1.0, `torch` 2.14.0, `numpy` 2.5.3, `pandas` 3.0.6, `scikit-learn` 1.9.1, `httpx` 0.28.1, `huggingface_hub` 1.32.0, `python-dotenv` 1.2.3 (aggiunta nel Passo 2; lista completa in `requirements.txt`)
 - Problemi / cose da sapere:
   - Nessun errore. Warning su richieste non autenticate a Hugging Face Hub: innocuo (serve `HF_TOKEN` solo per limiti più alti).
@@ -74,6 +75,8 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
   - Alcuni titoli dei brani hanno suffissi (`- Remastered 2011`, `- Radio Edit`, `(feat. ...)`); TMDB in inglese chiama *La grande bellezza* "The Great Beauty". Entrambi lasciati così.
   - Il controllo sulle colonne sonore è **ottimistico**: solo 5 coppie, e le descrizioni le ha scritte un LLM che conosce le opere, quindi parte della corrispondenza può venire da come sono scritte. Il caso debole è *Pulp Fiction* → "Son Of A Preacher Man" (rank 24).
   - `src/evaluate.py` importa da `recommend.py` (`from recommend import ...`): funziona perché si lancia come `python src/evaluate.py`, che mette `src/` nel percorso degli import.
+  - Amazon Reviews'23: **nessuna licenza esplicita** né sul sito né sulla scheda Hugging Face (`McAuley-Lab/Amazon-Reviews-2023`); gli autori chiedono solo la citazione (Hou et al., 2024, arXiv 2403.03952). Trattarlo come uso di ricerca, non committare dati grezzi. I file usano `parent_asin` come id del prodotto: per mostrare titoli veri servono anche i file di metadati (molto più grandi).
+  - Il disco del Mac è quasi pieno (circa 3 GB liberi il 2026-10-04): per il Livello 2 non scaricare i file interi senza prima liberare spazio; lo streaming funziona.
   - TMDB chiede logo + avviso di attribuzione: nel README c'è l'avviso testuale, il logo va aggiunto quando ci sarà una UI.
 - Repo GitHub (pubblico): https://github.com/giovanequreb/cross-media-recsys, remote `origin`, branch `main`. I commit di questo repo sono firmati con l'email personale (config git locale); il 2026-10-04 la cronologia è stata riscritta per sostituire l'email, quindi gli hash nel Log sono quelli nuovi.
 - Decisioni prese: modello di embedding locale `all-MiniLM-L6-v2`; descrizioni in inglese, generate in un passo separato; README in inglese (repo da portfolio); CSV come formato; Spotify API scartata (audio features non disponibili per app nuove dal 27/11/2024, Premium obbligatorio dal 02/2026); TMDB per film/serie, dataset Hugging Face statico per i brani; i 20 titoli proposti da Claude e confermati da Adam, i 50 brani scelti da Claude per varietà di mood; controllo dell'overlap utenti su Amazon Reviews'23 prima del Livello 2 (soglia indicativa: almeno alcune migliaia di utenti con ≥3-5 voti in ciascun dominio); `.gitkeep` in `data/` e `notebooks/`.
@@ -96,14 +99,13 @@ Aggiornato il 2026-10-04. Il Livello 1 è **completo e pubblicato su GitHub**: d
 
 **Prossimi passi possibili (da decidere):**
 - Far provare i consigli ad Adam e a 5-10 persone, come previsto prima del Livello 2.
-- Controllo di fattibilità del Livello 2 su Amazon Reviews'23 (vedi "In sospeso").
+- Livello 2: scegliere il modello (es. fattorizzazione di matrice / two-tower sugli utenti con ≥5 voti per dominio) e come collegare i prodotti Amazon a titoli e brani veri (servono i metadati).
 - Allargare il dataset del Livello 1 (più titoli e brani) generando le descrizioni con uno script.
 
 **In sospeso, non bloccanti:**
 - Valutare se rigenerare la chiave TMDB (è stata incollata in chat).
 - Pulire i suffissi nei titoli dei brani (`- Remastered`, `- Radio Edit`, `(feat. ...)`), se serve.
 - Aggiungere il logo TMDB al README quando ci sarà una UI.
-- Prima del Livello 2: controllo di fattibilità su Amazon Reviews'23 (quanti utenti hanno recensito sia `Movies_and_TV` sia `CDs_and_Vinyl`; verificare licenza d'uso).
 
 ## Log
 
@@ -113,3 +115,4 @@ Una riga per passo completato: data, cosa, commit.
 - 2026-09-21 — Passo 2: dataset minimo, 20 film/serie (TMDB) e 50 brani (Hugging Face) in CSV, `.env.example` — commit `0498385` (titoli), `74b47b2` (brani), `af412f4` (`.env.example`); README e CLAUDE.md nel commit `f4cefc4` (docs).
 - 2026-10-04 — Passo 3: 70 descrizioni di mood in `data/descriptions.csv` — commit `37dd7b4`, correzioni in `e0f0677`. Repo pubblicato su GitHub lo stesso giorno.
 - 2026-10-04 — Passo 4: embeddings e raccomandazioni per coseno, controllo sulle colonne sonore (MRR 0.68) — commit `b5d3056` (embed), `a854c9a` (recommend), `7abefb2` (evaluate). Livello 1 completo.
+- 2026-10-04 — Fattibilità Livello 2: 54.260 utenti con ≥5 voti sia in film sia in musica su Amazon Reviews'23 — commit `0e524da`.

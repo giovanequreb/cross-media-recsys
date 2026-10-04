@@ -27,6 +27,18 @@ track description ────────┘
 
 Train on cross-domain datasets (Douban, Amazon Reviews for movies and CDs) so the model learns real movie ↔ music taste correlations instead of relying only on text similarity.
 
+**Feasibility check (done).** A cross-domain model needs users who are active in both domains. `python src/check_overlap.py` streams the rating files of [Amazon Reviews 2023](https://amazon-reviews-2023.github.io/) (17.2M ratings in `Movies_and_TV`, 4.8M in `CDs_and_Vinyl`) and counts them:
+
+| Ratings in **both** domains | Users | Their ratings |
+| --- | --- | --- |
+| at least 1 | 713,375 | 6.8M |
+| at least 3 | 123,527 | 3.4M |
+| at least 5 | 54,260 | 2.3M |
+| at least 10 | 17,292 | 1.4M |
+| at least 20 | 5,153 | 0.75M |
+
+So there is enough overlap to train on: about 54,000 users with five or more ratings on each side. The dataset has no explicit licence (the authors ask to cite [Hou et al., 2024](https://arxiv.org/abs/2403.03952)), so it is used here for research only and no raw data is committed.
+
 ### Level 3 — Pairwise comparisons and web app
 
 Collect preferences through pairwise comparisons ("which do you prefer?"), rank items with Elo / Bradley-Terry, and wrap everything in a full web app.
@@ -139,7 +151,8 @@ cross-media-recsys/
 │   ├── build_tracks.py  # builds data/tracks.csv from the Hugging Face dataset
 │   ├── embed.py         # builds data/embeddings.npz from the descriptions
 │   ├── recommend.py     # recommends tracks from the titles you like
-│   └── evaluate.py      # soundtrack sanity check
+│   ├── evaluate.py      # soundtrack sanity check
+│   └── check_overlap.py # Level 2 feasibility: users who rated both movies and music
 ├── notebooks/           # exploratory experiments
 ├── requirements.txt     # pinned dependencies
 ├── .env.example         # template for the TMDB API key (.env is git-ignored)
@@ -164,7 +177,8 @@ cross-media-recsys/
 - [x] Level 1: minimal dataset (20 movies/series, 50 tracks with basic metadata)
 - [x] Level 1: LLM-generated mood descriptions for every title and track
 - [x] Level 1: embeddings, cosine-similarity recommendations, soundtrack sanity check
-- [ ] Level 2: train on Douban / Amazon Reviews (movies + CDs)
+- [x] Level 2: feasibility check on Amazon Reviews 2023 (movie/music user overlap)
+- [ ] Level 2: train on Amazon Reviews (movies + CDs)
 - [ ] Level 3: pairwise comparisons (Elo / Bradley-Terry) and web app
 
 ## About
