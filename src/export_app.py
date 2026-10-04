@@ -12,10 +12,27 @@ import numpy as np
 
 import pandas as pd
 
-from model import PROJECT_ROOT, TITLES_PATH, TRACKS_PATH, load_facet_scores, load_model
+from model import EMBEDDINGS_PATH, PROJECT_ROOT, TITLES_PATH, TRACKS_PATH, load_facet_scores, load_model
 
 DESCRIPTIONS_PATH = PROJECT_ROOT / "data" / "descriptions.csv"
 OUTPUT_PATH = PROJECT_ROOT / "app" / "data.js"
+
+
+def to_bytes(matrix: np.ndarray) -> tuple[float, float, str]:
+    """Store a matrix as one byte per value: return (minimum, maximum, base64 text)."""
+    low, high = float(matrix.min()), float(matrix.max())
+    scaled = np.round((matrix - low) / (high - low) * 255).astype(np.uint8)
+    return round(low, 4), round(high, 4), base64.b64encode(scaled.tobytes()).decode()
+
+
+def track_similarity(weights: dict[str, float]) -> np.ndarray:
+    """Return a (tracks, tracks) matrix: how alike two tracks are, using the model's facet weights."""
+    data = np.load(EMBEDDINGS_PATH)
+    vectors = data["vectors"][data["item_type"] == "track"].astype(np.float32)
+    facet_weights = np.array([weights[facet] for facet in data["facets"]])
+    # For each facet f: vectors[:, f] @ vectors[:, f].T, then the weighted average over facets.
+    per_facet = np.einsum("afd,bfd->fab", vectors, vectors)
+    return np.tensordot(facet_weights / facet_weights.sum(), per_facet, axes=1)
 
 
 def main() -> None:
@@ -26,10 +43,12 @@ def main() -> None:
 
     # One byte per similarity (0-255 between each facet's minimum and maximum),
     # base64-encoded: about six times smaller than writing the numbers as text.
-    low = similarities.min(axis=(1, 2))
-    high = similarities.max(axis=(1, 2))
-    scaled = (similarities - low[:, None, None]) / (high - low)[:, None, None]
-    encoded = [base64.b64encode(np.round(facet * 255).astype(np.uint8).tobytes()).decode() for facet in scaled]
+    low, high, encoded = zip(*(to_bytes(facet) for facet in similarities))
+
+    # Track-to-track similarity, used by the app to avoid near-duplicates and to
+    # learn from ratings ("more like the tracks you liked").
+    between_tracks = track_similarity(weights)
+    track_low, track_high, track_bytes = to_bytes(between_tracks)
 
     descriptions = pd.read_csv(DESCRIPTIONS_PATH, dtype=str).set_index("item_id")
     titles = pd.read_csv(TITLES_PATH, dtype=str).fillna("").set_index("tmdb_id").loc[title_ids]
@@ -50,7 +69,12 @@ def main() -> None:
             for item_id, row in tracks.iterrows()
         ],
         # similarities[facet] is a base64 string of titles x tracks bytes, row by row
-        "similarities": {"low": low.round(4).tolist(), "high": high.round(4).tolist(), "bytes": encoded},
+        "similarities": {"low": low, "high": high, "bytes": encoded},
+        # trackSimilarity is one base64 string of tracks x tracks bytes
+        "trackSimilarity": {"low": track_low, "high": track_high, "mean": round(float(between_tracks.mean()), 4),
+                            # above this value two tracks count as near-duplicates (top 5% of pairs)
+                            "near": round(float(np.percentile(between_tracks, 95)), 4),
+                            "bytes": track_bytes},
     }
 
     # A .js file (not .json) so the page also works when opened straight from disk.

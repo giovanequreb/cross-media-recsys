@@ -111,7 +111,9 @@
 
     <section class="panel">
       <h2>3 · Tracks for you</h2>
-      <label class="check" style="margin-bottom:14px"><input type="checkbox" id="blind"> Rating mode: shuffled, with a few wildcards</label>
+      <label class="check" style="margin-bottom:8px"><input type="checkbox" id="blind"> Rating mode: shuffled, with a few wildcards</label>
+      <label class="check" style="margin-bottom:8px"><input type="checkbox" id="diverse" checked> Avoid near-duplicates</label>
+      <div class="row" style="margin:0 0 14px"><button class="link" id="refine"></button><button class="link" id="unrefine">Back to the model's list</button></div>
       <p class="legend"><b>++</b> fits · <b>+</b> fits a little · <b>−</b> not far off · <b>−−</b> doesn't fit · <b>?</b> don't know it</p>
       <div id="results"></div>
       <div class="row">
@@ -134,6 +136,9 @@
   const TOP = 8;
   const WILDCARDS = 3;          // extra tracks shown in rating mode
   const WILDCARD_POOL = 60;     // wildcards are drawn from ranks TOP+1..WILDCARD_POOL
+  const VOTE_VALUE = { up: 1, partly: 0.5, nearly: -0.5, down: -1, unknown: 0 };
+  const LEARNING_RATE = 0.6;    // how strongly ratings move the list
+  const DIVERSITY = 1;          // penalty per unit of similarity above the near-duplicate threshold
   const STORAGE_KEY = "cross-media-feedback";
 
   const state = {
@@ -141,6 +146,8 @@
     weights: { ...DATA.weights },
     hub: DATA.hubCorrection > 0,
     blind: false,
+    diverse: true,
+    personal: false,
     feedback: loadFeedback(),
   };
 
@@ -149,6 +156,11 @@
   // Similarities arrive as one base64 byte string per facet (titles x tracks, row by row).
   const SIMILARITY = DATA.similarities.bytes.map((text) => Uint8Array.from(atob(text), (char) => char.charCodeAt(0)));
   const TRACK_COUNT = DATA.tracks.length;
+  const TRACK_SIMILARITY = Uint8Array.from(atob(DATA.trackSimilarity.bytes), (char) => char.charCodeAt(0));
+  function trackSimilarity(a, b) {
+    const { low, high } = DATA.trackSimilarity;
+    return low + (TRACK_SIMILARITY[a * TRACK_COUNT + b] / 255) * (high - low);
+  }
   function similarity(f, t, k) {
     const { low, high } = DATA.similarities;
     return low[f] + (SIMILARITY[f][t * TRACK_COUNT + k] / 255) * (high[f] - low[f]);
@@ -177,11 +189,11 @@
     const scores = scoreMatrix();
     const liked = DATA.titles.map((title, t) => (state.selected.has(title.id) ? t : -1)).filter((t) => t >= 0);
     const ranked = DATA.tracks
-      .map((track, k) => ({ track, score: liked.reduce((sum, t) => sum + scores[t][k], 0) / liked.length }))
+      .map((track, k) => ({ track, index: k, score: liked.reduce((sum, t) => sum + scores[t][k], 0) / liked.length }))
       .sort((a, b) => b.score - a.score)
       .map((item, index) => ({ ...item, rank: index + 1, wildcard: false }));
     const top = ranked.slice(0, TOP);
-    if (!state.blind) return top;
+    if (!state.blind) return pickTop(state.personal ? personalise(ranked) : ranked);
 
     // Rating mode: add a few lower-ranked tracks and shuffle, so votes also
     // cover tracks the model would not have shown. The random generator is
@@ -190,6 +202,50 @@
     const shuffle = (items) => items.map((item) => [random(), item]).sort((a, b) => a[0] - b[0]).map(([, item]) => item);
     const wildcards = shuffle(ranked.slice(TOP, WILDCARD_POOL)).slice(0, WILDCARDS).map((item) => ({ ...item, wildcard: true }));
     return shuffle([...top, ...wildcards]);
+  }
+
+  // Ratings given for the current selection, as [track index, value between -1 and 1].
+  function currentRatings() {
+    const key = [...state.selected].sort().join(",");
+    return state.feedback
+      .filter((item) => item.titleIds.join(",") === key && VOTE_VALUE[item.vote])
+      .map((item) => [DATA.tracks.findIndex((track) => track.id === item.trackId), VOTE_VALUE[item.vote]])
+      .filter(([index]) => index >= 0);
+  }
+
+  // Learn from the ratings: tracks similar to the ones you liked move up, tracks
+  // similar to the ones you disliked move down, and disliked tracks are dropped.
+  function personalise(ranked) {
+    const ratings = currentRatings();
+    if (ratings.length === 0) return ranked;
+    const disliked = new Set(ratings.filter(([, value]) => value < 0).map(([index]) => index));
+    const mean = DATA.trackSimilarity.mean;
+    return ranked
+      .filter((item) => !disliked.has(item.index))
+      .map((item) => {
+        const push = ratings.reduce((sum, [index, value]) => sum + value * (trackSimilarity(item.index, index) - mean), 0);
+        return { ...item, score: item.score + (LEARNING_RATE * push) / Math.sqrt(ratings.length) };
+      })
+      .sort((a, b) => b.score - a.score);
+  }
+
+  // Take the best tracks one at a time; with "avoid near-duplicates" on, a track
+  // that is very similar to one already chosen is pushed down.
+  function pickTop(ranked) {
+    if (!state.diverse) return ranked.slice(0, TOP);
+    const pool = ranked.slice(0, WILDCARD_POOL);
+    const chosen = [];
+    while (chosen.length < TOP && pool.length > 0) {
+      let best = 0;
+      let bestValue = -Infinity;
+      pool.forEach((item, position) => {
+        const overlap = Math.max(0, ...chosen.map((other) => trackSimilarity(item.index, other.index) - DATA.trackSimilarity.near));
+        const value = item.score - DIVERSITY * overlap;
+        if (value > bestValue) { bestValue = value; best = position; }
+      });
+      chosen.push(pool.splice(best, 1)[0]);
+    }
+    return chosen;
   }
 
   // Small deterministic random generator (mulberry32) seeded from a string.
@@ -222,6 +278,7 @@
         if (title.director) chip.title = (title.type === "tv" ? "Created by " : "Directed by ") + title.director;
         chip.onclick = () => {
           state.selected.has(title.id) ? state.selected.delete(title.id) : state.selected.add(title.id);
+          state.personal = false;
           render();
         };
         return chip;
@@ -263,7 +320,7 @@
     state.feedback = state.feedback.filter((item) => item !== existing);
     if (!existing || existing.vote !== vote) {
       state.feedback.push({
-        titleIds: [...state.selected].sort(), trackId, vote, rank, wildcard,
+        titleIds: [...state.selected].sort(), trackId, vote, rank, wildcard, personalised: state.personal && !state.blind,
         weights: { ...state.weights }, hub: state.hub, at: new Date().toISOString(),
       });
     }
@@ -283,6 +340,15 @@
     const count = state.feedback.length;
     $("feedback-count").textContent = count ? `${count} rating${count === 1 ? "" : "s"} saved in this browser` : "Rate tracks to help tune the model";
     $("export").disabled = count === 0;
+
+    const usable = state.selected.size ? currentRatings().length : 0;
+    $("refine").hidden = state.blind;
+    $("unrefine").hidden = state.blind || !state.personal;
+    $("diverse").disabled = state.blind;
+    $("refine").disabled = usable === 0;
+    $("refine").textContent = usable
+      ? `${state.personal ? "Refine again" : "Refine the list"} with my ${usable} rating${usable === 1 ? "" : "s"} →`
+      : "Rate a few tracks, then refine the list";
   }
 
   function renderResults() {
@@ -347,7 +413,10 @@
   function render() { renderChips(); renderResults(); }
 
   $("search").oninput = renderChips;
-  $("clear").onclick = () => { state.selected.clear(); render(); };
+  $("clear").onclick = () => { state.selected.clear(); state.personal = false; render(); };
+  $("diverse").onchange = (event) => { state.diverse = event.target.checked; renderResults(); };
+  $("refine").onclick = () => { state.personal = true; renderResults(); };
+  $("unrefine").onclick = () => { state.personal = false; renderResults(); };
   $("blind").onchange = (event) => { state.blind = event.target.checked; renderResults(); };
   $("hub").onchange = (event) => { state.hub = event.target.checked; renderResults(); };
   $("reset").onclick = () => {

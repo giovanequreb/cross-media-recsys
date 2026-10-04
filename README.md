@@ -120,6 +120,11 @@ python -m http.server 5173 --directory app
 
 It also works by opening `app/index.html` directly. Pick the titles you like, move the facet sliders to see how the weights change the results, and rate each track on a four-step scale (`++` fits, `+` fits a little, `−` not far off, `−−` doesn't fit) or mark it `?` if you don't know it. Each track has a **Listen** button that opens the Spotify preview player in the page. **Rating mode** shuffles the list, hides ranks and scores, and mixes in three lower-ranked wildcards, so the ratings also cover tracks the model would not have shown. Ratings stay in your browser and can be downloaded as JSON: they are the feedback the model needs to learn its weights instead of having them set by hand.
 
+Two things in the app go beyond the base model:
+
+- **Learning from your ratings.** After rating a few tracks for a selection, "Refine the list" re-ranks everything: tracks similar to the ones you liked move up, tracks similar to the ones you disliked move down, and the disliked ones are dropped. Similarity between tracks uses the same facets and weights as the model.
+- **Avoid near-duplicates.** The list is filled one track at a time, and a track very similar to one already chosen (top 5% of track pairs) is pushed down, so the eight results are not three versions of the same idea.
+
 `app/data.js` is generated; after changing descriptions, embeddings or `data/model.json`, rebuild it with `python src/export_app.py`.
 
 ### Soundtrack check
@@ -260,6 +265,7 @@ cross-media-recsys/
 - [x] Level 1: `sound` facet, experimental `tone` facet, directors, in-page Spotify player
 - [x] Level 1: web app published on GitHub Pages
 - [x] Level 1: catalogue grown to 238 titles and 548 tracks
+- [x] Level 1: in-app learning from ratings and near-duplicate filter
 - [x] Level 2: feasibility check on Amazon Reviews 2023 (movie/music user overlap)
 - [ ] Level 2: train on Amazon Reviews (movies + CDs)
 - [ ] Level 3: pairwise comparisons (Elo / Bradley-Terry) and web app
