@@ -4,9 +4,9 @@ Recommend **music** based on your taste in **movies and TV series**.
 
 Most recommenders stay inside one domain: they suggest songs because you liked other songs. This project tries the opposite: if you love a slow, melancholic sci-fi film, which tracks would fit that same mood? It is inspired by the Podiums app, where taste is captured through pairwise comparisons instead of star ratings.
 
-> **Status: work in progress.** The environment is set up and the minimal dataset (20 movies/series, 50 tracks) and its mood descriptions are ready; embeddings and the recommender are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
+> **Status: work in progress.** The environment is set up and Level 1 works end to end: 20 movies/series and 50 tracks with mood descriptions, embeddings, and a command-line recommender. Levels 2 and 3 are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
 
-## How it will work
+## How it works
 
 The project is built in three levels, each one a working step on its own.
 
@@ -53,7 +53,43 @@ python src/smoke_test.py
 
 The first time the embedding model is used, `sentence-transformers` downloads it (about 90 MB) and caches it locally.
 
-The CSV files in `data/` are already committed, so nothing else is needed to run the project. To regenerate them, see [Data](#data).
+The data files in `data/` are already committed, so nothing else is needed to run the project. To regenerate them, see [Data](#data).
+
+## Usage
+
+```bash
+# Recommend tracks from one or more titles you like (any title in data/titles.csv)
+python src/recommend.py "Blade Runner 2049" "Drive" --top 5
+```
+
+```
+Because you like: Mad Max: Fury Road
+ 1. Killing In The Name — Rage Against The Machine  (0.790)
+ 2. Master Of Puppets — Metallica  (0.726)
+ 3. Firestarter — The Prodigy  (0.659)
+ 4. HUMBLE. — Kendrick Lamar  (0.599)
+ 5. Don't Stop Me Now - Remastered 2011 — Queen  (0.590)
+```
+
+The liked titles are averaged into one "taste" vector and the 50 tracks are ranked by cosine similarity to it. The number in brackets is the similarity score.
+
+### Sanity check
+
+Five tracks in the dataset come from the soundtrack of a title in the dataset. Descriptions never mention names, so a good recommender should still rank each of them high for its own title:
+
+```bash
+python src/evaluate.py
+```
+
+| Title | Soundtrack track | Rank (of 50) |
+| --- | --- | --- |
+| Amélie | Comptine d'un autre été, l'après-midi | 1 |
+| Drive | Nightcall | 1 |
+| Drive | A Real Hero | 3 |
+| Spirited Away | One Summer Day | 1 |
+| Pulp Fiction | Son Of A Preacher Man | 24 |
+
+Mean reciprocal rank: **0.68**, against 0.09 for random guessing. Two caveats: five pairs are far too few for a real evaluation, and the descriptions were written by an LLM that knows these works, so part of the match may come from how they were written. The honest test is whether real people like the recommendations, which is what Level 3 is for.
 
 ## Data
 
@@ -64,6 +100,7 @@ Level 1 uses a small, hand-picked dataset (committed in `data/`):
 | `data/titles.csv` | 20 movies and TV series: TMDB id, title, year, type, genres, English overview | [TMDB API](https://developer.themoviedb.org/) |
 | `data/tracks.csv` | 50 tracks: id, title, artist, album, popularity and audio features (`danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`) | [`maharshipandya/spotify-tracks-dataset`](https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset) on Hugging Face (BSD license) |
 | `data/descriptions.csv` | 70 short English mood descriptions, one per title and track: item type (`title`/`track`), item id, name, description | Written with an LLM (Claude) and reviewed by hand |
+| `data/embeddings.npz` | One 384-d unit vector per description, with its item type and id | Built by `src/embed.py` |
 
 The 20 titles were chosen to cover very different moods (dark, dreamy, joyful, epic), and the 50 tracks to span ambient, classical, synthwave, jazz, indie and rock. The `genre_label` column in `tracks.csv` comes from the source dataset and is **noisy** (for example, Hans Zimmer's "Time" is labelled `german`), so it is kept for reference only.
 
@@ -75,6 +112,9 @@ python src/build_tracks.py
 
 # Titles: needs a free TMDB API key in .env (copy .env.example to .env)
 python src/fetch_titles.py
+
+# Embeddings: re-run after editing data/descriptions.csv
+python src/embed.py
 ```
 
 Spotify's own API is not used: audio features have been unavailable to new apps since November 2024, and since February 2026 developer apps also require a Premium account.
@@ -91,11 +131,15 @@ cross-media-recsys/
 │   ├── titles.csv       # movies and series (from TMDB)
 │   ├── tracks.csv       # curated tracks with audio features
 │   ├── descriptions.csv # mood descriptions for titles and tracks
+│   ├── embeddings.npz   # one vector per description
 │   └── raw/             # raw downloads (git-ignored)
 ├── src/
 │   ├── smoke_test.py    # checks the embedding model output shape
 │   ├── fetch_titles.py  # builds data/titles.csv from the TMDB API
-│   └── build_tracks.py  # builds data/tracks.csv from the Hugging Face dataset
+│   ├── build_tracks.py  # builds data/tracks.csv from the Hugging Face dataset
+│   ├── embed.py         # builds data/embeddings.npz from the descriptions
+│   ├── recommend.py     # recommends tracks from the titles you like
+│   └── evaluate.py      # soundtrack sanity check
 ├── notebooks/           # exploratory experiments
 ├── requirements.txt     # pinned dependencies
 ├── .env.example         # template for the TMDB API key (.env is git-ignored)
@@ -119,7 +163,7 @@ cross-media-recsys/
 - [x] Smoke test: embed 3 sentences and check the output shape is `(3, 384)`
 - [x] Level 1: minimal dataset (20 movies/series, 50 tracks with basic metadata)
 - [x] Level 1: LLM-generated mood descriptions for every title and track
-- [ ] Level 1: embeddings, cosine-similarity recommendations
+- [x] Level 1: embeddings, cosine-similarity recommendations, soundtrack sanity check
 - [ ] Level 2: train on Douban / Amazon Reviews (movies + CDs)
 - [ ] Level 3: pairwise comparisons (Elo / Bradley-Terry) and web app
 
