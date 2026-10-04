@@ -63,6 +63,7 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
   - `genre_label` in `tracks.csv` è **rumorosa** (es. Hans Zimmer "Time" = `german`): non usarla come verità nelle descrizioni, meglio le audio features.
   - Alcuni titoli dei brani hanno suffissi (`- Remastered 2011`, `- Radio Edit`, `(feat. ...)`); TMDB in inglese chiama *La grande bellezza* "The Great Beauty". Entrambi lasciati così.
   - TMDB chiede logo + avviso di attribuzione: nel README c'è l'avviso testuale, il logo va aggiunto quando ci sarà una UI.
+- Repo GitHub (pubblico): https://github.com/giovanequreb/cross-media-recsys, remote `origin`, branch `main`. I commit di questo repo sono firmati con l'email personale (config git locale); il 2026-10-04 la cronologia è stata riscritta per sostituire l'email, quindi gli hash nel Log sono quelli nuovi.
 - Decisioni prese: modello di embedding locale `all-MiniLM-L6-v2`; descrizioni in inglese, generate in un passo separato; README in inglese (repo da portfolio); CSV come formato; Spotify API scartata (audio features non disponibili per app nuove dal 27/11/2024, Premium obbligatorio dal 02/2026); TMDB per film/serie, dataset Hugging Face statico per i brani; i 20 titoli proposti da Claude e confermati da Adam, i 50 brani scelti da Claude per varietà di mood; controllo dell'overlap utenti su Amazon Reviews'23 prima del Livello 2 (soglia indicativa: almeno alcune migliaia di utenti con ≥3-5 voti in ciascun dominio); `.gitkeep` in `data/` e `notebooks/`.
 
 ## Prossimo passo (scritto dalla chat)
@@ -101,5 +102,5 @@ Aggiornato il 2026-10-04. Il Passo 3 **non è ancora iniziato**: nessun codice s
 
 Una riga per passo completato: data, cosa, commit.
 
-- 2026-09-21 — Passo 1: ambiente, struttura, `.gitignore`, `requirements.txt`, smoke test `(3, 384)` — commit `56d5f64` (setup), `45b0a35` (smoke test); README e CLAUDE.md nel commit `bb621cd` (docs).
-- 2026-09-21 — Passo 2: dataset minimo, 20 film/serie (TMDB) e 50 brani (Hugging Face) in CSV, `.env.example` — commit `a567604` (titoli), `2b676d6` (brani), `c3e33d1` (`.env.example`); README e CLAUDE.md nel commit `7f0feb1` (docs).
+- 2026-09-21 — Passo 1: ambiente, struttura, `.gitignore`, `requirements.txt`, smoke test `(3, 384)` — commit `6209479` (setup), `e088a3d` (smoke test); README e CLAUDE.md nel commit `97c14c5` (docs).
+- 2026-09-21 — Passo 2: dataset minimo, 20 film/serie (TMDB) e 50 brani (Hugging Face) in CSV, `.env.example` — commit `0498385` (titoli), `74b47b2` (brani), `af412f4` (`.env.example`); README e CLAUDE.md nel commit `f4cefc4` (docs).
