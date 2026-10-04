@@ -33,8 +33,8 @@ Piano in tre livelli:
 
 ```
 cross-media-recsys/
-├── data/            # titles.csv (film/serie), tracks.csv (brani), descriptions.csv (descrizioni di mood), embeddings.npz (vettori), raw/ (download grezzi, ignorata da git)
-├── src/             # smoke_test.py, fetch_titles.py, build_tracks.py, embed.py, recommend.py, evaluate.py, check_overlap.py
+├── data/            # titles.csv (film/serie), tracks.csv (brani), descriptions.csv (descrizioni in 3 parti), soundtrack_pairs.csv (coppie film/brano), embeddings.npz (vettori), model.json (parametri del modello), raw/ (download grezzi, ignorata da git)
+├── src/             # smoke_test.py, fetch_titles.py, build_tracks.py, embed.py, model.py, recommend.py, evaluate.py, check_overlap.py
 ├── notebooks/       # esperimenti esplorativi
 ├── requirements.txt
 ├── .env.example     # modello per la chiave TMDB (.env è ignorato da git)
@@ -48,22 +48,21 @@ cross-media-recsys/
 Da Claude Code → chat. Adam incolla questa sezione nella chat.
 
 - Livello: 1 (prototipo senza training)
-- Passo corrente: 4 — embeddings e raccomandazioni (**completato**): il Livello 1 funziona da capo a fondo. I Passi 2 (dataset minimo) e 3 (descrizioni) sono chiusi. Il Passo 1 (ambiente, struttura, smoke test `(3, 384)`) è chiuso: vedi Log.
+- Passo corrente: 5 — mini modello di raccomandazione (**completato**). Livello 1 completo: Passi 1-4 chiusi, vedi Log.
 - Fatto (Passo 2):
   - [x] `src/fetch_titles.py`: 20 film/serie da TMDB → `data/titles.csv` (colonne: `tmdb_id`, `title`, `year`, `type` = `movie`/`tv`, `genres` separati da `|`, `overview` in inglese)
   - [x] `src/build_tracks.py`: 50 brani scelti a mano dal dataset Hugging Face `maharshipandya/spotify-tracks-dataset` → `data/tracks.csv` (colonne: `track_id`, `title`, `artist`, `album`, `genre_label`, `popularity`, `danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`)
   - [x] `.env` con la chiave TMDB (ignorato da git, permessi 600) + `.env.example` committato
   - [x] README aggiornato: sezione Dati, credit TMDB, struttura, roadmap
-- Fatto (Passo 3):
-  - [x] `data/descriptions.csv`: 70 righe (20 film/serie + 50 brani), colonne `item_type` (`title`/`track`), `item_id` (`tmdb_id` o `track_id`), `name` (solo per leggibilità, **non va negli embeddings**), `description`
-  - [x] Stile (**cambiato da Adam il 2026-10-04**): tre parti, in inglese. 1) tre aggettivi di emozione; 2) una frase di trama leggera (film) o di cosa parla/come suona (brano); 3) riferimenti pop: epoca, scena, estetica, dove lo si è sentito (es. "synthwave, 80s retro-futurism, neon noir"). Mai il titolo o l'artista dell'elemento stesso; luoghi e generi sono ammessi. 39-71 token (limite del modello: 256). I consigli devono basarsi su emozioni e riferimenti pop più che sulla trama. La prima versione (solo mood, senza nomi propri né trama) è nella cronologia git, commit `e0f0677`.
-  - [x] Campione di 10 scritto da Claude Code e approvato da Adam; le altre 60 scritte da tre subagent con lo stesso schema, poi unite e controllate (70 descrizioni uniche, nessuna parola del titolo/artista nel testo)
-  - [x] Revisione fatta da Claude Code al posto di Adam (su sua richiesta di procedere senza conferme): corrette 5 descrizioni che citavano il testo delle canzoni o parole legate al cinema. Adam può comunque rileggerle: dopo ogni modifica va rieseguito `src/embed.py`
-- Fatto (Passo 4):
-  - [x] `src/embed.py`: legge `data/descriptions.csv`, codifica solo la colonna `description` con `normalize_embeddings=True` e salva `data/embeddings.npz` (array `item_type`, `item_id`, `vectors` 70×384 float32, committato: 116 KB)
-  - [x] `src/recommend.py`: `python src/recommend.py "Drive" "Amélie" --top 5` → media dei vettori dei titoli graditi, rinormalizzata, poi prodotto scalare con i 50 brani. I titoli si cercano senza distinguere maiuscole, anche per sottostringa (`"mad max"`)
-  - [x] `src/evaluate.py`: controllo sulle 5 coppie titolo/brano della propria colonna sonora presenti nel dataset. Risultato con le descrizioni nuove: rank 1, 1, 7, 1, 44 su 50; MRR 0.63 contro 0.09 del caso (con le vecchie: 1, 1, 3, 1, 24; MRR 0.68)
-  - [x] Varietà: sui 20 titoli, nei top-5 compaiono 35 brani diversi su 50; il più frequente è "Sweet Dreams" (7 titoli su 20)
+- Fatto (Passi 3-5, stato finale):
+  - [x] Dataset allargato: `data/titles.csv` 57 film/serie, `data/tracks.csv` 93 brani. I 37 titoli e i 43 brani nuovi sono coppie famose film/canzone (es. *Trainspotting* / "Lust For Life"). Le prime 20 e 50 righe sono rimaste identiche.
+  - [x] `data/descriptions.csv`: 150 righe, colonne `item_type`, `item_id`, `name`, `emotions`, `plot`, `references`. Stile **voluto da Adam**: `emotions` = tre aggettivi; `plot` = trama leggera (film) o come suona e di cosa parla (brano); `references` = riferimenti pop (epoca, scena, estetica, dove lo si è sentito). Mai il titolo o l'artista dell'elemento stesso. Tutte scritte da Claude; la versione iniziale (solo mood, una frase) è nella cronologia git, commit `e0f0677`.
+  - [x] `data/soundtrack_pairs.csv`: 57 coppie (`tmdb_id`, `track_id`, `title`, `track`), 45 titoli coinvolti.
+  - [x] `src/embed.py`: un embedding per ogni parte → `data/embeddings.npz` (`item_type`, `item_id`, `facets`, `vectors` di forma 150×3×384, circa 700 KB, committato).
+  - [x] `src/model.py` + `data/model.json`: punteggio = somma pesata delle similarità per parte − correzione "hub" (media del punteggio del brano su tutti i titoli). Pesi: emozioni 0.45, trama 0.10, riferimenti 0.45; `hub_correction` 1.0.
+  - [x] `src/recommend.py`: `python src/recommend.py "Drive" "Amélie" --top 5`; con più titoli fa la media dei punteggi.
+  - [x] `src/evaluate.py`: controllo sulle 57 coppie, confronto tra configurazioni e ricerca a griglia dei pesi con cross-validation a 5 fold per titolo.
+  - [x] Risultati (MRR, caso = 0.06): solo trama 0.07; solo emozioni 0.31; solo riferimenti 0.74; pesi uguali 0.57; pesi del modello senza correzione hub 0.61; **modello 0.65** (hit@1 0.56, hit@5 0.75, hit@10 0.82). Correzione hub: il brano più ripetuto nei top-5 passa da 17 titoli su 57 a 9.
 - Fatto (verso il Livello 2): `src/check_overlap.py` legge in streaming (niente su disco) i file rating-only di Amazon Reviews'23, `CDs_and_Vinyl` (4.772.071 voti, 1.754.118 utenti) e `Movies_and_TV` (17.158.519 voti). Utenti con almeno N voti in **entrambi** i domini: N≥1 713.375; N≥3 123.527; N≥5 54.260; N≥10 17.292; N≥20 5.153. **Il Livello 2 è fattibile**: la soglia indicativa (alcune migliaia di utenti con ≥3-5 voti per dominio) è superata di molto. Dura circa 2 minuti.
 - Versioni installate: Python 3.12.3, `sentence-transformers` 6.1.0, `torch` 2.14.0, `numpy` 2.5.3, `pandas` 3.0.6, `scikit-learn` 1.9.1, `httpx` 0.28.1, `huggingface_hub` 1.32.0, `python-dotenv` 1.2.3 (aggiunta nel Passo 2; lista completa in `requirements.txt`)
 - Problemi / cose da sapere:
@@ -73,8 +72,9 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
   - La chiave TMDB è stata incollata in chat: rischio basso (gratuita), ma si può rigenerare dalle impostazioni API di TMDB.
   - `genre_label` in `tracks.csv` è **rumorosa** (es. Hans Zimmer "Time" = `german`): non usarla come verità nelle descrizioni, meglio le audio features.
   - Alcuni titoli dei brani hanno suffissi (`- Remastered 2011`, `- Radio Edit`, `(feat. ...)`); TMDB in inglese chiama *La grande bellezza* "The Great Beauty". Entrambi lasciati così.
-  - Il controllo sulle colonne sonore è **ottimistico**: solo 5 coppie, e le descrizioni le ha scritte un LLM che conosce le opere, quindi parte della corrispondenza può venire da come sono scritte. Con lo stile nuovo i riferimenti pop sono condivisi apposta tra film e brani, quindi il controllo è ancora meno indipendente. Il caso debole è *Pulp Fiction* → "Son Of A Preacher Man" (rank 44): non è stato ritoccato a mano per non "allenarsi" sul test.
-  - `src/evaluate.py` importa da `recommend.py` (`from recommend import ...`): funziona perché si lancia come `python src/evaluate.py`, che mette `src/` nel percorso degli import.
+  - **I pesi non sono imparati dai dati, e per un motivo preciso**: la ricerca a griglia sceglierebbe 100% riferimenti (MRR 0.79, 0.77 sui titoli tenuti fuori), perché i riferimenti di un brano spesso descrivono proprio la scena in cui è famoso ("boxing training montage"). Quel controllo misura "ritrovo le canzoni famose di un film", non "questo brano piace a chi ama quel film". Adam vuole emozioni + riferimenti pop, quindi i pesi sono fissati a mano; per impararli davvero servono feedback reali (Livello 3).
+  - Il controllo sulle colonne sonore è **ottimistico**: le descrizioni le ha scritte un LLM che conosce le opere e le coppie.
+  - `src/recommend.py` e `src/evaluate.py` importano da `model.py` (`from model import ...`): funziona perché si lancia come `python src/evaluate.py`, che mette `src/` nel percorso degli import. Dopo ogni modifica a `data/descriptions.csv` va rieseguito `src/embed.py`.
   - Amazon Reviews'23: **nessuna licenza esplicita** né sul sito né sulla scheda Hugging Face (`McAuley-Lab/Amazon-Reviews-2023`); gli autori chiedono solo la citazione (Hou et al., 2024, arXiv 2403.03952). Trattarlo come uso di ricerca, non committare dati grezzi. I file usano `parent_asin` come id del prodotto: per mostrare titoli veri servono anche i file di metadati (molto più grandi).
   - Il disco del Mac è quasi pieno (circa 3 GB liberi il 2026-10-04): per il Livello 2 non scaricare i file interi senza prima liberare spazio; lo streaming funziona.
   - TMDB chiede logo + avviso di attribuzione: nel README c'è l'avviso testuale, il logo va aggiunto quando ci sarà una UI.
@@ -85,11 +85,11 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
 
 Da chat → Claude Code. Adam incolla qui il blocco che ricevi dalla chat.
 
-- Livello 1 completato (Passi 1-4). Prossimo: decidere come procedere verso il Livello 2.
+- Livello 1 completato (Passi 1-5), con un mini modello a pesi. Prossimo: raccogliere feedback reali per imparare i pesi, oppure Livello 2.
 
 ### Come riprendere in una nuova conversazione
 
-Aggiornato il 2026-10-04. Il Livello 1 è **completo e pubblicato su GitHub**: dataset, descrizioni, embeddings, raccomandazioni da riga di comando e controllo sulle colonne sonore (controlla con `git status` e `git log --oneline`).
+Aggiornato il 2026-10-04. Il Livello 1 è **completo e pubblicato su GitHub**: dataset (57 titoli, 93 brani), descrizioni in tre parti, embeddings, modello a pesi con correzione hub, raccomandazioni da riga di comando e controllo su 57 coppie film/brano (controlla con `git status` e `git log --oneline`).
 
 **All'avvio, in ordine:**
 1. Leggi questo file (viene caricato da solo) e rispetta le "Regole di lavoro": un passo alla volta, codice Python spiegato in italiano con paragoni JS/TS, verifica documentazione e versioni prima di usare una libreria, commit piccoli, niente segreti nel repo.
@@ -100,7 +100,9 @@ Aggiornato il 2026-10-04. Il Livello 1 è **completo e pubblicato su GitHub**: d
 **Prossimi passi possibili (da decidere):**
 - Far provare i consigli ad Adam e a 5-10 persone, come previsto prima del Livello 2.
 - Livello 2: scegliere il modello (es. fattorizzazione di matrice / two-tower sugli utenti con ≥5 voti per dominio) e come collegare i prodotti Amazon a titoli e brani veri (servono i metadati).
-- Allargare il dataset del Livello 1 (più titoli e brani) generando le descrizioni con uno script.
+- Adam vuole che il progetto diventi un **mini modello di raccomandazione**: il passo naturale è raccogliere giudizi veri ("questo brano ci sta / non ci sta" per un film) e imparare pesi e correzioni da quelli, invece che fissarli a mano.
+- Provare un modello di embedding più capace (`all-mpnet-base-v2`, `bge-base`): circa 400 MB, attenzione allo spazio su disco.
+- Allargare ancora il catalogo dei brani generando le descrizioni con uno script e un'API LLM (a pagamento).
 
 **In sospeso, non bloccanti:**
 - Valutare se rigenerare la chiave TMDB (è stata incollata in chat).
@@ -117,3 +119,4 @@ Una riga per passo completato: data, cosa, commit.
 - 2026-10-04 — Passo 4: embeddings e raccomandazioni per coseno, controllo sulle colonne sonore (MRR 0.68) — commit `b5d3056` (embed), `a854c9a` (recommend), `7abefb2` (evaluate). Livello 1 completo.
 - 2026-10-04 — Fattibilità Livello 2: 54.260 utenti con ≥5 voti sia in film sia in musica su Amazon Reviews'23 — commit `0e524da`.
 - 2026-10-04 — Descrizioni riscritte su richiesta di Adam (emozioni, trama leggera, riferimenti pop), embeddings rigenerati, MRR 0.63 — commit `a8cff33`.
+- 2026-10-04 — Passo 5: dataset a 57 titoli e 93 brani, descrizioni in tre parti, modello a pesi con correzione hub, controllo su 57 coppie (MRR 0.65) — commit `34e9bbc` (modello); dataset nel commit precedente.

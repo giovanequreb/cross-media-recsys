@@ -4,7 +4,7 @@ Recommend **music** based on your taste in **movies and TV series**.
 
 Most recommenders stay inside one domain: they suggest songs because you liked other songs. This project tries the opposite: if you love a slow, melancholic sci-fi film, which tracks would fit that same mood? It is inspired by the Podiums app, where taste is captured through pairwise comparisons instead of star ratings.
 
-> **Status: work in progress.** The environment is set up and Level 1 works end to end: 20 movies/series and 50 tracks with mood descriptions, embeddings, and a command-line recommender. Levels 2 and 3 are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
+> **Status: work in progress.** The environment is set up and Level 1 works end to end: 57 movies/series and 93 tracks with three-facet descriptions, embeddings, a small weighted similarity model and a command-line recommender. Levels 2 and 3 are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
 
 ## How it works
 
@@ -12,16 +12,33 @@ The project is built in three levels, each one a working step on its own.
 
 ### Level 1 — Prototype without training (current)
 
-Every movie, series and track gets a short English text description (generated with an LLM) in three parts: the emotions it evokes, a light summary of what it is about, and its pop-culture references (era, scene, aesthetic, where you have heard it). The item's own title and artist are never mentioned. Descriptions are turned into vectors with a local embedding model, so items from different media end up in the **same vector space**. Recommendations are the tracks whose vectors are closest to the movies you like, ranked by **cosine similarity**.
+Every movie, series and track gets a short English description (generated with an LLM) split into three **facets**:
+
+| Facet | What it says | Example (a neon-noir film) |
+| --- | --- | --- |
+| `emotions` | three adjectives for how it feels | "Cool, romantic and dangerous." |
+| `plot` | a light summary: what happens, or what the song sounds like and is about | "A silent getaway driver falls for his neighbor and is pulled into a heist gone wrong." |
+| `references` | pop-culture touchstones: era, scene, aesthetic, where you have heard it | "80s-inspired neon noir, synthwave, night drives through Los Angeles..." |
+
+The item's own title and artist are never mentioned. Each facet is turned into a vector with a local embedding model, so movies and tracks end up in the **same vector space**, facet by facet.
 
 ```
-movie/series description ─┐
-                          ├─► sentence embedding (384-d) ─► cosine similarity ─► top-N tracks
-track description ────────┘
+            emotions ─► embedding ─► cosine ─┐ × 0.45
+title/track plot ─────► embedding ─► cosine ─┼ × 0.10 ─► weighted sum ─► hub correction ─► top-N tracks
+            references ► embedding ─► cosine ─┘ × 0.45
 ```
 
+The model ([`src/model.py`](src/model.py), parameters in [`data/model.json`](data/model.json)) scores a (title, track) pair as:
+
+```
+score = Σ over facets of  weight[facet] × cosine(title[facet], track[facet])
+        − hub_correction × (average score of that track over all titles)
+```
+
+- **Facet weights.** Recommendations should follow emotions and pop-culture references much more than plot, so the weights are 0.45 / 0.10 / 0.45. They are a design choice, not learned (see [Soundtrack check](#soundtrack-check) for why).
+- **Hub correction.** Some tracks are a little similar to everything and would show up for every title. Subtracting each track's average score keeps only what is specific to *this* title. Without it one track appeared in the top 5 of 17 titles out of 57; with it the worst case is 9.
 - Embedding model: [`all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) via `sentence-transformers`, running locally (free, no API key).
-- No training involved: this is the baseline that later levels have to beat.
+- No training on user data yet: this is the baseline that later levels have to beat.
 
 ### Level 2 — Trained model
 
@@ -76,32 +93,41 @@ python src/recommend.py "Blade Runner 2049" "Drive" --top 5
 
 ```
 Because you like: Mad Max: Fury Road
- 1. Firestarter — The Prodigy  (0.584)
- 2. Killing In The Name — Rage Against The Machine  (0.534)
- 3. Master Of Puppets — Metallica  (0.516)
- 4. HUMBLE. — Kendrick Lamar  (0.484)
- 5. Feeling Good — Nina Simone  (0.408)
+ 1. Master Of Puppets — Metallica  (+0.175)
+ 2. Don't Stop Me Now - Remastered 2011 — Queen  (+0.133)
+ 3. Killing In The Name — Rage Against The Machine  (+0.123)
+ 4. Danger Zone - From "Top Gun" Original Soundtrack — Kenny Loggins  (+0.112)
+ 5. Eye of the Tiger — Survivor  (+0.098)
 ```
 
-The liked titles are averaged into one "taste" vector and the 50 tracks are ranked by cosine similarity to it. The number in brackets is the similarity score.
+With several liked titles, each track gets the average of its scores. The number in brackets is the model score: positive means "more fitting for this title than for the average title".
 
-### Sanity check
+### Soundtrack check
 
-Five tracks in the dataset come from the soundtrack of a title in the dataset. Descriptions never mention the item's own title or artist, so a good recommender should still rank each of them high for its own title:
+[`data/soundtrack_pairs.csv`](data/soundtrack_pairs.csv) lists 57 (title, track) pairs where the track is famously used in the title, for example *Trainspotting* and "Lust For Life". Since descriptions never name the item itself, a good model should still rank each track high for its own title:
 
 ```bash
 python src/evaluate.py
 ```
 
-| Title | Soundtrack track | Rank (of 50) |
-| --- | --- | --- |
-| Amélie | Comptine d'un autre été, l'après-midi | 1 |
-| Drive | Nightcall | 1 |
-| Drive | A Real Hero | 7 |
-| Spirited Away | One Summer Day | 1 |
-| Pulp Fiction | Son Of A Preacher Man | 44 |
+| Setting | MRR | Hit@1 | Hit@5 | Hit@10 | Mean rank (of 93) |
+| --- | --- | --- | --- | --- | --- |
+| Random guess | 0.06 | | | | 47 |
+| Only `plot` | 0.07 | 0.00 | 0.09 | 0.23 | 34.5 |
+| Only `emotions` | 0.31 | 0.23 | 0.37 | 0.46 | 24.5 |
+| Only `references` | 0.74 | 0.67 | 0.84 | 0.91 | 4.3 |
+| Equal weights | 0.57 | 0.46 | 0.70 | 0.79 | 9.0 |
+| Model weights, no hub correction | 0.61 | 0.53 | 0.68 | 0.77 | 8.3 |
+| **Model** (`data/model.json`) | **0.65** | **0.56** | **0.75** | **0.82** | **7.2** |
 
-Mean reciprocal rank: **0.63**, against 0.09 for random guessing. Two caveats: five pairs are far too few for a real evaluation, and the descriptions were written by an LLM that knows these works and deliberately include shared cultural references ("synthwave", "Japanese animation soundtrack"), so part of the match comes from how they were written. The honest test is whether real people like the recommendations, which is what Level 3 is for.
+MRR is the mean reciprocal rank (1.0 = always first); Hit@5 is how often the track is in the top 5. The script also runs a grid search over the weights with 5-fold cross-validation by title.
+
+What this check does and does not show:
+
+- **Plot is nearly useless** for matching music (0.07, about random), which supports giving it a small weight.
+- **The hub correction helps** (0.61 → 0.65) on top of making results more varied.
+- **The check is biased towards `references`.** A track's references often describe the scene it is famous for ("boxing training montage"), so the grid search picks 100% references (MRR 0.79, 0.77 on held-out titles). That finds a title's famous songs, but it is not the same as matching someone's taste, so the weights are not taken from it. Learning them properly needs real feedback, which is what Level 3 is for.
+- The descriptions were written by an LLM that knows these works, so part of the match comes from how they were written.
 
 ## Data
 
@@ -109,12 +135,14 @@ Level 1 uses a small, hand-picked dataset (committed in `data/`):
 
 | File | Content | Source |
 | --- | --- | --- |
-| `data/titles.csv` | 20 movies and TV series: TMDB id, title, year, type, genres, English overview | [TMDB API](https://developer.themoviedb.org/) |
-| `data/tracks.csv` | 50 tracks: id, title, artist, album, popularity and audio features (`danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`) | [`maharshipandya/spotify-tracks-dataset`](https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset) on Hugging Face (BSD license) |
-| `data/descriptions.csv` | 70 short English descriptions (emotions, light plot or theme, pop-culture references), one per title and track: item type (`title`/`track`), item id, name, description | Written with an LLM (Claude) and reviewed by hand |
-| `data/embeddings.npz` | One 384-d unit vector per description, with its item type and id | Built by `src/embed.py` |
+| `data/titles.csv` | 57 movies and TV series: TMDB id, title, year, type, genres, English overview | [TMDB API](https://developer.themoviedb.org/) |
+| `data/tracks.csv` | 93 tracks: id, title, artist, album, popularity and audio features (`danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`) | [`maharshipandya/spotify-tracks-dataset`](https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset) on Hugging Face (BSD license) |
+| `data/descriptions.csv` | 150 descriptions, one per title and track, in three facets: `emotions`, `plot`, `references` (plus item type, id and name) | Written with an LLM (Claude) |
+| `data/soundtrack_pairs.csv` | 57 (title, track) pairs where the track is famously used in the title | Hand-picked |
+| `data/embeddings.npz` | 384-d unit vectors, shape (150 items, 3 facets, 384) | Built by `src/embed.py` |
+| `data/model.json` | Model parameters: facet weights and hub correction | Hand-set |
 
-The 20 titles were chosen to cover very different moods (dark, dreamy, joyful, epic), and the 50 tracks to span ambient, classical, synthwave, jazz, indie and rock. The `genre_label` column in `tracks.csv` comes from the source dataset and is **noisy** (for example, Hans Zimmer's "Time" is labelled `german`), so it is kept for reference only.
+The first 20 titles were chosen to cover very different moods (dark, dreamy, joyful, epic) and the first 50 tracks to span ambient, classical, synthwave, jazz, indie and rock; 37 more titles and 43 more tracks were then added as famous title/song pairs for the soundtrack check. The `genre_label` column in `tracks.csv` comes from the source dataset and is **noisy** (for example, Hans Zimmer's "Time" is labelled `german`), so it is kept for reference only.
 
 To regenerate the files:
 
@@ -142,16 +170,19 @@ cross-media-recsys/
 ├── data/
 │   ├── titles.csv       # movies and series (from TMDB)
 │   ├── tracks.csv       # curated tracks with audio features
-│   ├── descriptions.csv # mood descriptions for titles and tracks
-│   ├── embeddings.npz   # one vector per description
+│   ├── descriptions.csv # three-facet descriptions for titles and tracks
+│   ├── soundtrack_pairs.csv # known title/track pairs used by the check
+│   ├── embeddings.npz   # one vector per description facet
+│   ├── model.json       # model parameters (facet weights, hub correction)
 │   └── raw/             # raw downloads (git-ignored)
 ├── src/
 │   ├── smoke_test.py    # checks the embedding model output shape
 │   ├── fetch_titles.py  # builds data/titles.csv from the TMDB API
 │   ├── build_tracks.py  # builds data/tracks.csv from the Hugging Face dataset
 │   ├── embed.py         # builds data/embeddings.npz from the descriptions
+│   ├── model.py         # the scoring model: weighted facets + hub correction
 │   ├── recommend.py     # recommends tracks from the titles you like
-│   ├── evaluate.py      # soundtrack sanity check
+│   ├── evaluate.py      # soundtrack check, ablation and weight grid search
 │   └── check_overlap.py # Level 2 feasibility: users who rated both movies and music
 ├── notebooks/           # exploratory experiments
 ├── requirements.txt     # pinned dependencies
@@ -177,6 +208,7 @@ cross-media-recsys/
 - [x] Level 1: minimal dataset (20 movies/series, 50 tracks with basic metadata)
 - [x] Level 1: LLM-generated mood descriptions for every title and track
 - [x] Level 1: embeddings, cosine-similarity recommendations, soundtrack sanity check
+- [x] Level 1: three-facet descriptions, weighted model with hub correction, 57-pair soundtrack check
 - [x] Level 2: feasibility check on Amazon Reviews 2023 (movie/music user overlap)
 - [ ] Level 2: train on Amazon Reviews (movies + CDs)
 - [ ] Level 3: pairwise comparisons (Elo / Bradley-Terry) and web app
