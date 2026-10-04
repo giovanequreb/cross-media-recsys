@@ -2,7 +2,7 @@
 
 from sentence_transformers import SentenceTransformer
 
-MODEL_NAME = "all-MiniLM-L6-v2"
+MODEL_NAME = "BAAI/bge-small-en-v1.5"
 EXPECTED_SHAPE = (3, 384)
 
 

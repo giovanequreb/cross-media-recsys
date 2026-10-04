@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 
-MODEL_NAME = "all-MiniLM-L6-v2"
+MODEL_NAME = "BAAI/bge-small-en-v1.5"
 FACETS = ["emotions", "plot", "setting", "references"]
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DESCRIPTIONS_PATH = PROJECT_ROOT / "data" / "descriptions.csv"
