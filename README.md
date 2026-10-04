@@ -12,7 +12,7 @@ The project is built in three levels, each one a working step on its own.
 
 ### Level 1 — Prototype without training (current)
 
-Every movie, series and track gets a short English text description (generated with an LLM). Descriptions are turned into vectors with a local embedding model, so items from different media end up in the **same vector space**. Recommendations are the tracks whose vectors are closest to the movies you like, ranked by **cosine similarity**.
+Every movie, series and track gets a short English text description (generated with an LLM) in three parts: the emotions it evokes, a light summary of what it is about, and its pop-culture references (era, scene, aesthetic, where you have heard it). The item's own title and artist are never mentioned. Descriptions are turned into vectors with a local embedding model, so items from different media end up in the **same vector space**. Recommendations are the tracks whose vectors are closest to the movies you like, ranked by **cosine similarity**.
 
 ```
 movie/series description ─┐
@@ -76,18 +76,18 @@ python src/recommend.py "Blade Runner 2049" "Drive" --top 5
 
 ```
 Because you like: Mad Max: Fury Road
- 1. Killing In The Name — Rage Against The Machine  (0.790)
- 2. Master Of Puppets — Metallica  (0.726)
- 3. Firestarter — The Prodigy  (0.659)
- 4. HUMBLE. — Kendrick Lamar  (0.599)
- 5. Don't Stop Me Now - Remastered 2011 — Queen  (0.590)
+ 1. Firestarter — The Prodigy  (0.584)
+ 2. Killing In The Name — Rage Against The Machine  (0.534)
+ 3. Master Of Puppets — Metallica  (0.516)
+ 4. HUMBLE. — Kendrick Lamar  (0.484)
+ 5. Feeling Good — Nina Simone  (0.408)
 ```
 
 The liked titles are averaged into one "taste" vector and the 50 tracks are ranked by cosine similarity to it. The number in brackets is the similarity score.
 
 ### Sanity check
 
-Five tracks in the dataset come from the soundtrack of a title in the dataset. Descriptions never mention names, so a good recommender should still rank each of them high for its own title:
+Five tracks in the dataset come from the soundtrack of a title in the dataset. Descriptions never mention the item's own title or artist, so a good recommender should still rank each of them high for its own title:
 
 ```bash
 python src/evaluate.py
@@ -97,11 +97,11 @@ python src/evaluate.py
 | --- | --- | --- |
 | Amélie | Comptine d'un autre été, l'après-midi | 1 |
 | Drive | Nightcall | 1 |
-| Drive | A Real Hero | 3 |
+| Drive | A Real Hero | 7 |
 | Spirited Away | One Summer Day | 1 |
-| Pulp Fiction | Son Of A Preacher Man | 24 |
+| Pulp Fiction | Son Of A Preacher Man | 44 |
 
-Mean reciprocal rank: **0.68**, against 0.09 for random guessing. Two caveats: five pairs are far too few for a real evaluation, and the descriptions were written by an LLM that knows these works, so part of the match may come from how they were written. The honest test is whether real people like the recommendations, which is what Level 3 is for.
+Mean reciprocal rank: **0.63**, against 0.09 for random guessing. Two caveats: five pairs are far too few for a real evaluation, and the descriptions were written by an LLM that knows these works and deliberately include shared cultural references ("synthwave", "Japanese animation soundtrack"), so part of the match comes from how they were written. The honest test is whether real people like the recommendations, which is what Level 3 is for.
 
 ## Data
 
@@ -111,7 +111,7 @@ Level 1 uses a small, hand-picked dataset (committed in `data/`):
 | --- | --- | --- |
 | `data/titles.csv` | 20 movies and TV series: TMDB id, title, year, type, genres, English overview | [TMDB API](https://developer.themoviedb.org/) |
 | `data/tracks.csv` | 50 tracks: id, title, artist, album, popularity and audio features (`danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`) | [`maharshipandya/spotify-tracks-dataset`](https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset) on Hugging Face (BSD license) |
-| `data/descriptions.csv` | 70 short English mood descriptions, one per title and track: item type (`title`/`track`), item id, name, description | Written with an LLM (Claude) and reviewed by hand |
+| `data/descriptions.csv` | 70 short English descriptions (emotions, light plot or theme, pop-culture references), one per title and track: item type (`title`/`track`), item id, name, description | Written with an LLM (Claude) and reviewed by hand |
 | `data/embeddings.npz` | One 384-d unit vector per description, with its item type and id | Built by `src/embed.py` |
 
 The 20 titles were chosen to cover very different moods (dark, dreamy, joyful, epic), and the 50 tracks to span ambient, classical, synthwave, jazz, indie and rock. The `genre_label` column in `tracks.csv` comes from the source dataset and is **noisy** (for example, Hans Zimmer's "Time" is labelled `german`), so it is kept for reference only.
