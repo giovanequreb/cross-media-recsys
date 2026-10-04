@@ -130,6 +130,8 @@ SEED_TITLES = [
     ("Westworld", 2016, "tv"),
     ("Better Call Saul", 2015, "tv"),
     ("The Bear", 2022, "tv"),
+    ("Finding Nemo", 2003, "movie"),
+    ("The Fast and the Furious", 2001, "movie"),
 ]
 
 # TMDB names the same fields differently for movies and TV series.

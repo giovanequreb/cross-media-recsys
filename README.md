@@ -4,7 +4,7 @@ Recommend **music** based on your taste in **movies and TV series**.
 
 Most recommenders stay inside one domain: they suggest songs because you liked other songs. This project tries the opposite: if you love a slow, melancholic sci-fi film, which tracks would fit that same mood? It is inspired by the Podiums app, where taste is captured through pairwise comparisons instead of star ratings.
 
-> **Status: work in progress.** The environment is set up and Level 1 works end to end: 111 movies/series and 200 tracks with four-facet descriptions, embeddings, a small weighted similarity model, a command-line recommender and a static web app. Levels 2 and 3 are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
+> **Status: work in progress.** The environment is set up and Level 1 works end to end: 113 movies/series and 200 tracks with four-facet descriptions, embeddings, a small weighted similarity model, a command-line recommender and a static web app. Levels 2 and 3 are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
 
 ## How it works
 
@@ -166,11 +166,11 @@ Level 1 uses a small, hand-picked dataset (committed in `data/`):
 
 | File | Content | Source |
 | --- | --- | --- |
-| `data/titles.csv` | 111 movies and TV series: TMDB id, title, year, type, genres, English overview | [TMDB API](https://developer.themoviedb.org/) |
+| `data/titles.csv` | 113 movies and TV series: TMDB id, title, year, type, genres, English overview | [TMDB API](https://developer.themoviedb.org/) |
 | `data/tracks.csv` | 200 tracks: id, title, artist, album, popularity and audio features (`danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`) | [`maharshipandya/spotify-tracks-dataset`](https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset) on Hugging Face (BSD license) |
-| `data/descriptions.csv` | 311 descriptions, one per title and track, in four facets: `emotions`, `plot`, `setting`, `references` (plus item type, id and name) | Written with an LLM (Claude) |
+| `data/descriptions.csv` | 313 descriptions, one per title and track, in four facets: `emotions`, `plot`, `setting`, `references` (plus item type, id and name) | Written with an LLM (Claude) |
 | `data/soundtrack_pairs.csv` | 83 (title, track) pairs where the track is famously used in the title | Hand-picked |
-| `data/embeddings.npz` | 384-d unit vectors, shape (311 items, 4 facets, 384) | Built by `src/embed.py` |
+| `data/embeddings.npz` | 384-d unit vectors, shape (313 items, 4 facets, 384) | Built by `src/embed.py` |
 | `data/model.json` | Model parameters: facet weights and hub correction | Hand-set |
 
 The first 20 titles were chosen to cover very different moods (dark, dreamy, joyful, epic) and the first 50 tracks to span ambient, classical, synthwave, jazz, indie and rock; 37 more titles and 43 more tracks were then added as famous title/song pairs for the soundtrack check, and finally 107 more tracks (classical, classic rock, new wave, alternative, hip-hop, pop, electronic, soul, folk) so that more titles have a fitting track, and 54 more popular titles. The `genre_label` column in `tracks.csv` comes from the source dataset and is **noisy** (for example, Hans Zimmer's "Time" is labelled `german`), so it is kept for reference only.
