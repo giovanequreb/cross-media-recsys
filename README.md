@@ -4,7 +4,7 @@ Recommend **music** based on your taste in **movies and TV series**.
 
 Most recommenders stay inside one domain: they suggest songs because you liked other songs. This project tries the opposite: if you love a slow, melancholic sci-fi film, which tracks would fit that same mood? It is inspired by the Podiums app, where taste is captured through pairwise comparisons instead of star ratings.
 
-> **Status: work in progress.** The environment is set up and Level 1 works end to end: 57 movies/series and 93 tracks with three-facet descriptions, embeddings, a small weighted similarity model, a command-line recommender and a static web app. Levels 2 and 3 are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
+> **Status: work in progress.** The environment is set up and Level 1 works end to end: 57 movies/series and 93 tracks with four-facet descriptions, embeddings, a small weighted similarity model, a command-line recommender and a static web app. Levels 2 and 3 are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
 
 ## How it works
 
@@ -12,20 +12,22 @@ The project is built in three levels, each one a working step on its own.
 
 ### Level 1 — Prototype without training (current)
 
-Every movie, series and track gets a short English description (generated with an LLM) split into three **facets**:
+Every movie, series and track gets a short English description (generated with an LLM) split into four **facets**:
 
 | Facet | What it says | Example (a neon-noir film) |
 | --- | --- | --- |
 | `emotions` | three adjectives for how it feels | "Cool, romantic and dangerous." |
 | `plot` | a light summary: what happens, or what the song sounds like and is about | "A silent getaway driver falls for his neighbor and is pulled into a heist gone wrong." |
+| `setting` | where and when it takes place; for a track, the place and time the music evokes | "Los Angeles at night, present day with an 80s glow: empty freeways, motels, neon streets." |
 | `references` | pop-culture touchstones: era, scene, aesthetic, where you have heard it | "80s-inspired neon noir, synthwave, night drives through Los Angeles..." |
 
 The item's own title and artist are never mentioned. Each facet is turned into a vector with a local embedding model, so movies and tracks end up in the **same vector space**, facet by facet.
 
 ```
-            emotions ─► embedding ─► cosine ─┐ × 0.45
-title/track plot ─────► embedding ─► cosine ─┼ × 0.10 ─► weighted sum ─► hub correction ─► top-N tracks
-            references ► embedding ─► cosine ─┘ × 0.45
+            emotions ───► embedding ─► cosine ─┐ × 0.35
+title/track plot ───────► embedding ─► cosine ─┤ × 0.05
+            setting ────► embedding ─► cosine ─┼ × 0.25 ─► weighted sum ─► hub correction ─► top-N tracks
+            references ─► embedding ─► cosine ─┘ × 0.35
 ```
 
 The model ([`src/model.py`](src/model.py), parameters in [`data/model.json`](data/model.json)) scores a (title, track) pair as:
@@ -35,7 +37,7 @@ score = Σ over facets of  weight[facet] × cosine(title[facet], track[facet])
         − hub_correction × (average score of that track over all titles)
 ```
 
-- **Facet weights.** Recommendations should follow emotions and pop-culture references much more than plot, so the weights are 0.45 / 0.10 / 0.45. They are a design choice, not learned (see [Soundtrack check](#soundtrack-check) for why).
+- **Facet weights.** Recommendations should follow emotions, pop-culture references and setting much more than plot, so the weights are emotions 0.35, plot 0.05, setting 0.25, references 0.35. They are a design choice, not learned (see [Soundtrack check](#soundtrack-check) for why).
 - **Hub correction.** Some tracks are a little similar to everything and would show up for every title. Subtracting each track's average score keeps only what is specific to *this* title. Without it one track appeared in the top 5 of 17 titles out of 57; with it the worst case is 9.
 - Embedding model: [`all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) via `sentence-transformers`, running locally (free, no API key).
 - No training on user data yet: this is the baseline that later levels have to beat.
@@ -111,7 +113,7 @@ python -m http.server 5173 --directory app
 # then open http://localhost:5173
 ```
 
-It also works by opening `app/index.html` directly. Pick the titles you like, move the three facet sliders to see how the weights change the results, and rate the tracks with 👍/👎. Ratings stay in your browser and can be downloaded as JSON: they are the feedback the model needs to learn its weights instead of having them set by hand.
+It also works by opening `app/index.html` directly. Pick the titles you like, move the four facet sliders to see how the weights change the results, and rate the tracks with 👍/👎. Ratings stay in your browser and can be downloaded as JSON: they are the feedback the model needs to learn its weights instead of having them set by hand.
 
 `app/data.js` is generated; after changing descriptions, embeddings or `data/model.json`, rebuild it with `python src/export_app.py`.
 
@@ -128,18 +130,20 @@ python src/evaluate.py
 | Random guess | 0.06 | | | | 47 |
 | Only `plot` | 0.07 | 0.00 | 0.09 | 0.23 | 34.5 |
 | Only `emotions` | 0.31 | 0.23 | 0.37 | 0.46 | 24.5 |
+| Only `setting` | 0.49 | 0.42 | 0.51 | 0.60 | 17.1 |
 | Only `references` | 0.74 | 0.67 | 0.84 | 0.91 | 4.3 |
-| Equal weights | 0.57 | 0.46 | 0.70 | 0.79 | 9.0 |
-| Model weights, no hub correction | 0.61 | 0.53 | 0.68 | 0.77 | 8.3 |
-| **Model** (`data/model.json`) | **0.65** | **0.56** | **0.75** | **0.82** | **7.2** |
+| Equal weights | 0.66 | 0.60 | 0.72 | 0.81 | 7.6 |
+| Model weights, no hub correction | 0.66 | 0.60 | 0.74 | 0.81 | 6.6 |
+| **Model** (`data/model.json`) | **0.67** | **0.58** | **0.81** | **0.86** | **5.6** |
 
 MRR is the mean reciprocal rank (1.0 = always first); Hit@5 is how often the track is in the top 5. The script also runs a grid search over the weights with 5-fold cross-validation by title.
 
 What this check does and does not show:
 
 - **Plot is nearly useless** for matching music (0.07, about random), which supports giving it a small weight.
-- **The hub correction helps** (0.61 → 0.65) on top of making results more varied.
-- **The check is biased towards `references`.** A track's references often describe the scene it is famous for ("boxing training montage"), so the grid search picks 100% references (MRR 0.79, 0.77 on held-out titles). That finds a title's famous songs, but it is not the same as matching someone's taste, so the weights are not taken from it. Learning them properly needs real feedback, which is what Level 3 is for.
+- **Setting carries real signal** (0.49 on its own) and adding it as a fourth facet moved the model from 0.65 to 0.67 MRR and from 0.75 to 0.81 Hit@5.
+- **The hub correction helps a little** on this check (mean rank 6.6 → 5.6) on top of making results more varied.
+- **The check is biased towards `references`.** A track's references often describe the scene it is famous for ("boxing training montage"), so the grid search picks 90% references and 10% setting (MRR 0.80, 0.79 on held-out titles). That finds a title's famous songs, but it is not the same as matching someone's taste, so the weights are not taken from it. Learning them properly needs real feedback, which is what Level 3 is for.
 - The descriptions were written by an LLM that knows these works, so part of the match comes from how they were written.
 
 ## Data
@@ -150,9 +154,9 @@ Level 1 uses a small, hand-picked dataset (committed in `data/`):
 | --- | --- | --- |
 | `data/titles.csv` | 57 movies and TV series: TMDB id, title, year, type, genres, English overview | [TMDB API](https://developer.themoviedb.org/) |
 | `data/tracks.csv` | 93 tracks: id, title, artist, album, popularity and audio features (`danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`) | [`maharshipandya/spotify-tracks-dataset`](https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset) on Hugging Face (BSD license) |
-| `data/descriptions.csv` | 150 descriptions, one per title and track, in three facets: `emotions`, `plot`, `references` (plus item type, id and name) | Written with an LLM (Claude) |
+| `data/descriptions.csv` | 150 descriptions, one per title and track, in four facets: `emotions`, `plot`, `setting`, `references` (plus item type, id and name) | Written with an LLM (Claude) |
 | `data/soundtrack_pairs.csv` | 57 (title, track) pairs where the track is famously used in the title | Hand-picked |
-| `data/embeddings.npz` | 384-d unit vectors, shape (150 items, 3 facets, 384) | Built by `src/embed.py` |
+| `data/embeddings.npz` | 384-d unit vectors, shape (150 items, 4 facets, 384) | Built by `src/embed.py` |
 | `data/model.json` | Model parameters: facet weights and hub correction | Hand-set |
 
 The first 20 titles were chosen to cover very different moods (dark, dreamy, joyful, epic) and the first 50 tracks to span ambient, classical, synthwave, jazz, indie and rock; 37 more titles and 43 more tracks were then added as famous title/song pairs for the soundtrack check. The `genre_label` column in `tracks.csv` comes from the source dataset and is **noisy** (for example, Hans Zimmer's "Time" is labelled `german`), so it is kept for reference only.
@@ -183,7 +187,7 @@ cross-media-recsys/
 ├── data/
 │   ├── titles.csv       # movies and series (from TMDB)
 │   ├── tracks.csv       # curated tracks with audio features
-│   ├── descriptions.csv # three-facet descriptions for titles and tracks
+│   ├── descriptions.csv # four-facet descriptions for titles and tracks
 │   ├── soundtrack_pairs.csv # known title/track pairs used by the check
 │   ├── embeddings.npz   # one vector per description facet
 │   ├── model.json       # model parameters (facet weights, hub correction)
@@ -225,7 +229,7 @@ cross-media-recsys/
 - [x] Level 1: minimal dataset (20 movies/series, 50 tracks with basic metadata)
 - [x] Level 1: LLM-generated mood descriptions for every title and track
 - [x] Level 1: embeddings, cosine-similarity recommendations, soundtrack sanity check
-- [x] Level 1: three-facet descriptions, weighted model with hub correction, 57-pair soundtrack check
+- [x] Level 1: four-facet descriptions (emotions, plot, setting, references), weighted model with hub correction, 57-pair soundtrack check
 - [x] Level 1: static web app with live facet weights and feedback export
 - [x] Level 2: feasibility check on Amazon Reviews 2023 (movie/music user overlap)
 - [ ] Level 2: train on Amazon Reviews (movies + CDs)

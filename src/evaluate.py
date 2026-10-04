@@ -13,6 +13,8 @@ for, so this check favours `references` by construction. It measures "can the
 model find a title's famous songs", not "will this person like the track".
 """
 
+from itertools import product
+
 import numpy as np
 import pandas as pd
 
@@ -47,11 +49,11 @@ def mrr(scores: np.ndarray, pairs: list[tuple[int, int]]) -> float:
 
 
 def weight_grid(facets: list[str], steps: int = 10) -> list[dict[str, float]]:
-    """All weight combinations in steps of 1/steps that sum to 1 (three facets)."""
+    """All weight combinations in steps of 1/steps that sum to 1."""
     return [
-        dict(zip(facets, (a / steps, b / steps, (steps - a - b) / steps)))
-        for a in range(steps + 1)
-        for b in range(steps + 1 - a)
+        dict(zip(facets, (part / steps for part in parts)))
+        for parts in product(range(steps + 1), repeat=len(facets))
+        if sum(parts) == steps
     ]
 
 

@@ -1,7 +1,7 @@
 """The recommender model: weighted facet similarity with a hub correction.
 
 Every title and track has one vector per description facet (emotions, plot,
-references). The score of a (title, track) pair is
+setting, references). The score of a (title, track) pair is
 
     score = sum over facets of  weight[facet] * cosine(title[facet], track[facet])
             - hub_correction * (average score of that track over all titles)
