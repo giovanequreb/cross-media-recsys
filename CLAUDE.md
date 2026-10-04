@@ -108,7 +108,7 @@ Aggiornato il 2026-10-04. Il Livello 1 è **completo e pubblicato su GitHub**: d
 - Far provare i consigli ad Adam e a 5-10 persone, come previsto prima del Livello 2.
 - Livello 2: scegliere il modello (es. fattorizzazione di matrice / two-tower sugli utenti con ≥5 voti per dominio) e come collegare i prodotti Amazon a titoli e brani veri (servono i metadati).
 - Pubblicare l'app (es. GitHub Pages: richiede di spostarla in `docs/` o di usare una GitHub Action, ed è una modifica alle impostazioni del repo).
-- **Adam non è soddisfatto dei consigli** (2026-10-04, "non ci siamo coi consigli"), anche dopo l'ambientazione non è detto che lo sia: chiedergli esempi concreti di abbinamenti sbagliati prima di cambiare altro. Cause probabili: catalogo piccolo (93 brani, per molti film non c'è un brano adatto), modello di embedding piccolo, descrizioni scritte da un LLM.
+- Dopo l'aggiunta dell'ambientazione Adam ha provato l'app e ha detto che i consigli funzionano bene (2026-10-04). Limiti noti che restano: catalogo piccolo (93 brani, per film come *Parasite* o *Succession* manca un brano adatto), modello di embedding piccolo, pesi fissati a mano.
 - Adam vuole che il progetto diventi un **mini modello di raccomandazione**: il passo naturale è raccogliere giudizi veri con l'app ("questo brano ci sta / non ci sta" per un film) e imparare pesi e correzioni da quelli, invece che fissarli a mano.
 - Provare un modello di embedding più capace (`all-mpnet-base-v2`, `bge-base`): circa 400 MB, attenzione allo spazio su disco.
 - Allargare ancora il catalogo dei brani generando le descrizioni con uno script e un'API LLM (a pagamento).
