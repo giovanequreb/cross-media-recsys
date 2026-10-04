@@ -1,4 +1,4 @@
-"""Build data/tracks.csv: 50 hand-picked tracks with audio features.
+"""Build data/tracks.csv: hand-picked tracks with audio features.
 
 Source: the Hugging Face dataset maharshipandya/spotify-tracks-dataset (BSD license).
 The raw CSV is downloaded to data/raw/ (ignored by git); only the curated
@@ -80,6 +80,50 @@ CURATED_TRACKS = [
     # French and 80s pop
     ("La vie en rose", "Piaf"),
     ("Sweet Dreams", "Eurythmics"),
+    # Songs famously used in a title from data/titles.csv (see data/soundtrack_pairs.csv)
+    ("Cornfield Chase", "Hans Zimmer"),
+    ("You Never Can Tell", "Chuck Berry"),
+    ("Just Like Honey", "Jesus and Mary Chain"),
+    ("Baby Blue", "Badfinger"),
+    ("Enemy", "Imagine Dragons"),
+    ("Tick Of The Clock", "Chromatics"),
+    ("Battle Without Honor", "HOTEI"),
+    ("Running Up That Hill", "Kate Bush"),
+    ("Should I Stay or Should I Go", "The Clash"),
+    ("Una Mattina", "Einaudi"),
+    ("Fly", "Einaudi"),
+    ("Hooked On A Feeling", "Blue Swede"),
+    ("Lust For Life", "Iggy Pop"),
+    ("Perfect Day", "Lou Reed"),
+    ("Where Is My Mind", "Pixies"),
+    ("Mrs. Robinson", "Simon & Garfunkel"),
+    ("The Sound of Silence", "Simon & Garfunkel"),
+    ("Stuck In The Middle With You", "Stealers Wheel"),
+    ("Danger Zone", "Kenny Loggins"),
+    ("Take My Breath Away", "Berlin"),
+    ("Eye of the Tiger", "Survivor"),
+    ("Ghostbusters", "Ray Parker"),
+    ("Stayin' Alive", "Bee Gees"),
+    ("Still Don't Know My Name", "Labrinth"),
+    ("Mystery of Love", "Sufjan Stevens"),
+    ("Shallow", "Lady Gaga"),
+    ("Lose Yourself", "Eminem"),
+    ("All The Stars", "Kendrick Lamar"),
+    ("Let It Go", "Idina Menzel"),
+    ("All Star", "Smash Mouth"),
+    ("There Is a Light That Never Goes Out", "The Smiths"),
+    ("Don't You (Forget About Me)", "Simple Minds"),
+    ("Lux Aeterna", "Clint Mansell"),
+    ("Skyfall", "Adele"),
+    ("The End", "The Doors"),
+    ("Fortunate Son", "Creedence"),
+    ("Tiny Dancer", "Elton John"),
+    ("Born To Be Wild", "Steppenwolf"),
+    ("Circle of Life", "Carmen Twillie"),
+    ("Unchained Melody", "Righteous Brothers"),
+    ("Oh, Pretty Woman", "Roy Orbison"),
+    ("Main Title", "Ramin Djawadi"),
+    ("Light of the Seven", "Ramin Djawadi"),
 ]
 
 COLUMNS = {
