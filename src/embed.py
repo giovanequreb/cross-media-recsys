@@ -1,9 +1,9 @@
-"""Build data/embeddings.npz: one vector per mood description.
+"""Build data/embeddings.npz: one vector per description facet.
 
-Reads data/descriptions.csv, encodes the `description` column with a local
-sentence-transformers model and saves the vectors next to their item type and id.
-Only the description text is embedded: titles and artist names are left out on
-purpose, so similarity cannot "cheat" by matching names.
+Each row of data/descriptions.csv describes an item in three facets (emotions,
+plot, references). Every facet is embedded separately with a local
+sentence-transformers model, so the recommender can weigh them differently.
+The item's own title and artist are never part of the text.
 """
 
 from pathlib import Path
@@ -13,6 +13,7 @@ import pandas as pd
 from sentence_transformers import SentenceTransformer
 
 MODEL_NAME = "all-MiniLM-L6-v2"
+FACETS = ["emotions", "plot", "references"]
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DESCRIPTIONS_PATH = PROJECT_ROOT / "data" / "descriptions.csv"
 OUTPUT_PATH = PROJECT_ROOT / "data" / "embeddings.npz"
@@ -23,15 +24,20 @@ def main() -> None:
 
     model = SentenceTransformer(MODEL_NAME)
     # Unit-length vectors: cosine similarity becomes a plain dot product.
-    vectors = model.encode(descriptions["description"].tolist(), normalize_embeddings=True)
+    per_facet = [
+        model.encode(descriptions[facet].tolist(), normalize_embeddings=True) for facet in FACETS
+    ]
+    # Shape (items, facets, dimensions): vectors[i, j] is facet j of item i.
+    vectors = np.stack(per_facet, axis=1).astype(np.float32)
 
     np.savez(
         OUTPUT_PATH,
         item_type=descriptions["item_type"].to_numpy(dtype=str),
         item_id=descriptions["item_id"].to_numpy(dtype=str),
-        vectors=vectors.astype(np.float32),
+        facets=np.array(FACETS),
+        vectors=vectors,
     )
-    print(f"Saved {vectors.shape[0]} vectors of size {vectors.shape[1]} to {OUTPUT_PATH.relative_to(PROJECT_ROOT)}")
+    print(f"Saved vectors of shape {vectors.shape} to {OUTPUT_PATH.relative_to(PROJECT_ROOT)}")
 
 
 if __name__ == "__main__":

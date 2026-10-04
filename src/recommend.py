@@ -4,29 +4,15 @@ Usage:
     python src/recommend.py "Blade Runner 2049" "Drive"
     python src/recommend.py "Amélie" --top 10
 
-The liked titles are averaged into a single "taste" vector, and the tracks are
-ranked by cosine similarity to it. Run src/embed.py first to build the vectors.
+Each liked title scores every track (see src/model.py); the scores are averaged
+over the liked titles and the best tracks are shown. Run src/embed.py first.
 """
 
 import argparse
-from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-TITLES_PATH = PROJECT_ROOT / "data" / "titles.csv"
-TRACKS_PATH = PROJECT_ROOT / "data" / "tracks.csv"
-EMBEDDINGS_PATH = PROJECT_ROOT / "data" / "embeddings.npz"
-
-
-def load_vectors(item_type: str) -> dict[str, np.ndarray]:
-    """Return {item_id: vector} for one item type ("title" or "track")."""
-    if not EMBEDDINGS_PATH.exists():
-        raise SystemExit("Embeddings not found: run `python src/embed.py` first.")
-    data = np.load(EMBEDDINGS_PATH)
-    mask = data["item_type"] == item_type
-    return dict(zip(data["item_id"][mask], data["vectors"][mask]))
+from model import TITLES_PATH, TRACKS_PATH, load_facet_scores, load_model, score_matrix
 
 
 def find_title(titles: pd.DataFrame, query: str) -> pd.Series:
@@ -43,19 +29,16 @@ def find_title(titles: pd.DataFrame, query: str) -> pd.Series:
 
 
 def recommend(liked_ids: list[str], top: int) -> pd.DataFrame:
-    """Rank the tracks by cosine similarity to the mean vector of the liked titles."""
-    title_vectors = load_vectors("title")
-    track_vectors = load_vectors("track")
+    """Rank the tracks by their average model score over the liked titles."""
+    facets, title_ids, track_ids, similarities = load_facet_scores()
+    weights, hub_correction = load_model()
+    scores = score_matrix(facets, similarities, weights, hub_correction)
 
-    taste = np.mean([title_vectors[item_id] for item_id in liked_ids], axis=0)
-    taste /= np.linalg.norm(taste)
-
-    track_ids = list(track_vectors)
-    # Vectors are unit-length, so the dot product is the cosine similarity.
-    scores = np.stack([track_vectors[track_id] for track_id in track_ids]) @ taste
+    liked_rows = [title_ids.index(item_id) for item_id in liked_ids]
+    taste_scores = scores[liked_rows].mean(axis=0)
 
     tracks = pd.read_csv(TRACKS_PATH).set_index("track_id").loc[track_ids]
-    tracks["score"] = scores
+    tracks["score"] = taste_scores
     return tracks.sort_values("score", ascending=False).head(top)
 
 
@@ -71,7 +54,7 @@ def main() -> None:
     print("Because you like: " + ", ".join(row["title"] for row in liked))
     recommendations = recommend([row["tmdb_id"] for row in liked], args.top)
     for rank, (_, track) in enumerate(recommendations.iterrows(), start=1):
-        print(f"{rank:>2}. {track['title']} — {track['artist']}  ({track['score']:.3f})")
+        print(f"{rank:>2}. {track['title']} — {track['artist']}  ({track['score']:+.3f})")
 
 
 if __name__ == "__main__":

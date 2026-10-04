@@ -1,0 +1,4 @@
+{
+  "weights": {"emotions": 0.45, "plot": 0.1, "references": 0.45},
+  "hub_correction": 1.0
+}
