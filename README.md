@@ -113,7 +113,7 @@ python -m http.server 5173 --directory app
 # then open http://localhost:5173
 ```
 
-It also works by opening `app/index.html` directly. Pick the titles you like, move the four facet sliders to see how the weights change the results, and rate the tracks with 👍/👎. **Rating mode** shuffles the list, hides ranks and scores, and mixes in three lower-ranked wildcards, so the ratings also cover tracks the model would not have shown. Ratings stay in your browser and can be downloaded as JSON: they are the feedback the model needs to learn its weights instead of having them set by hand.
+It also works by opening `app/index.html` directly. Pick the titles you like, move the four facet sliders to see how the weights change the results, and rate the tracks with 👍, 👎 or 🤷 ("I don't know this track"). **Rating mode** shuffles the list, hides ranks and scores, and mixes in three lower-ranked wildcards, so the ratings also cover tracks the model would not have shown. Ratings stay in your browser and can be downloaded as JSON: they are the feedback the model needs to learn its weights instead of having them set by hand.
 
 `app/data.js` is generated; after changing descriptions, embeddings or `data/model.json`, rebuild it with `python src/export_app.py`.
 

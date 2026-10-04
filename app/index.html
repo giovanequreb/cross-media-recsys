@@ -61,6 +61,7 @@
     }
     .vote[aria-pressed="true"].up { background: var(--accent); border-color: var(--accent); }
     .vote[aria-pressed="true"].down { background: var(--bad); border-color: var(--bad); }
+    .vote[aria-pressed="true"].unknown { background: var(--muted); border-color: var(--muted); }
     .bar { height: 4px; background: var(--line); border-radius: 2px; margin: 8px 0 8px 30px; overflow: hidden; }
     .bar span { display: block; height: 100%; background: var(--accent); }
     .why { margin: 0 0 0 30px; color: var(--muted); font-size: 13px; }
@@ -280,7 +281,7 @@
         element("div", { className: "track-head" }, [
           element("span", { className: "rank", textContent: state.blind ? "·" : index + 1 }),
           element("span", { className: "name" }, [link, element("span", { className: "artist", textContent: " — " + track.artist })]),
-          element("span", { className: "votes" }, [button("up", "Good match", "👍"), button("down", "Bad match", "👎")]),
+          element("span", { className: "votes" }, [button("up", "Good match", "👍"), button("down", "Bad match", "👎"), button("unknown", "I don't know this track", "🤷")]),
         ]),
         barRow,
         element("p", { className: "why" }, [element("b", { textContent: track.emotions + " " }), track.references]),
