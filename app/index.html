@@ -146,6 +146,14 @@
 
   const $ = (id) => document.getElementById(id);
 
+  // Similarities arrive as one base64 byte string per facet (titles x tracks, row by row).
+  const SIMILARITY = DATA.similarities.bytes.map((text) => Uint8Array.from(atob(text), (char) => char.charCodeAt(0)));
+  const TRACK_COUNT = DATA.tracks.length;
+  function similarity(f, t, k) {
+    const { low, high } = DATA.similarities;
+    return low[f] + (SIMILARITY[f][t * TRACK_COUNT + k] / 255) * (high[f] - low[f]);
+  }
+
   // localStorage can be unavailable (private windows): the app must still work.
   function loadFeedback() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; }
@@ -159,7 +167,7 @@
     const total = DATA.facets.reduce((sum, facet) => sum + state.weights[facet], 0) || 1;
     const scores = DATA.titles.map((_, t) =>
       DATA.tracks.map((_, k) =>
-        DATA.facets.reduce((sum, facet, f) => sum + (state.weights[facet] / total) * DATA.similarities[f][t][k], 0)));
+        DATA.facets.reduce((sum, facet, f) => sum + (state.weights[facet] / total) * similarity(f, t, k), 0)));
     if (!state.hub) return scores;
     const trackMeans = DATA.tracks.map((_, k) => scores.reduce((sum, row) => sum + row[k], 0) / scores.length);
     return scores.map((row) => row.map((score, k) => score - trackMeans[k]));
@@ -211,7 +219,7 @@
           title.title + " ", element("small", { textContent: title.year }),
         ]);
         chip.setAttribute("aria-pressed", state.selected.has(title.id));
-        chip.title = (title.type === "tv" ? "Created by " : "Directed by ") + title.director;
+        if (title.director) chip.title = (title.type === "tv" ? "Created by " : "Directed by ") + title.director;
         chip.onclick = () => {
           state.selected.has(title.id) ? state.selected.delete(title.id) : state.selected.add(title.id);
           render();
@@ -221,7 +229,7 @@
     $("chips").replaceChildren(...chips);
     const count = state.selected.size;
     const chosen = DATA.titles.filter((title) => state.selected.has(title.id));
-    $("selection-count").textContent = chosen.map((title) => `${title.title} — ${title.director}`).join(" · ");
+    $("selection-count").textContent = chosen.map((title) => title.director ? `${title.title} — ${title.director}` : title.title).join(" · ");
     $("clear").disabled = count === 0;
   }
 

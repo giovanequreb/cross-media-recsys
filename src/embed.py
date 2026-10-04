@@ -28,9 +28,10 @@ def main() -> None:
         model.encode(descriptions[facet].tolist(), normalize_embeddings=True) for facet in FACETS
     ]
     # Shape (items, facets, dimensions): vectors[i, j] is facet j of item i.
-    vectors = np.stack(per_facet, axis=1).astype(np.float32)
+    # float16 halves the file size; the rounding is far below what the scores can show.
+    vectors = np.stack(per_facet, axis=1).astype(np.float16)
 
-    np.savez(
+    np.savez_compressed(
         OUTPUT_PATH,
         item_type=descriptions["item_type"].to_numpy(dtype=str),
         item_id=descriptions["item_id"].to_numpy(dtype=str),

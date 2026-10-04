@@ -112,3 +112,128 @@ tmdb_id,title,energy,valence
 136315,The Bear,0.90,0.35
 12,Finding Nemo,0.55,0.85
 9799,The Fast and the Furious,0.95,0.60
+424,Schindler's List,0.25,0.05
+274,The Silence of the Lambs,0.40,0.05
+857,Saving Private Ryan,0.75,0.10
+289,Casablanca,0.35,0.40
+539,Psycho,0.55,0.05
+111,Scarface,0.80,0.25
+1366,Rocky,0.70,0.60
+578,Jaws,0.70,0.30
+601,E.T. the Extra-Terrestrial,0.55,0.70
+11,Star Wars,0.85,0.75
+85,Raiders of the Lost Ark,0.90,0.80
+329,Jurassic Park,0.75,0.55
+348,Alien,0.45,0.03
+78,Blade Runner,0.30,0.15
+280,Terminator 2: Judgment Day,0.90,0.25
+562,Die Hard,0.90,0.50
+862,Toy Story,0.65,0.85
+14160,Up,0.50,0.70
+10681,WALL·E,0.40,0.65
+150540,Inside Out,0.60,0.70
+354912,Coco,0.70,0.80
+324857,Spider-Man: Into the Spider-Verse,0.90,0.70
+4935,Howl's Moving Castle,0.50,0.65
+128,Princess Mononoke,0.70,0.25
+8392,My Neighbor Totoro,0.45,0.90
+149,Akira,0.95,0.15
+671,Harry Potter and the Philosopher's Stone,0.60,0.75
+22,Pirates of the Caribbean: The Curse of the Black Pearl,0.85,0.70
+299534,Avengers: Endgame,0.80,0.50
+414906,The Batman,0.55,0.08
+245891,John Wick,0.90,0.15
+36557,Casino Royale,0.80,0.35
+949,Heat,0.65,0.15
+1422,The Departed,0.80,0.20
+6977,No Country for Old Men,0.40,0.05
+7345,There Will Be Blood,0.55,0.05
+210577,Gone Girl,0.45,0.10
+273481,Sicario,0.55,0.03
+242582,Nightcrawler,0.60,0.15
+1359,American Psycho,0.65,0.25
+14,American Beauty,0.40,0.35
+115,The Big Lebowski,0.50,0.75
+275,Fargo,0.40,0.30
+16869,Inglourious Basterds,0.75,0.35
+466272,Once Upon a Time... in Hollywood,0.60,0.65
+77,Memento,0.45,0.08
+374720,Dunkirk,0.80,0.10
+49047,Gravity,0.75,0.15
+264660,Ex Machina,0.40,0.10
+530385,Midsommar,0.45,0.10
+493922,Hereditary,0.45,0.02
+9552,The Exorcist,0.55,0.02
+948,Halloween,0.60,0.05
+745,The Sixth Sense,0.30,0.10
+1417,Pan's Labyrinth,0.50,0.12
+637,Life Is Beautiful,0.50,0.55
+423,The Pianist,0.25,0.05
+279,Amadeus,0.65,0.45
+207,Dead Poets Society,0.40,0.45
+9377,Ferris Bueller's Day Off,0.80,0.90
+10625,Mean Girls,0.75,0.80
+773,Little Miss Sunshine,0.55,0.65
+391713,Lady Bird,0.50,0.60
+76,Before Sunrise,0.30,0.70
+843,In the Mood for Love,0.25,0.25
+11104,Chungking Express,0.65,0.65
+406,La Haine,0.70,0.15
+439,La Dolce Vita,0.50,0.45
+429,"The Good, the Bad and the Ugly",0.70,0.40
+335,Once Upon a Time in the West,0.45,0.25
+64682,The Great Gatsby,0.80,0.40
+824,Moulin Rouge!,0.85,0.55
+424694,Bohemian Rhapsody,0.85,0.70
+504608,Rocketman,0.80,0.65
+621,Grease,0.85,0.90
+88,Dirty Dancing,0.75,0.80
+525,The Blues Brothers,0.90,0.85
+1584,The School of Rock,0.90,0.90
+22538,Scott Pilgrim vs. the World,0.90,0.75
+84892,The Perks of Being a Wallflower,0.50,0.50
+8966,Twilight,0.50,0.30
+346698,Barbie,0.80,0.85
+361743,Top Gun: Maverick,0.90,0.70
+11036,The Notebook,0.40,0.50
+4348,Pride & Prejudice,0.40,0.70
+1018,Mulholland Drive,0.35,0.10
+793,Blue Velvet,0.40,0.10
+965150,Aftersun,0.30,0.25
+508442,Soul,0.50,0.70
+5915,Into the Wild,0.45,0.40
+142,Brokeback Mountain,0.25,0.20
+619,The Bodyguard,0.55,0.45
+101,Léon: The Professional,0.60,0.20
+104,Run Lola Run,0.98,0.50
+582,The Lives of Others,0.25,0.15
+1438,The Wire,0.45,0.15
+1104,Mad Men,0.40,0.30
+2316,The Office,0.55,0.80
+1668,Friends,0.65,0.90
+456,The Simpsons,0.70,0.85
+60625,Rick and Morty,0.80,0.45
+61222,BoJack Horseman,0.45,0.25
+4607,Lost,0.60,0.30
+4087,The X-Files,0.40,0.15
+19885,Sherlock,0.70,0.50
+65494,The Crown,0.35,0.25
+63351,Narcos,0.70,0.30
+71446,Money Heist,0.85,0.35
+100088,The Last of Us,0.40,0.10
+82856,The Mandalorian,0.65,0.50
+95,Buffy the Vampire Slayer,0.70,0.50
+900,Skins,0.80,0.40
+89905,Normal People,0.25,0.30
+87739,The Queen's Gambit,0.50,0.45
+97546,Ted Lasso,0.60,0.85
+111803,The White Lotus,0.65,0.30
+65495,Atlanta,0.50,0.35
+66788,13 Reasons Why,0.35,0.10
+91239,Bridgerton,0.60,0.75
+119051,Wednesday,0.60,0.35
+54344,The Leftovers,0.35,0.10
+1416,Grey's Anatomy,0.50,0.40
+30991,Cowboy Bebop,0.70,0.40
+890,Neon Genesis Evangelion,0.65,0.15
+1429,Attack on Titan,0.95,0.10

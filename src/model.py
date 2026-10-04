@@ -44,8 +44,9 @@ def load_facet_scores() -> tuple[list[str], list[str], list[str], np.ndarray]:
         raise SystemExit("Embeddings not found: run `python src/embed.py` first.")
     data = np.load(EMBEDDINGS_PATH)
     is_title = data["item_type"] == "title"
-    title_vectors = data["vectors"][is_title]  # (titles, facets, dimensions)
-    track_vectors = data["vectors"][~is_title]  # (tracks, facets, dimensions)
+    vectors = data["vectors"].astype(np.float32)
+    title_vectors = vectors[is_title]  # (titles, facets, dimensions)
+    track_vectors = vectors[~is_title]  # (tracks, facets, dimensions)
 
     # Vectors are unit-length, so the dot product is the cosine similarity.
     # For each facet f: similarities[f] = title_vectors[:, f] @ track_vectors[:, f].T

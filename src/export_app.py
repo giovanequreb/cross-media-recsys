@@ -5,7 +5,10 @@ the tracks and the per-facet similarities from this file and computes the
 recommendations in the browser, so the facet weights can be changed live.
 """
 
+import base64
 import json
+
+import numpy as np
 
 import pandas as pd
 
@@ -18,11 +21,18 @@ OUTPUT_PATH = PROJECT_ROOT / "app" / "data.js"
 def main() -> None:
     facets, title_ids, track_ids, similarities = load_facet_scores()
     weights, hub_correction = load_model()
-    # Facets that have a text description ("tone" is numeric and has none).
-    text_facets = [facet for facet in facets if facet != "tone"]
+    # The app only shows these parts of a track's description.
+    shown_facets = ["emotions", "sound", "references"]
+
+    # One byte per similarity (0-255 between each facet's minimum and maximum),
+    # base64-encoded: about six times smaller than writing the numbers as text.
+    low = similarities.min(axis=(1, 2))
+    high = similarities.max(axis=(1, 2))
+    scaled = (similarities - low[:, None, None]) / (high - low)[:, None, None]
+    encoded = [base64.b64encode(np.round(facet * 255).astype(np.uint8).tobytes()).decode() for facet in scaled]
 
     descriptions = pd.read_csv(DESCRIPTIONS_PATH, dtype=str).set_index("item_id")
-    titles = pd.read_csv(TITLES_PATH, dtype=str).set_index("tmdb_id").loc[title_ids]
+    titles = pd.read_csv(TITLES_PATH, dtype=str).fillna("").set_index("tmdb_id").loc[title_ids]
     tracks = pd.read_csv(TRACKS_PATH, dtype=str).set_index("track_id").loc[track_ids]
 
     data = {
@@ -31,16 +41,16 @@ def main() -> None:
         "hubCorrection": hub_correction,
         "titles": [
             {"id": item_id, "title": row["title"], "year": row["year"], "type": row["type"],
-             "director": row["director"], **descriptions.loc[item_id, text_facets].to_dict()}
+             "director": row["director"]}
             for item_id, row in titles.iterrows()
         ],
         "tracks": [
             {"id": item_id, "title": row["title"], "artist": row["artist"],
-             **descriptions.loc[item_id, text_facets].to_dict()}
+             **descriptions.loc[item_id, shown_facets].to_dict()}
             for item_id, row in tracks.iterrows()
         ],
-        # similarities[facet][title][track], rounded to keep the file small
-        "similarities": similarities.astype(float).round(3).tolist(),
+        # similarities[facet] is a base64 string of titles x tracks bytes, row by row
+        "similarities": {"low": low.round(4).tolist(), "high": high.round(4).tolist(), "bytes": encoded},
     }
 
     # A .js file (not .json) so the page also works when opened straight from disk.
