@@ -73,7 +73,23 @@ Da chat → Claude Code. Adam incolla qui il blocco che ricevi dalla chat.
 - Passo 3 (proposta di Claude Code, da confermare in chat): descrizioni in inglese per i 20 film/serie e i 50 brani, da salvare accanto ai dati (es. colonna `description`). Domande aperte: chi le scrive (Claude in chat/Claude Code, con le audio features come base per i brani), lunghezza e stile (1-2 frasi su mood, ritmo, atmosfera), controllo manuale prima degli embeddings.
 - Dopo: embeddings + raccomandazioni per coseno (media degli embedding dei film graditi → brani più vicini).
 
-**Dove riprendere (sessione chiusa il 2026-09-21):** il Passo 3 non è ancora iniziato. Serve la risposta di Adam alle domande aperte qui sopra (chi scrive le descrizioni, stile, controllo manuale). Nessuna modifica pendente nel repo, ultimo commit `7f0feb1`.
+### Come riprendere in una nuova conversazione
+
+Aggiornato il 2026-10-04. Il Passo 3 **non è ancora iniziato**: nessun codice scritto, nessuna modifica pendente nel repo (controlla con `git status` e `git log --oneline`).
+
+**All'avvio, in ordine:**
+1. Leggi questo file (viene caricato da solo) e rispetta le "Regole di lavoro": un passo alla volta, codice Python spiegato in italiano con paragoni JS/TS, verifica documentazione e versioni prima di usare una libreria, commit piccoli, niente segreti nel repo.
+2. Non rifare quello che è già fatto: ambiente, dataset e documentazione sono pronti e verificati (vedi "Stato attuale" e Log).
+3. Ambiente: usa sempre `.venv/bin/python` (o `source .venv/bin/activate`). La chiave TMDB è già nel `.env` locale (non nel repo): non chiederla di nuovo e non stamparla. Serve solo per rieseguire `src/fetch_titles.py`, non per il Passo 3.
+4. Chiedi ad Adam le decisioni aperte del Passo 3 prima di scrivere codice (sotto le proposte di Claude Code, da confermare).
+
+**Passo 3: decisioni da confermare con Adam**
+- **Chi scrive le descrizioni:** proposta, Claude le scrive e Adam le rivede. Per i film/serie base = trama TMDB + generi; per i brani base = audio features (`valence`, `energy`, `acousticness`, `tempo`), non `genre_label`, che è rumorosa.
+- **Stile:** 1-2 frasi in inglese su mood, ritmo e atmosfera, **senza citare titolo, artista o nomi propri**, altrimenti la similarità del coseno "bara" per via del testo. Stesso registro per film e brani, così stanno nello stesso spazio vettoriale.
+- **Dove salvarle:** proposta, un file separato `data/descriptions.csv` (chiave: id + tipo `title`/`track`) invece di una colonna in `titles.csv`/`tracks.csv`. Motivo: `fetch_titles.py` e `build_tracks.py` riscrivono quei CSV da zero e cancellerebbero la colonna. Da confermare.
+- **Controllo manuale** di Adam sulle descrizioni prima di calcolare gli embeddings.
+
+**Dopo il Passo 3** (Passo 4 proposto): `src/embed.py` calcola gli embeddings con `all-MiniLM-L6-v2` (nota: `encode` in `sentence-transformers` 6.x prende `inputs` in modo posizionale; con `normalize_embeddings=True` il coseno diventa un prodotto scalare), poi `src/recommend.py` fa la media degli embedding dei film graditi e restituisce i brani più vicini per coseno. Valutare i consigli a occhio su Adam e 5-10 persone prima di passare al Livello 2.
 
 **In sospeso, non bloccanti:**
 - Valutare se rigenerare la chiave TMDB (è stata incollata in chat).
