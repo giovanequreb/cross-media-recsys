@@ -56,14 +56,14 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
   - [x] README aggiornato: sezione Dati, credit TMDB, struttura, roadmap
 - Fatto (Passo 3):
   - [x] `data/descriptions.csv`: 70 righe (20 film/serie + 50 brani), colonne `item_type` (`title`/`track`), `item_id` (`tmdb_id` o `track_id`), `name` (solo per leggibilità, **non va negli embeddings**), `description`
-  - [x] Stile: tre aggettivi di mood + una frase su ritmo e atmosfera, in inglese, senza nomi propri; 25-51 token (limite del modello: 256)
+  - [x] Stile (**cambiato da Adam il 2026-10-04**): tre parti, in inglese. 1) tre aggettivi di emozione; 2) una frase di trama leggera (film) o di cosa parla/come suona (brano); 3) riferimenti pop: epoca, scena, estetica, dove lo si è sentito (es. "synthwave, 80s retro-futurism, neon noir"). Mai il titolo o l'artista dell'elemento stesso; luoghi e generi sono ammessi. 39-71 token (limite del modello: 256). I consigli devono basarsi su emozioni e riferimenti pop più che sulla trama. La prima versione (solo mood, senza nomi propri né trama) è nella cronologia git, commit `e0f0677`.
   - [x] Campione di 10 scritto da Claude Code e approvato da Adam; le altre 60 scritte da tre subagent con lo stesso schema, poi unite e controllate (70 descrizioni uniche, nessuna parola del titolo/artista nel testo)
   - [x] Revisione fatta da Claude Code al posto di Adam (su sua richiesta di procedere senza conferme): corrette 5 descrizioni che citavano il testo delle canzoni o parole legate al cinema. Adam può comunque rileggerle: dopo ogni modifica va rieseguito `src/embed.py`
 - Fatto (Passo 4):
   - [x] `src/embed.py`: legge `data/descriptions.csv`, codifica solo la colonna `description` con `normalize_embeddings=True` e salva `data/embeddings.npz` (array `item_type`, `item_id`, `vectors` 70×384 float32, committato: 116 KB)
   - [x] `src/recommend.py`: `python src/recommend.py "Drive" "Amélie" --top 5` → media dei vettori dei titoli graditi, rinormalizzata, poi prodotto scalare con i 50 brani. I titoli si cercano senza distinguere maiuscole, anche per sottostringa (`"mad max"`)
-  - [x] `src/evaluate.py`: controllo sulle 5 coppie titolo/brano della propria colonna sonora presenti nel dataset. Risultato: rank 1, 1, 3, 1, 24 su 50; MRR 0.68 contro 0.09 del caso
-  - [x] Varietà: sui 20 titoli, nei top-5 compaiono 36 brani diversi su 50 (nessun brano "pigliatutto")
+  - [x] `src/evaluate.py`: controllo sulle 5 coppie titolo/brano della propria colonna sonora presenti nel dataset. Risultato con le descrizioni nuove: rank 1, 1, 7, 1, 44 su 50; MRR 0.63 contro 0.09 del caso (con le vecchie: 1, 1, 3, 1, 24; MRR 0.68)
+  - [x] Varietà: sui 20 titoli, nei top-5 compaiono 35 brani diversi su 50; il più frequente è "Sweet Dreams" (7 titoli su 20)
 - Fatto (verso il Livello 2): `src/check_overlap.py` legge in streaming (niente su disco) i file rating-only di Amazon Reviews'23, `CDs_and_Vinyl` (4.772.071 voti, 1.754.118 utenti) e `Movies_and_TV` (17.158.519 voti). Utenti con almeno N voti in **entrambi** i domini: N≥1 713.375; N≥3 123.527; N≥5 54.260; N≥10 17.292; N≥20 5.153. **Il Livello 2 è fattibile**: la soglia indicativa (alcune migliaia di utenti con ≥3-5 voti per dominio) è superata di molto. Dura circa 2 minuti.
 - Versioni installate: Python 3.12.3, `sentence-transformers` 6.1.0, `torch` 2.14.0, `numpy` 2.5.3, `pandas` 3.0.6, `scikit-learn` 1.9.1, `httpx` 0.28.1, `huggingface_hub` 1.32.0, `python-dotenv` 1.2.3 (aggiunta nel Passo 2; lista completa in `requirements.txt`)
 - Problemi / cose da sapere:
@@ -73,7 +73,7 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
   - La chiave TMDB è stata incollata in chat: rischio basso (gratuita), ma si può rigenerare dalle impostazioni API di TMDB.
   - `genre_label` in `tracks.csv` è **rumorosa** (es. Hans Zimmer "Time" = `german`): non usarla come verità nelle descrizioni, meglio le audio features.
   - Alcuni titoli dei brani hanno suffissi (`- Remastered 2011`, `- Radio Edit`, `(feat. ...)`); TMDB in inglese chiama *La grande bellezza* "The Great Beauty". Entrambi lasciati così.
-  - Il controllo sulle colonne sonore è **ottimistico**: solo 5 coppie, e le descrizioni le ha scritte un LLM che conosce le opere, quindi parte della corrispondenza può venire da come sono scritte. Il caso debole è *Pulp Fiction* → "Son Of A Preacher Man" (rank 24).
+  - Il controllo sulle colonne sonore è **ottimistico**: solo 5 coppie, e le descrizioni le ha scritte un LLM che conosce le opere, quindi parte della corrispondenza può venire da come sono scritte. Con lo stile nuovo i riferimenti pop sono condivisi apposta tra film e brani, quindi il controllo è ancora meno indipendente. Il caso debole è *Pulp Fiction* → "Son Of A Preacher Man" (rank 44): non è stato ritoccato a mano per non "allenarsi" sul test.
   - `src/evaluate.py` importa da `recommend.py` (`from recommend import ...`): funziona perché si lancia come `python src/evaluate.py`, che mette `src/` nel percorso degli import.
   - Amazon Reviews'23: **nessuna licenza esplicita** né sul sito né sulla scheda Hugging Face (`McAuley-Lab/Amazon-Reviews-2023`); gli autori chiedono solo la citazione (Hou et al., 2024, arXiv 2403.03952). Trattarlo come uso di ricerca, non committare dati grezzi. I file usano `parent_asin` come id del prodotto: per mostrare titoli veri servono anche i file di metadati (molto più grandi).
   - Il disco del Mac è quasi pieno (circa 3 GB liberi il 2026-10-04): per il Livello 2 non scaricare i file interi senza prima liberare spazio; lo streaming funziona.
@@ -116,3 +116,4 @@ Una riga per passo completato: data, cosa, commit.
 - 2026-10-04 — Passo 3: 70 descrizioni di mood in `data/descriptions.csv` — commit `37dd7b4`, correzioni in `e0f0677`. Repo pubblicato su GitHub lo stesso giorno.
 - 2026-10-04 — Passo 4: embeddings e raccomandazioni per coseno, controllo sulle colonne sonore (MRR 0.68) — commit `b5d3056` (embed), `a854c9a` (recommend), `7abefb2` (evaluate). Livello 1 completo.
 - 2026-10-04 — Fattibilità Livello 2: 54.260 utenti con ≥5 voti sia in film sia in musica su Amazon Reviews'23 — commit `0e524da`.
+- 2026-10-04 — Descrizioni riscritte su richiesta di Adam (emozioni, trama leggera, riferimenti pop), embeddings rigenerati, MRR 0.63 — commit `a8cff33`.
