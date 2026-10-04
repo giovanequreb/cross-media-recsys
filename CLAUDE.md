@@ -33,8 +33,8 @@ Piano in tre livelli:
 
 ```
 cross-media-recsys/
-├── data/            # titles.csv (film/serie), tracks.csv (brani), descriptions.csv (descrizioni in 3 parti), soundtrack_pairs.csv (coppie film/brano), embeddings.npz (vettori), model.json (parametri del modello), raw/ (download grezzi, ignorata da git)
-├── src/             # smoke_test.py, fetch_titles.py, build_tracks.py, embed.py, model.py, recommend.py, evaluate.py, export_app.py, check_overlap.py
+├── data/            # titles.csv (film/serie), tracks.csv (brani), descriptions.csv (descrizioni in 3 parti), curated.csv (abbinamenti scelti a mano, per l'allenamento), soundtrack_pairs.csv (coppie film/brano), embeddings.npz (vettori), model.json (parametri del modello), raw/ (download grezzi, ignorata da git)
+├── src/             # smoke_test.py, fetch_titles.py, build_tracks.py, embed.py, model.py, train.py, recommend.py, evaluate.py, export_app.py, check_overlap.py
 ├── app/             # index.html (web app statica), data.js (generato), tmdb.svg
 ├── notebooks/       # esperimenti esplorativi
 ├── requirements.txt
@@ -71,6 +71,15 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
   - [x] **Confronto tra modelli di embedding** sulle 83 coppie, stesse descrizioni e pesi (MRR): `all-MiniLM-L6-v2` 0.52; `all-MiniLM-L12-v2` 0.53; `all-mpnet-base-v2` 0.52; `gte-base` 0.59; `mxbai-embed-large-v1` 0.59; `bge-base-en-v1.5` 0.60; **`bge-small-en-v1.5` 0.61** (scelto: 130 MB, sempre 384 dimensioni); `bge-large-en-v1.5` 0.63 (scartato: 1.3 GB e 8 volte più lento per +0.02). I modelli scartati sono stati cancellati dalla cache di Hugging Face.
   - [x] Risultati precedenti con 57 titoli, 57 coppie e `all-MiniLM-L6-v2` (caso = 0.03): solo trama 0.05; solo emozioni 0.26; solo ambientazione 0.45; solo riferimenti 0.71; **modello 0.61** (hit@1 0.51, hit@5 0.74, hit@10 0.82, rank medio 11.0 su 200). Il numero è più basso di prima perché il compito è più difficile (il doppio dei brani sbagliati tra cui scegliere), non perché il modello sia peggiorato. Varietà: nei top-5 dei 57 titoli compaiono 153 brani diversi, il più ripetuto 7 volte (senza correzione hub: 123 e 10). La ricerca a griglia sceglierebbe 80% riferimenti (MRR 0.77, 0.73 sui titoli tenuti fuori).
   - [x] Risultati precedenti con 93 brani (MRR, caso = 0.06): solo trama 0.07; solo emozioni 0.31; solo ambientazione 0.49; solo riferimenti 0.74; pesi uguali 0.66; **modello 0.67** (hit@1 0.58, hit@5 0.81, hit@10 0.86, rank medio 5.6). Prima dell'ambientazione il modello era a 0.65 con hit@5 0.75. Correzione hub: il brano più ripetuto nei top-5 passa da 17 titoli su 57 a 9.
+- Fatto (**modello allenato**, 2026-10-05) dopo che Adam ha detto che i consigli di base a volte erano completamente fuori:
+  - [x] `data/curated.csv`: 2.464 abbinamenti (`tmdb_id`, `track_id`, `title`, `track`), circa 10 brani scelti a mano da Claude per ciascuno dei 238 titoli, tra i 548 del catalogo. Sono etichette di un LLM, non di ascoltatori: servono finché non ci sono voti veri.
+  - [x] `src/train.py`: regressione logistica (scikit-learn, `C=0.3`, classi bilanciate) su 28 ingressi per ogni coppia film/brano: i 25 incroci tra parti (es. suono del film ~ riferimenti del brano), `tone`, il punteggio di base, e `neighbours` (quanto spesso il brano è stato scelto per film simili, senza mai usare le scelte del film stesso). Salva coefficienti e scalatura in `data/model.json` sotto `trained`.
+  - [x] **Risultati su film mai visti** (cross-validation a 5 fold per titolo): precision@10 da 0.288 a **0.365**, recall@50 da 0.615 a **0.729**, film senza nessun brano giusto nei primi 10 dal 4.2% al **2.5%**. Ingressi più forti: punteggio di base, vicini, suono~riferimenti.
+  - [x] Per i film in catalogo, ai brani scelti a mano si aggiunge un bonus fisso (`curated_boost` 3.0), quindi la lista curata conta direttamente. I numeri di cross-validation non usano il bonus.
+  - [x] Idee provate e scartate: usare solo i vicini (peggio della base: 0.24-0.26), mappa lineare dal vettore del film al "brano ideale" (0.13-0.16).
+  - [x] `src/recommend.py` ora usa il modello allenato. `src/evaluate.py` misura ancora solo la **base** (pesi a mano) sulle coppie film/colonna sonora, perché quelle coppie sono dentro `curated.csv`.
+  - [x] Nell'app: casella "Use the trained model" attiva di default; togliendola tornano gli slider e la formula di base. Ogni voto salva `model` (`trained` o `manual`). Penalità dei quasi-doppioni ridotta a 0.35 perché toglieva brani giusti (es. il jazz di *Whiplash*).
+  - [x] Ordine dei comandi dopo una modifica ai dati: `src/embed.py` → `src/train.py` → `src/export_app.py`.
 - Fatto (app web):
   - [x] `app/index.html`: pagina statica senza backend e senza dipendenze (HTML + CSS + JS in un file). Si scelgono i titoli, uno slider per ogni parte della descrizione cambia i pesi in tempo reale, una casella attiva la correzione hub, ogni brano ha il link a Spotify e i pulsanti 👍/👎. La formula in JS è la stessa di `src/model.py`.
   - [x] Pulsante **Listen** su ogni brano: apre il player di Spotify (anteprima) dentro la pagina; votare non ricarica la lista, quindi il brano continua a suonare. Sotto ogni brano si leggono emozioni, suono e riferimenti. Il regista compare accanto al titolo selezionato e nel tooltip di ogni film.
@@ -148,3 +157,4 @@ Una riga per passo completato: data, cosa, commit.
 - 2026-10-05 — App pubblicata su GitHub Pages con deploy automatico — commit `390f202`.
 - 2026-10-05 — Catalogo a 238 titoli e 548 brani (348 brani e 125 titoli nuovi), 126 coppie; MRR 0.49 su 548; formati dei file compattati.
 - 2026-10-05 — App: apprendimento dai voti ("Refine the list") e filtro dei quasi-doppioni.
+- 2026-10-05 — Modello allenato su 2.464 abbinamenti curati (`data/curated.csv`, `src/train.py`): precision@10 su film mai visti da 0.288 a 0.365.

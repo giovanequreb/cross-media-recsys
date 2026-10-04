@@ -100,12 +100,13 @@
 
       <section class="panel">
         <h2>2 · What should count?</h2>
+        <label class="check" style="margin-bottom:12px"><input type="checkbox" id="trained" checked> Use the trained model</label>
         <div id="sliders"></div>
         <div class="row">
           <label class="check"><input type="checkbox" id="hub"> Hide tracks that fit everything</label>
           <button class="link" id="reset">Reset to model defaults</button>
         </div>
-        <p class="hint">Weights are normalised to 100%. The defaults come from <code>data/model.json</code>. <b>tone</b> compares energy and positivity; it is experimental and off by default.</p>
+        <p class="hint">The trained model learned from hand-picked matches for every title. Untick it to mix the facets by hand instead: weights are normalised to 100%, and <b>tone</b> (energy and positivity) is experimental.</p>
       </section>
     </div>
 
@@ -138,7 +139,7 @@
   const WILDCARD_POOL = 60;     // wildcards are drawn from ranks TOP+1..WILDCARD_POOL
   const VOTE_VALUE = { up: 1, partly: 0.5, nearly: -0.5, down: -1, unknown: 0 };
   const LEARNING_RATE = 0.6;    // how strongly ratings move the list
-  const DIVERSITY = 1;          // penalty per unit of similarity above the near-duplicate threshold
+  const DIVERSITY = 0.35;       // penalty per unit of similarity above the near-duplicate threshold
   const STORAGE_KEY = "cross-media-feedback";
 
   const state = {
@@ -147,6 +148,7 @@
     hub: DATA.hubCorrection > 0,
     blind: false,
     diverse: true,
+    trained: true,
     personal: false,
     feedback: loadFeedback(),
   };
@@ -156,6 +158,7 @@
   // Similarities arrive as one base64 byte string per facet (titles x tracks, row by row).
   const SIMILARITY = DATA.similarities.bytes.map((text) => Uint8Array.from(atob(text), (char) => char.charCodeAt(0)));
   const TRACK_COUNT = DATA.tracks.length;
+  const TRAINED = Uint8Array.from(atob(DATA.trained.bytes), (char) => char.charCodeAt(0));
   const TRACK_SIMILARITY = Uint8Array.from(atob(DATA.trackSimilarity.bytes), (char) => char.charCodeAt(0));
   function trackSimilarity(a, b) {
     const { low, high } = DATA.trackSimilarity;
@@ -176,6 +179,10 @@
 
   // Same formula as src/model.py: weighted facet similarities minus the hub term.
   function scoreMatrix() {
+    if (state.trained) {
+      const { low, high } = DATA.trained;
+      return DATA.titles.map((_, t) => DATA.tracks.map((_, k) => low + (TRAINED[t * TRACK_COUNT + k] / 255) * (high - low)));
+    }
     const total = DATA.facets.reduce((sum, facet) => sum + state.weights[facet], 0) || 1;
     const scores = DATA.titles.map((_, t) =>
       DATA.tracks.map((_, k) =>
@@ -292,7 +299,7 @@
 
   function renderSliders() {
     const rows = DATA.facets.map((facet) => {
-      const input = element("input", { type: "range", min: 0, max: 1, step: 0.05, value: state.weights[facet] });
+      const input = element("input", { type: "range", min: 0, max: 1, step: 0.05, value: state.weights[facet], disabled: state.trained });
       input.setAttribute("aria-label", facet);
       input.oninput = () => { state.weights[facet] = Number(input.value); renderSliderLabels(); renderResults(); };
       const output = element("output", { id: `weight-${facet}` });
@@ -300,6 +307,9 @@
     });
     $("sliders").replaceChildren(...rows);
     $("hub").checked = state.hub;
+    $("hub").disabled = state.trained;
+    $("reset").disabled = state.trained;
+    $("trained").checked = state.trained;
     renderSliderLabels();
   }
 
@@ -321,7 +331,7 @@
     if (!existing || existing.vote !== vote) {
       state.feedback.push({
         titleIds: [...state.selected].sort(), trackId, vote, rank, wildcard, personalised: state.personal && !state.blind,
-        weights: { ...state.weights }, hub: state.hub, at: new Date().toISOString(),
+        model: state.trained ? "trained" : "manual", weights: { ...state.weights }, hub: state.hub, at: new Date().toISOString(),
       });
     }
     saveFeedback();
@@ -418,6 +428,7 @@
   $("refine").onclick = () => { state.personal = true; renderResults(); };
   $("unrefine").onclick = () => { state.personal = false; renderResults(); };
   $("blind").onchange = (event) => { state.blind = event.target.checked; renderResults(); };
+  $("trained").onchange = (event) => { state.trained = event.target.checked; state.personal = false; renderSliders(); renderResults(); };
   $("hub").onchange = (event) => { state.hub = event.target.checked; renderResults(); };
   $("reset").onclick = () => {
     state.weights = { ...DATA.weights };

@@ -45,7 +45,34 @@ score = Σ over facets of  weight[facet] × cosine(title[facet], track[facet])
 - **Tone (experimental, weight 0).** A sixth, non-text facet compares the energy and valence of a title (hand-set) with the audio features of a track. It did not help on the soundtrack check, so it is off by default, but it has a slider in the app.
 - **Hub correction.** Some tracks are a little similar to everything and would show up for every title. Subtracting each track's average score keeps only what is specific to *this* title. Without it the top-5 lists of the 111 titles use 157 different tracks and one track appears in 22 of them; with it they use 171 different tracks and the worst case is 12.
 - Embedding model: [`BAAI/bge-small-en-v1.5`](https://huggingface.co/BAAI/bge-small-en-v1.5) via `sentence-transformers`, running locally (free, no API key).
-- No training on user data yet: this is the baseline that later levels have to beat.
+- No training on user data yet: the formula above, with hand-set weights, is the **baseline**.
+
+#### The trained model
+
+Text similarity alone sometimes produces matches that are plainly wrong (a jazz film getting garage rock because both descriptions say "tense"). To fix that, the model is trained on examples.
+
+[`data/curated.csv`](data/curated.csv) holds 2,464 (title, track) matches: for each of the 238 titles, about ten tracks hand-picked from the catalogue. [`src/train.py`](src/train.py) fits a logistic regression that separates picked pairs from all the others, using 28 inputs:
+
+- every facet of the title against every facet of the track (5 × 5 similarities), so that a title's *sound* can also be matched with a track's *references*;
+- the tone similarity and the baseline score;
+- **neighbours**: how often the track was picked for titles similar to this one, never counting the title's own picks.
+
+Tested on titles the model has not seen (5-fold cross-validation by title):
+
+| | Precision@10 | Recall@50 | Titles with no good track in the top 10 |
+| --- | --- | --- | --- |
+| Baseline (hand-set weights) | 0.288 | 0.615 | 4.2% |
+| **Trained model** | **0.365** | **0.729** | **2.5%** |
+
+The strongest inputs are the baseline score and the neighbours, followed by the title's sound against the track's references.
+
+For a title that is in the catalogue, its own hand-picked tracks also get a fixed bonus, so the curated list counts directly and the model fills in and orders the rest. The cross-validation numbers above do not use that bonus: they describe what happens with a new title.
+
+The curated matches were chosen by the same LLM that wrote the descriptions (Claude), from knowledge of the works, not by listeners. They are a stand-in for real feedback: ratings collected in the web app are meant to replace them.
+
+```bash
+python src/train.py   # cross-validates, then saves the trained model to data/model.json
+```
 
 ### Level 2 — Trained model
 
@@ -118,7 +145,7 @@ python -m http.server 5173 --directory app
 # then open http://localhost:5173
 ```
 
-It also works by opening `app/index.html` directly. Pick the titles you like, move the facet sliders to see how the weights change the results, and rate each track on a four-step scale (`++` fits, `+` fits a little, `−` not far off, `−−` doesn't fit) or mark it `?` if you don't know it. Each track has a **Listen** button that opens the Spotify preview player in the page. **Rating mode** shuffles the list, hides ranks and scores, and mixes in three lower-ranked wildcards, so the ratings also cover tracks the model would not have shown. Ratings stay in your browser and can be downloaded as JSON: they are the feedback the model needs to learn its weights instead of having them set by hand.
+It also works by opening `app/index.html` directly. Pick the titles you like and get the trained model's recommendations; untick "Use the trained model" to go back to the baseline and move the facet sliders to see how the weights change the results, and rate each track on a four-step scale (`++` fits, `+` fits a little, `−` not far off, `−−` doesn't fit) or mark it `?` if you don't know it. Each track has a **Listen** button that opens the Spotify preview player in the page. **Rating mode** shuffles the list, hides ranks and scores, and mixes in three lower-ranked wildcards, so the ratings also cover tracks the model would not have shown. Ratings stay in your browser and can be downloaded as JSON: they are the feedback the model needs to learn its weights instead of having them set by hand.
 
 Two things in the app go beyond the base model:
 
@@ -129,7 +156,7 @@ Two things in the app go beyond the base model:
 
 ### Soundtrack check
 
-[`data/soundtrack_pairs.csv`](data/soundtrack_pairs.csv) lists 126 (title, track) pairs where the track is famously used in the title, for example *Trainspotting* and "Lust For Life". Since descriptions never name the item itself, a good model should still rank each track high for its own title:
+This check measures the **baseline** (hand-set weights), not the trained model, whose training data contains these pairs. [`data/soundtrack_pairs.csv`](data/soundtrack_pairs.csv) lists 126 (title, track) pairs where the track is famously used in the title, for example *Trainspotting* and "Lust For Life". Since descriptions never name the item itself, a good model should still rank each track high for its own title:
 
 ```bash
 python src/evaluate.py
@@ -183,10 +210,11 @@ Level 1 uses a small, hand-picked dataset (committed in `data/`):
 | `data/titles.csv` | 238 movies and TV series: TMDB id, title, year, type, director (or creators, for series), genres, English overview | [TMDB API](https://developer.themoviedb.org/) |
 | `data/tracks.csv` | 548 tracks: id, title, artist, album, popularity and audio features (`danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`) | [`maharshipandya/spotify-tracks-dataset`](https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset) on Hugging Face (BSD license) |
 | `data/descriptions.csv` | 786 descriptions, one per title and track, in five facets: `emotions`, `plot`, `setting`, `sound`, `references` (plus item type, id and name) | Written with an LLM (Claude) |
+| `data/curated.csv` | 2,464 hand-picked (title, track) matches, about ten per title, used to train the model | Picked by an LLM (Claude) |
 | `data/soundtrack_pairs.csv` | 126 (title, track) pairs where the track is famously used in the title | Hand-picked |
 | `data/embeddings.npz` | 384-d unit vectors stored as float16, shape (786 items, 5 facets, 384) | Built by `src/embed.py` |
 | `data/title_tone.csv` | Energy and valence (0 to 1) of each title, for the experimental `tone` facet | Hand-set |
-| `data/model.json` | Model parameters: facet weights and hub correction | Hand-set |
+| `data/model.json` | Baseline parameters (facet weights, hub correction) and the trained model (coefficients, scaling) | Hand-set and written by `src/train.py` |
 
 The catalogue grew in steps: 20 titles and 50 tracks chosen to cover very different moods; then famous title/song pairs for the soundtrack check; then several batches of popular titles and of tracks across genres (classical, jazz, soul, disco, rock, metal, punk, new wave, hip-hop, pop, electronic, folk, country, Latin, reggae). Tracks are limited to what the source dataset contains.
 
@@ -201,6 +229,9 @@ python src/fetch_titles.py
 
 # Embeddings: re-run after editing data/descriptions.csv
 python src/embed.py
+
+# Trained model: re-run after changing embeddings or data/curated.csv
+python src/train.py
 ```
 
 Spotify's own API is not used: audio features have been unavailable to new apps since November 2024, and since February 2026 developer apps also require a Premium account.
@@ -217,6 +248,7 @@ cross-media-recsys/
 │   ├── titles.csv       # movies and series (from TMDB)
 │   ├── tracks.csv       # curated tracks with audio features
 │   ├── descriptions.csv # five-facet descriptions for titles and tracks
+│   ├── curated.csv      # hand-picked title/track matches used for training
 │   ├── soundtrack_pairs.csv # known title/track pairs used by the check
 │   ├── title_tone.csv   # energy and valence of each title
 │   ├── embeddings.npz   # one vector per description facet
@@ -230,7 +262,8 @@ cross-media-recsys/
 │   ├── fetch_titles.py  # builds data/titles.csv from the TMDB API
 │   ├── build_tracks.py  # builds data/tracks.csv from the Hugging Face dataset
 │   ├── embed.py         # builds data/embeddings.npz from the descriptions
-│   ├── model.py         # the scoring model: weighted facets + hub correction
+│   ├── model.py         # baseline scoring and the trained model's inputs
+│   ├── train.py         # trains the model on data/curated.csv, with cross-validation
 │   ├── recommend.py     # recommends tracks from the titles you like
 │   ├── evaluate.py      # soundtrack check, ablation and weight grid search
 │   ├── export_app.py    # builds app/data.js for the web app
@@ -249,7 +282,7 @@ cross-media-recsys/
 | --- | --- |
 | Language | Python 3.12 |
 | Embeddings | `sentence-transformers` (`BAAI/bge-small-en-v1.5`) on PyTorch |
-| Numerics and data | `numpy`, `pandas`, `scikit-learn` |
+| Numerics, data and training | `numpy`, `pandas`, `scikit-learn` (logistic regression) |
 | Data access | `httpx` (TMDB API), `huggingface_hub`, `python-dotenv` |
 
 ## Roadmap
@@ -266,6 +299,7 @@ cross-media-recsys/
 - [x] Level 1: web app published on GitHub Pages
 - [x] Level 1: catalogue grown to 238 titles and 548 tracks
 - [x] Level 1: in-app learning from ratings and near-duplicate filter
+- [x] Level 1: model trained on 2,464 curated matches, cross-validated on unseen titles
 - [x] Level 2: feasibility check on Amazon Reviews 2023 (movie/music user overlap)
 - [ ] Level 2: train on Amazon Reviews (movies + CDs)
 - [ ] Level 3: pairwise comparisons (Elo / Bradley-Terry) and web app

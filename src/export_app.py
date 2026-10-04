@@ -12,7 +12,10 @@ import numpy as np
 
 import pandas as pd
 
-from model import EMBEDDINGS_PATH, PROJECT_ROOT, TITLES_PATH, TRACKS_PATH, load_facet_scores, load_model
+from model import (
+    EMBEDDINGS_PATH, PROJECT_ROOT, TITLES_PATH, TRACKS_PATH,
+    load_facet_scores, load_model, score_matrix, trained_score_matrix,
+)
 
 DESCRIPTIONS_PATH = PROJECT_ROOT / "data" / "descriptions.csv"
 OUTPUT_PATH = PROJECT_ROOT / "app" / "data.js"
@@ -50,6 +53,12 @@ def main() -> None:
     between_tracks = track_similarity(weights)
     track_low, track_high, track_bytes = to_bytes(between_tracks)
 
+    # Scores of the trained model, rescaled to the same spread as the hand-weighted
+    # scores so the app's other settings behave the same with either.
+    _, _, trained = trained_score_matrix()
+    spread = score_matrix(facets, similarities, weights, hub_correction).std()
+    trained_low, trained_high, trained_bytes = to_bytes((trained - trained.mean()) / trained.std() * spread)
+
     descriptions = pd.read_csv(DESCRIPTIONS_PATH, dtype=str).set_index("item_id")
     titles = pd.read_csv(TITLES_PATH, dtype=str).fillna("").set_index("tmdb_id").loc[title_ids]
     tracks = pd.read_csv(TRACKS_PATH, dtype=str).set_index("track_id").loc[track_ids]
@@ -70,6 +79,7 @@ def main() -> None:
         ],
         # similarities[facet] is a base64 string of titles x tracks bytes, row by row
         "similarities": {"low": low, "high": high, "bytes": encoded},
+        "trained": {"low": trained_low, "high": trained_high, "bytes": trained_bytes},
         # trackSimilarity is one base64 string of tracks x tracks bytes
         "trackSimilarity": {"low": track_low, "high": track_high, "mean": round(float(between_tracks.mean()), 4),
                             # above this value two tracks count as near-duplicates (top 5% of pairs)

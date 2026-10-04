@@ -4,15 +4,16 @@ Usage:
     python src/recommend.py "Blade Runner 2049" "Drive"
     python src/recommend.py "Amélie" --top 10
 
-Each liked title scores every track (see src/model.py); the scores are averaged
-over the liked titles and the best tracks are shown. Run src/embed.py first.
+Each liked title scores every track with the trained model (see src/model.py and
+src/train.py); the scores are averaged over the liked titles and the best tracks
+are shown. Run src/embed.py and src/train.py first.
 """
 
 import argparse
 
 import pandas as pd
 
-from model import TITLES_PATH, TRACKS_PATH, load_facet_scores, load_model, score_matrix
+from model import TITLES_PATH, TRACKS_PATH, trained_score_matrix
 
 
 def find_title(titles: pd.DataFrame, query: str) -> pd.Series:
@@ -30,9 +31,7 @@ def find_title(titles: pd.DataFrame, query: str) -> pd.Series:
 
 def recommend(liked_ids: list[str], top: int) -> pd.DataFrame:
     """Rank the tracks by their average model score over the liked titles."""
-    facets, title_ids, track_ids, similarities = load_facet_scores()
-    weights, hub_correction = load_model()
-    scores = score_matrix(facets, similarities, weights, hub_correction)
+    title_ids, track_ids, scores = trained_score_matrix()
 
     liked_rows = [title_ids.index(item_id) for item_id in liked_ids]
     taste_scores = scores[liked_rows].mean(axis=0)
@@ -54,7 +53,7 @@ def main() -> None:
     print("Because you like: " + ", ".join(row["title"] for row in liked))
     recommendations = recommend([row["tmdb_id"] for row in liked], args.top)
     for rank, (_, track) in enumerate(recommendations.iterrows(), start=1):
-        print(f"{rank:>2}. {track['title']} — {track['artist']}  ({track['score']:+.3f})")
+        print(f"{rank:>2}. {track['title']} — {track['artist']}  ({track['score']:+.2f})")
 
 
 if __name__ == "__main__":
