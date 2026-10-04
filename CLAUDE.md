@@ -33,7 +33,7 @@ Piano in tre livelli:
 
 ```
 cross-media-recsys/
-├── data/            # titles.csv (film/serie), tracks.csv (brani), raw/ (download grezzi, ignorata da git)
+├── data/            # titles.csv (film/serie), tracks.csv (brani), descriptions.csv (descrizioni di mood), raw/ (download grezzi, ignorata da git)
 ├── src/             # smoke_test.py, fetch_titles.py, build_tracks.py
 ├── notebooks/       # esperimenti esplorativi
 ├── requirements.txt
@@ -48,12 +48,17 @@ cross-media-recsys/
 Da Claude Code → chat. Adam incolla questa sezione nella chat.
 
 - Livello: 1 (prototipo senza training)
-- Passo corrente: 2 — dataset minimo (**completato**). Il Passo 1 (ambiente, struttura, smoke test `(3, 384)`) è chiuso: vedi Log.
+- Passo corrente: 3 — descrizioni (**scritte, in attesa della revisione di Adam**). Il Passo 2 (dataset minimo) è chiuso. Il Passo 1 (ambiente, struttura, smoke test `(3, 384)`) è chiuso: vedi Log.
 - Fatto (Passo 2):
   - [x] `src/fetch_titles.py`: 20 film/serie da TMDB → `data/titles.csv` (colonne: `tmdb_id`, `title`, `year`, `type` = `movie`/`tv`, `genres` separati da `|`, `overview` in inglese)
   - [x] `src/build_tracks.py`: 50 brani scelti a mano dal dataset Hugging Face `maharshipandya/spotify-tracks-dataset` → `data/tracks.csv` (colonne: `track_id`, `title`, `artist`, `album`, `genre_label`, `popularity`, `danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`)
   - [x] `.env` con la chiave TMDB (ignorato da git, permessi 600) + `.env.example` committato
   - [x] README aggiornato: sezione Dati, credit TMDB, struttura, roadmap
+- Fatto (Passo 3):
+  - [x] `data/descriptions.csv`: 70 righe (20 film/serie + 50 brani), colonne `item_type` (`title`/`track`), `item_id` (`tmdb_id` o `track_id`), `name` (solo per leggibilità, **non va negli embeddings**), `description`
+  - [x] Stile: tre aggettivi di mood + una frase su ritmo e atmosfera, in inglese, senza nomi propri; 25-51 token (limite del modello: 256)
+  - [x] Campione di 10 scritto da Claude Code e approvato da Adam; le altre 60 scritte da tre subagent con lo stesso schema, poi unite e controllate (70 descrizioni uniche, nessuna parola del titolo/artista nel testo)
+  - [ ] Revisione manuale di Adam delle 60 nuove descrizioni
 - Versioni installate: Python 3.12.3, `sentence-transformers` 6.1.0, `torch` 2.14.0, `numpy` 2.5.3, `pandas` 3.0.6, `scikit-learn` 1.9.1, `httpx` 0.28.1, `huggingface_hub` 1.32.0, `python-dotenv` 1.2.3 (aggiunta nel Passo 2; lista completa in `requirements.txt`)
 - Problemi / cose da sapere:
   - Nessun errore. Warning su richieste non autenticate a Hugging Face Hub: innocuo (serve `HF_TOKEN` solo per limiti più alti).
@@ -70,13 +75,12 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
 
 Da chat → Claude Code. Adam incolla qui il blocco che ricevi dalla chat.
 
-- Passo 2 (dataset minimo) completato: vedi "Stato attuale" e Log.
-- Passo 3 (proposta di Claude Code, da confermare in chat): descrizioni in inglese per i 20 film/serie e i 50 brani, da salvare accanto ai dati (es. colonna `description`). Domande aperte: chi le scrive (Claude in chat/Claude Code, con le audio features come base per i brani), lunghezza e stile (1-2 frasi su mood, ritmo, atmosfera), controllo manuale prima degli embeddings.
+- Passo 3 (descrizioni) scritto: manca solo la revisione manuale di Adam su `data/descriptions.csv`.
 - Dopo: embeddings + raccomandazioni per coseno (media degli embedding dei film graditi → brani più vicini).
 
 ### Come riprendere in una nuova conversazione
 
-Aggiornato il 2026-10-04. Il Passo 3 **non è ancora iniziato**: nessun codice scritto, nessuna modifica pendente nel repo (controlla con `git status` e `git log --oneline`).
+Aggiornato il 2026-10-04. Il Passo 3 è **scritto e committato** (`data/descriptions.csv`), in attesa della revisione di Adam; il Passo 4 non è iniziato (controlla con `git status` e `git log --oneline`).
 
 **All'avvio, in ordine:**
 1. Leggi questo file (viene caricato da solo) e rispetta le "Regole di lavoro": un passo alla volta, codice Python spiegato in italiano con paragoni JS/TS, verifica documentazione e versioni prima di usare una libreria, commit piccoli, niente segreti nel repo.
@@ -84,7 +88,7 @@ Aggiornato il 2026-10-04. Il Passo 3 **non è ancora iniziato**: nessun codice s
 3. Ambiente: usa sempre `.venv/bin/python` (o `source .venv/bin/activate`). La chiave TMDB è già nel `.env` locale (non nel repo): non chiederla di nuovo e non stamparla. Serve solo per rieseguire `src/fetch_titles.py`, non per il Passo 3.
 4. Chiedi ad Adam le decisioni aperte del Passo 3 prima di scrivere codice (sotto le proposte di Claude Code, da confermare).
 
-**Passo 3: decisioni da confermare con Adam**
+**Passo 3: decisioni (confermate da Adam il 2026-10-04, applicate così come proposte)**
 - **Chi scrive le descrizioni:** proposta, Claude le scrive e Adam le rivede. Per i film/serie base = trama TMDB + generi; per i brani base = audio features (`valence`, `energy`, `acousticness`, `tempo`), non `genre_label`, che è rumorosa.
 - **Stile:** 1-2 frasi in inglese su mood, ritmo e atmosfera, **senza citare titolo, artista o nomi propri**, altrimenti la similarità del coseno "bara" per via del testo. Stesso registro per film e brani, così stanno nello stesso spazio vettoriale.
 - **Dove salvarle:** proposta, un file separato `data/descriptions.csv` (chiave: id + tipo `title`/`track`) invece di una colonna in `titles.csv`/`tracks.csv`. Motivo: `fetch_titles.py` e `build_tracks.py` riscrivono quei CSV da zero e cancellerebbero la colonna. Da confermare.
@@ -104,3 +108,4 @@ Una riga per passo completato: data, cosa, commit.
 
 - 2026-09-21 — Passo 1: ambiente, struttura, `.gitignore`, `requirements.txt`, smoke test `(3, 384)` — commit `6209479` (setup), `e088a3d` (smoke test); README e CLAUDE.md nel commit `97c14c5` (docs).
 - 2026-09-21 — Passo 2: dataset minimo, 20 film/serie (TMDB) e 50 brani (Hugging Face) in CSV, `.env.example` — commit `0498385` (titoli), `74b47b2` (brani), `af412f4` (`.env.example`); README e CLAUDE.md nel commit `f4cefc4` (docs).
+- 2026-10-04 — Passo 3: 70 descrizioni di mood in `data/descriptions.csv` (in attesa di revisione) — commit `37dd7b4`. Repo pubblicato su GitHub lo stesso giorno.

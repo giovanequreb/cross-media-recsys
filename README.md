@@ -4,7 +4,7 @@ Recommend **music** based on your taste in **movies and TV series**.
 
 Most recommenders stay inside one domain: they suggest songs because you liked other songs. This project tries the opposite: if you love a slow, melancholic sci-fi film, which tracks would fit that same mood? It is inspired by the Podiums app, where taste is captured through pairwise comparisons instead of star ratings.
 
-> **Status: work in progress.** The environment is set up and the minimal dataset (20 movies/series, 50 tracks) is ready; descriptions, embeddings and the recommender are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
+> **Status: work in progress.** The environment is set up and the minimal dataset (20 movies/series, 50 tracks) and its mood descriptions are ready; embeddings and the recommender are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
 
 ## How it will work
 
@@ -63,6 +63,7 @@ Level 1 uses a small, hand-picked dataset (committed in `data/`):
 | --- | --- | --- |
 | `data/titles.csv` | 20 movies and TV series: TMDB id, title, year, type, genres, English overview | [TMDB API](https://developer.themoviedb.org/) |
 | `data/tracks.csv` | 50 tracks: id, title, artist, album, popularity and audio features (`danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`) | [`maharshipandya/spotify-tracks-dataset`](https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset) on Hugging Face (BSD license) |
+| `data/descriptions.csv` | 70 short English mood descriptions, one per title and track: item type (`title`/`track`), item id, name, description | Written with an LLM (Claude) and reviewed by hand |
 
 The 20 titles were chosen to cover very different moods (dark, dreamy, joyful, epic), and the 50 tracks to span ambient, classical, synthwave, jazz, indie and rock. The `genre_label` column in `tracks.csv` comes from the source dataset and is **noisy** (for example, Hans Zimmer's "Time" is labelled `german`), so it is kept for reference only.
 
@@ -89,6 +90,7 @@ cross-media-recsys/
 ├── data/
 │   ├── titles.csv       # movies and series (from TMDB)
 │   ├── tracks.csv       # curated tracks with audio features
+│   ├── descriptions.csv # mood descriptions for titles and tracks
 │   └── raw/             # raw downloads (git-ignored)
 ├── src/
 │   ├── smoke_test.py    # checks the embedding model output shape
@@ -116,7 +118,8 @@ cross-media-recsys/
 - [x] Project setup: virtual environment, dependencies, folder structure
 - [x] Smoke test: embed 3 sentences and check the output shape is `(3, 384)`
 - [x] Level 1: minimal dataset (20 movies/series, 50 tracks with basic metadata)
-- [ ] Level 1: LLM-generated descriptions, embeddings, cosine-similarity recommendations
+- [x] Level 1: LLM-generated mood descriptions for every title and track
+- [ ] Level 1: embeddings, cosine-similarity recommendations
 - [ ] Level 2: train on Douban / Amazon Reviews (movies + CDs)
 - [ ] Level 3: pairwise comparisons (Elo / Bradley-Terry) and web app
 
