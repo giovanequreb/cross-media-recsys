@@ -165,7 +165,7 @@
 
     /* Swipe deck: one track at a time, like flicking through a record crate. */
     .deck-progress { text-align: center; color: var(--muted); font: italic 15px var(--display); margin: 0 0 14px; }
-    .stage { position: relative; height: 400px; margin: 0 auto; }
+    .stage { position: relative; height: 330px; margin: 0 auto; }
     .swipe-card {
       position: absolute; inset: 0; display: flex; flex-direction: column; gap: 8px; padding: 24px 22px 20px;
       background: var(--paper); border: 2px solid var(--ink); border-radius: 6px; box-shadow: 6px 6px 0 var(--shadow);
@@ -190,11 +190,8 @@
     .artist-line { -webkit-line-clamp: 2; }
     .artist-line { font: italic 18px var(--display); color: var(--muted); margin: 0; }
     .mood { font: italic 600 18px/1.3 var(--display); margin: 12px 0 0; }
-    .desc {
-      font-size: 14px; color: var(--muted); margin: 0;
-      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-    }
     .card-foot { margin-top: auto; }
+    .mini-player { width: 100%; height: 80px; border: 0; border-radius: 12px; display: block; color-scheme: normal; }
     .stamp {
       position: absolute; z-index: 2; padding: 2px 10px; border: 3px solid; border-radius: 4px; background: var(--paper);
       font: 800 22px var(--body); letter-spacing: 0.06em; opacity: 0; pointer-events: none;
@@ -644,20 +641,12 @@
     const { track } = item;
     const stamps = [["yes", "FITS"], ["no", "NOPE"], ["bit", "A BIT"], ["dunno", "?"]]
       .map(([kind, text]) => element("span", { className: `stamp ${kind}`, textContent: text }));
-    const player = element("div", { className: "player", hidden: true });
-    player.style.marginLeft = "0";
-    const play = element("button", { className: "play", type: "button", textContent: "▶ Listen" });
-    play.setAttribute("aria-expanded", "false");
-    play.onclick = () => {
-      const open = player.hidden;
-      player.hidden = !open;
-      play.setAttribute("aria-expanded", open);
-      play.textContent = open ? "■ Close" : "▶ Listen";
-      player.replaceChildren(...(open ? [element("iframe", {
-        src: `https://open.spotify.com/embed/track/${track.id}`, title: `Spotify player: ${track.title}`,
-        loading: "lazy", allow: "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture",
-      })] : []));
-    };
+    // The Spotify mini player is always on the card: one tap on its play button and the track plays.
+    const player = element("iframe", {
+      className: "mini-player", title: `Spotify player: ${track.title}`,
+      src: `https://open.spotify.com/embed/track/${track.id}?utm_source=generator`,
+      allow: "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture",
+    });
     const cover = element("div", { className: "cover" });
     loadCover(track).then((url) => { if (url) cover.replaceChildren(element("img", { src: url, alt: `Cover of ${track.title}`, draggable: false })); });
     const card = element("article", { className: "swipe-card" }, [
@@ -670,8 +659,7 @@
         ]),
       ]),
       element("p", { className: "mood", textContent: track.emotions }),
-      element("p", { className: "desc", textContent: `${track.sound} ${track.references}` }),
-      element("div", { className: "card-foot" }, [play, player]),
+      element("div", { className: "card-foot" }, [player]),
     ]);
     card.style.background = `var(--t${tintFor(track)})`;
     attachDrag(card);
