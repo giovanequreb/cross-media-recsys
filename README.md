@@ -314,6 +314,10 @@ cross-media-recsys/
 - [ ] Level 2: train on Amazon Reviews (movies + CDs)
 - [ ] Level 3: pairwise comparisons (Elo / Bradley-Terry) and web app
 
+## License
+
+The code is released under the [MIT License](LICENSE). The data files are not covered by it: movie and TV metadata comes from TMDB (non-commercial use only, see [Credits](#credits)), and the track data comes from a Hugging Face dataset under its own BSD license.
+
 ## About
 
 Built by Adam Kouribiy as a portfolio project on applied AI. The code is written step by step, with each step documented and committed separately.

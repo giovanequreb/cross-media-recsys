@@ -40,6 +40,7 @@ cross-media-recsys/
 ├── requirements.txt
 ├── .env.example     # modello per la chiave TMDB (.env è ignorato da git)
 ├── README.md
+├── LICENSE          # MIT (solo codice; i dati hanno licenze proprie)
 ├── CLAUDE.md
 └── .gitignore
 ```
@@ -160,3 +161,4 @@ Una riga per passo completato: data, cosa, commit.
 - 2026-10-05 — App: apprendimento dai voti ("Refine the list") e filtro dei quasi-doppioni.
 - 2026-10-05 — Modello allenato su 2.464 abbinamenti curati (`data/curated.csv`, `src/train.py`): precision@10 su film mai visti da 0.288 a 0.365.
 - 2026-10-05 — Tolto il bonus ai brani scelti a mano; rete neurale a due torri (PyTorch) al posto della regressione: precision@10 su film mai visti 0.373.
+- 2026-10-06 — Pulizia per il portfolio: README corretto (URL, numeri vecchi, struttura, stack), aggiunta licenza MIT per il codice.
