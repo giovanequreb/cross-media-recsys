@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
   <title>Cross-Media Recommender</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,6 +11,7 @@
   <style>
     /* Warm paper, ink and two spot colours, like a hand-printed gig poster. */
     :root {
+      color-scheme: light;
       --paper: #f6f1ff; --card: #ffffff; --ink: #1e1b3a; --muted: #6b6590; --line: #e0d7f5;
       --red: #5b3df5;            /* the one strong colour: links, main buttons, numbers */
       --bad: #e5484d;            /* only for "doesn't fit" */
@@ -19,15 +21,6 @@
       --shadow: #2a2160; --on-red: #ffffff;
       --display: "Fraunces", "Iowan Old Style", Georgia, serif;
       --body: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --paper: #14112b; --card: #1f1b3d; --ink: #f2eeff; --muted: #a9a2d0; --line: #38306a;
-        --red: #a99bff; --bad: #ff7a80; --yellow: #ffc9a8; --teal: #5fe0b4; --pale-teal: #1d4a40; --pale-red: #5a3a2a; --pink: #7b61ff;
-        --t1: #2d2560; --t2: #1d4a40; --t3: #5a3a2a; --t4: #1f3d63; --t5: #5a2a45;
-        --shadow: #000; --on-red: #14112b;
-      }
-      :root h1 em { color: #1e1b3a; }
     }
     * { box-sizing: border-box; }
     body {
