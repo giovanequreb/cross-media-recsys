@@ -161,6 +161,62 @@
     .ranking li::marker { color: var(--red); font-style: italic; font-weight: 700; }
     .ranking small { color: var(--muted); font: 13px var(--body); }
 
+    /* Swipe deck: one track at a time, like flicking through a record crate. */
+    .deck-progress { text-align: center; color: var(--muted); font: italic 15px var(--display); margin: 0 0 14px; }
+    .stage { position: relative; height: 430px; max-width: 420px; margin: 0 auto; }
+    @media (max-width: 560px) { .stage { height: 470px; } }
+    .swipe-card {
+      position: absolute; inset: 0; display: flex; flex-direction: column; gap: 8px; padding: 24px 22px 20px;
+      background: var(--paper); border: 2px solid var(--ink); border-radius: 6px; box-shadow: 6px 6px 0 var(--shadow);
+      touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; overflow: hidden;
+      transition: transform .25s ease-out, opacity .25s;
+    }
+    .swipe-card.dragging { transition: none; cursor: grabbing; }
+    .swipe-card.behind { background: var(--card); pointer-events: none; transform: rotate(-3deg) translateY(10px) scale(.96); }
+    .swipe-card.behind + .swipe-card.behind { transform: rotate(3.5deg) translateY(18px) scale(.93); }
+    .swipe-card h3 { font: 700 clamp(25px, 5vw, 32px)/1.1 var(--display); letter-spacing: -0.02em; margin: 6px 0 0; }
+    .artist-line { font: italic 18px var(--display); color: var(--muted); margin: 0; }
+    .mood { font: italic 600 18px/1.3 var(--display); margin: 14px 0 0; }
+    .desc {
+      font-size: 14px; color: var(--muted); margin: 0;
+      display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .card-foot { margin-top: auto; }
+    .stamp {
+      position: absolute; z-index: 2; padding: 2px 10px; border: 3px solid; border-radius: 4px; background: var(--paper);
+      font: 800 22px var(--body); letter-spacing: 0.06em; opacity: 0; pointer-events: none;
+    }
+    .stamp.yes { top: 20px; left: 16px; color: var(--teal); border-color: var(--teal); transform: rotate(-10deg); }
+    .stamp.no { top: 20px; right: 16px; color: var(--red); border-color: var(--red); transform: rotate(10deg); }
+    .stamp.bit { top: 16px; left: 50%; margin-left: -34px; color: #8a6200; border-color: var(--yellow); }
+    .stamp.dunno { bottom: 70px; left: 50%; margin-left: -22px; color: var(--muted); border-color: var(--muted); }
+    .deck-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+    .deck-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 2px; width: 66px; padding: 8px 0 6px; cursor: pointer;
+      border: 2px solid var(--ink); border-radius: 6px; background: var(--card); color: var(--ink);
+      font: 700 19px var(--body); box-shadow: 3px 3px 0 var(--shadow); transition: transform .1s, box-shadow .1s;
+    }
+    .deck-btn small { font: 400 11px var(--body); color: var(--muted); }
+    .deck-btn:hover { background: var(--yellow); color: #231f1b; }
+    .deck-btn:hover small { color: #3b332b; }
+    .deck-btn:active { transform: translate(3px, 3px); box-shadow: none; }
+    .deck-hint { text-align: center; }
+    .done { text-align: center; padding: 36px 8px; }
+    .done h3 { font: italic 700 26px var(--display); margin: 0 0 8px; }
+    .done p { color: var(--muted); margin: 0 0 14px; }
+
+    .meter { height: 10px; border: 2px solid var(--ink); background: var(--card); margin-top: 14px; }
+    .meter span { display: block; height: 100%; width: 0; background: var(--red); transition: width .3s; }
+    .link.ready {
+      text-decoration: none; background: var(--red); color: var(--on-red); padding: 8px 14px; border: 2px solid var(--ink);
+      border-radius: 4px; box-shadow: 3px 3px 0 var(--shadow);
+    }
+    .link.ready:hover { background: var(--yellow); color: #231f1b; }
+    @keyframes deal { from { opacity: 0; translate: 0 18px; } }
+    .pick { animation: deal .3s ease-out; }
+    @media (prefers-reduced-motion: reduce) { .pick { animation: none; } .swipe-card { transition: none; } }
+    .actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
     footer { margin-top: 36px; color: var(--muted); font-size: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border-top: 2px solid var(--ink); padding-top: 14px; }
     footer img { height: 12px; }
     footer a { color: var(--muted); }
@@ -195,7 +251,8 @@
         <span class="hint" id="duel-count" style="margin:0"></span>
         <button class="link" id="duel-undo">Undo last duel</button>
       </div>
-      <p class="hint">Choose the one you would rather watch again. If you have not seen one of them, say so and it is left out of your ranking.</p>
+      <div class="meter" aria-hidden="true"><span id="meter-fill"></span></div>
+      <p class="hint">Tap a ticket, or press <b>←</b> or <b>→</b>. <b>Z</b> undoes. If you have not seen one of them, say so and it is left out of your ranking.</p>
     </section>
     <section class="panel">
       <h2>Your personal top list</h2>
@@ -219,7 +276,7 @@
         <div class="chips" id="chips"></div>
         <div class="row">
           <span class="hint" id="selection-count" style="margin:0"></span>
-          <button class="link" id="clear">Clear selection</button>
+          <span class="actions"><button class="link" id="surprise">Surprise me</button><button class="link" id="clear">Clear selection</button></span>
         </div>
       </section>
 
@@ -239,12 +296,12 @@
       <h2>3 · Your mixtape</h2>
       <label class="check" style="margin-bottom:8px"><input type="checkbox" id="blind"> Rating mode: shuffled, with a few wildcards</label>
       <label class="check" style="margin-bottom:8px"><input type="checkbox" id="diverse" checked> Avoid near-duplicates</label>
-      <div class="row" style="margin:0 0 14px"><button class="link" id="refine"></button><button class="link" id="unrefine">Back to the model's list</button></div>
-      <p class="legend"><b>++</b> fits · <b>+</b> fits a little · <b>−</b> not far off · <b>−−</b> doesn't fit · <b>?</b> don't know it</p>
+      <div class="row" style="margin:0 0 14px"><button class="link" id="view-toggle"></button><button class="link" id="refine"></button><button class="link" id="unrefine">Back to the model's list</button></div>
+      <p class="legend" id="legend"><b>++</b> fits · <b>+</b> fits a little · <b>−</b> not far off · <b>−−</b> doesn't fit · <b>?</b> don't know it</p>
       <div id="results"></div>
       <div class="row">
         <span class="hint" id="feedback-count" style="margin:0"></span>
-        <button class="link" id="export">Download feedback (JSON)</button>
+        <span class="actions"><button class="link" id="copy-mixtape">Copy my mixtape</button><button class="link" id="export">Download feedback (JSON)</button></span>
       </div>
     </section>
   </div>
@@ -268,6 +325,9 @@
   const DIVERSITY = 0.35;       // penalty per unit of similarity above the near-duplicate threshold
   const STORAGE_KEY = "cross-media-feedback";
   const DUEL_KEY = "cross-media-duels";
+  const VIEW_KEY = "cross-media-view";
+  const DUEL_GOAL = 15;         // duels after which the ranking is worth using
+  const SWIPE_DISTANCE = 100;   // pixels a card must travel to count as a decision
   const RANKING_SIZE = 5;       // how many top-ranked titles "Get music from my ranking" uses
 
   const state = {
@@ -280,6 +340,7 @@
     blind: false,
     diverse: true,
     trained: true,
+    view: loadView(),           // "swipe" (one card at a time) or "list"
     personal: false,
     feedback: loadFeedback(),
   };
@@ -306,6 +367,9 @@
   }
   function saveFeedback() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.feedback)); } catch { /* ignore */ }
+  }
+  function loadView() {
+    try { return localStorage.getItem(VIEW_KEY) === "list" ? "list" : "swipe"; } catch { return "swipe"; }
   }
   function loadDuels() {
     const empty = { ratings: {}, games: {}, unseen: [], history: [] };
@@ -494,6 +558,7 @@
     const count = state.feedback.length;
     $("feedback-count").textContent = count ? `${count} rating${count === 1 ? "" : "s"} saved in this browser` : "Rate tracks to help tune the model";
     $("export").disabled = count === 0;
+    $("copy-mixtape").disabled = state.selected.size === 0;
 
     const usable = state.selected.size ? currentRatings().length : 0;
     $("refine").hidden = state.blind;
@@ -505,13 +570,161 @@
       : "Rate a few tracks, then refine the list";
   }
 
+  // ---- Swipe deck: rate one track at a time by dragging the card ----
+  // right = fits (++), left = doesn't fit (--), up = fits a little (+), down = don't know it (?).
+  // The "not far off" vote (-) has a button only. Vote names are the ones stored in feedback.json.
+  const deck = { queue: [], pos: 0, total: 0, history: [], busy: false };
+  const DECK_BUTTONS = [
+    ["down", "−−", "no"], ["nearly", "−", "not far"], ["unknown", "?", "don't know"], ["partly", "+", "a bit"], ["up", "++", "fits"],
+  ];
+  const FLY = { up: [900, -80], down: [-900, -80], partly: [0, -900], unknown: [0, 900], nearly: [-700, 300] };
+
+  function decideSwipe(dx, dy) {
+    if (Math.abs(dx) >= Math.abs(dy)) return dx > SWIPE_DISTANCE ? "up" : dx < -SWIPE_DISTANCE ? "down" : null;
+    return dy < -SWIPE_DISTANCE ? "partly" : dy > SWIPE_DISTANCE ? "unknown" : null;
+  }
+
+  function swipeCard(item) {
+    const { track } = item;
+    const stamps = [["yes", "FITS"], ["no", "NOPE"], ["bit", "A BIT"], ["dunno", "?"]]
+      .map(([kind, text]) => element("span", { className: `stamp ${kind}`, textContent: text }));
+    const player = element("div", { className: "player", hidden: true });
+    player.style.marginLeft = "0";
+    const play = element("button", { className: "play", type: "button", textContent: "▶ Listen" });
+    play.setAttribute("aria-expanded", "false");
+    play.onclick = () => {
+      const open = player.hidden;
+      player.hidden = !open;
+      play.setAttribute("aria-expanded", open);
+      play.textContent = open ? "■ Close" : "▶ Listen";
+      player.replaceChildren(...(open ? [element("iframe", {
+        src: `https://open.spotify.com/embed/track/${track.id}`, title: `Spotify player: ${track.title}`,
+        loading: "lazy", allow: "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture",
+      })] : []));
+    };
+    const card = element("article", { className: "swipe-card" }, [
+      ...stamps,
+      element("h3", { textContent: track.title }),
+      element("p", { className: "artist-line", textContent: track.artist }),
+      element("p", { className: "mood", textContent: track.emotions }),
+      element("p", { className: "desc", textContent: `${track.sound} ${track.references}` }),
+      element("div", { className: "card-foot" }, [play, player]),
+    ]);
+    attachDrag(card);
+    return card;
+  }
+
+  function attachDrag(card) {
+    let start = null;
+    const stamp = (kind) => card.querySelector(`.stamp.${kind}`);
+    const showStamps = (dx, dy) => {
+      const strength = (value) => Math.min(1, Math.max(0, value / SWIPE_DISTANCE));
+      const horizontal = Math.abs(dx) >= Math.abs(dy);
+      stamp("yes").style.opacity = horizontal ? strength(dx) : 0;
+      stamp("no").style.opacity = horizontal ? strength(-dx) : 0;
+      stamp("bit").style.opacity = horizontal ? 0 : strength(-dy);
+      stamp("dunno").style.opacity = horizontal ? 0 : strength(dy);
+    };
+    card.addEventListener("pointerdown", (event) => {
+      if (deck.busy || event.target.closest("button, a, iframe")) return;
+      start = { x: event.clientX, y: event.clientY };
+      card.setPointerCapture(event.pointerId);
+      card.classList.add("dragging");
+    });
+    card.addEventListener("pointermove", (event) => {
+      if (!start) return;
+      const dx = event.clientX - start.x;
+      const dy = event.clientY - start.y;
+      card.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx / 18}deg)`;
+      showStamps(dx, dy);
+    });
+    const release = (event) => {
+      if (!start) return;
+      const dx = event.clientX - start.x;
+      const dy = event.clientY - start.y;
+      start = null;
+      card.classList.remove("dragging");
+      const vote = event.type === "pointerup" ? decideSwipe(dx, dy) : null;
+      if (vote) { castVote(vote, [dx, dy]); return; }
+      card.style.transform = "";
+      showStamps(0, 0);
+    };
+    card.addEventListener("pointerup", release);
+    card.addEventListener("pointercancel", release);
+  }
+
+  function drawDeck() {
+    const remaining = deck.queue.length - deck.pos;
+    const progress = element("p", { className: "deck-progress", textContent: `${deck.total - remaining} of ${deck.total} rated` });
+    if (remaining <= 0) {
+      const undo = element("button", { className: "link", type: "button", textContent: "Undo last" });
+      undo.onclick = undoSwipe;
+      $("results").replaceChildren(progress, element("div", { className: "done" }, [
+        element("h3", { textContent: "That's the whole mixtape." }),
+        element("p", { textContent: "Refine the list with your ratings, copy your favourites, or pick other titles." }),
+        ...(deck.history.length ? [undo] : []),
+      ]));
+      return;
+    }
+    // two blank cards peek out from behind the top one, like a stack
+    const behind = deck.queue.slice(deck.pos + 1, deck.pos + 3).reverse().map(() => element("div", { className: "swipe-card behind" }));
+    const stage = element("div", { className: "stage" }, [...behind, swipeCard(deck.queue[deck.pos])]);
+    const buttons = element("div", { className: "deck-buttons" }, DECK_BUTTONS.map(([vote, symbol, caption]) => {
+      const button = element("button", { className: "deck-btn", type: "button" }, [symbol, element("small", { textContent: caption })]);
+      button.setAttribute("aria-label", caption);
+      button.onclick = () => castVote(vote);
+      return button;
+    }));
+    const hint = element("p", { className: "hint deck-hint", textContent: "Swipe the card, or use the keys: → fits · ← no · ↑ a bit · ↓ don't know · Z undo" });
+    $("results").replaceChildren(progress, stage, buttons, hint);
+  }
+
+  function castVote(vote, from = [0, 0]) {
+    const item = deck.queue[deck.pos];
+    if (!item || deck.busy || state.view !== "swipe") return;
+    deck.busy = true;
+    const card = $("results").querySelector(".swipe-card:not(.behind)");
+    const [x, y] = FLY[vote];
+    card.classList.remove("dragging");
+    card.style.opacity = 0;
+    card.style.transform = `translate(${x || from[0]}px, ${y || from[1]}px) rotate(${x / 18}deg)`;
+    setVote(item.track.id, vote, item.rank, item.wildcard);
+    deck.history.push(item);
+    navigator.vibrate?.(12);
+    setTimeout(() => { deck.pos += 1; deck.busy = false; drawDeck(); }, 230);
+  }
+
+  function undoSwipe() {
+    const item = deck.history.pop();
+    if (!item || deck.busy) return;
+    const existing = voteFor(item.track.id);
+    state.feedback = state.feedback.filter((entry) => entry !== existing);
+    saveFeedback();
+    refreshVotes();
+    deck.pos -= 1;
+    drawDeck();
+  }
+
   function renderResults() {
+    const swipe = state.view === "swipe";
+    $("view-toggle").textContent = swipe ? "Switch to list view" : "Switch to swipe cards";
+    $("legend").hidden = swipe;
     if (state.selected.size === 0) {
+      deck.queue = [];
       refreshVotes();
-      $("results").replaceChildren(element("p", { className: "empty", textContent: "Select at least one title to see recommendations." }));
+      $("results").replaceChildren(element("p", { className: "empty", textContent: "Pick a few titles you love, or press “Surprise me”." }));
       return;
     }
     const results = recommend();
+    if (swipe) {
+      deck.total = results.length;
+      deck.queue = results.filter((item) => !voteFor(item.track.id));
+      deck.pos = 0;
+      deck.history = [];
+      drawDeck();
+      refreshVotes();
+      return;
+    }
     const best = Math.max(...results.map((item) => item.score), 1e-9);
     const rows = results.map(({ track, score, rank, wildcard }, index) => {
       const button = (vote, label, symbol) => {
@@ -587,6 +800,53 @@
     URL.revokeObjectURL(link.href);
   }
   $("export").onclick = () => download("feedback.json", state.feedback);
+  $("view-toggle").onclick = () => {
+    state.view = state.view === "swipe" ? "list" : "swipe";
+    try { localStorage.setItem(VIEW_KEY, state.view); } catch { /* ignore */ }
+    renderResults();
+  };
+
+  // Three random titles, for people who do not know where to start.
+  $("surprise").onclick = () => {
+    const pool = [...DATA.titles];
+    const picked = [];
+    while (picked.length < 3) picked.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0].id);
+    state.selected = new Set(picked);
+    state.titleWeights = null;
+    state.personal = false;
+    render();
+  };
+
+  // Copy a plain-text tracklist with Spotify links: the tracks you rated ++ or +, or the whole list if none.
+  $("copy-mixtape").onclick = async () => {
+    const key = [...state.selected].sort().join(",");
+    const liked = state.feedback
+      .filter((item) => item.titleIds.join(",") === key && (item.vote === "up" || item.vote === "partly"))
+      .map((item) => DATA.tracks.find((track) => track.id === item.trackId))
+      .filter(Boolean);
+    const tracks = liked.length ? liked : recommend().map((item) => item.track);
+    const names = DATA.titles.filter((title) => state.selected.has(title.id)).map((title) => title.title).join(", ");
+    const text = `Mixtape for ${names}\n\n` + tracks.map((track, i) =>
+      `${i + 1}. ${track.title} — ${track.artist}\n   https://open.spotify.com/track/${track.id}`).join("\n");
+    const button = $("copy-mixtape");
+    try { await navigator.clipboard.writeText(text); button.textContent = "Copied!"; } catch { button.textContent = "Couldn't copy"; }
+    setTimeout(() => { button.textContent = "Copy my mixtape"; }, 1800);
+  };
+
+  // Keyboard: arrows rate the card or choose a duel, Z undoes.
+  document.addEventListener("keydown", (event) => {
+    if (event.target.closest?.("input, textarea, select") || event.metaKey || event.ctrlKey || event.altKey) return;
+    const pickVisible = !$("view-pick").hidden;
+    const key = event.key;
+    if (pickVisible && state.view === "swipe" && deck.queue.length) {
+      const vote = { ArrowRight: "up", ArrowLeft: "down", ArrowUp: "partly", ArrowDown: "unknown" }[key];
+      if (vote) { event.preventDefault(); castVote(vote); } else if (key === "z" || key === "Z") undoSwipe();
+    } else if (!pickVisible && state.pair) {
+      if (key === "ArrowLeft") choose(state.pair[0], state.pair[1]);
+      else if (key === "ArrowRight") choose(state.pair[1], state.pair[0]);
+      else if (key === "z" || key === "Z") undoDuel();
+    }
+  });
 
   // ---- Duels: pairwise choices between titles, ranked with Elo (see elo.js) ----
   const titleById = new Map(DATA.titles.map((title) => [title.id, title]));
@@ -663,7 +923,11 @@
     if (ranked.length === 0) $("ranking").replaceChildren(element("li", { className: "empty", style: "list-style:none;margin-left:-26px", textContent: "Choose between a few pairs to start your ranking." }));
 
     const duels = state.duels.history.length;
-    $("duel-count").textContent = `${duels} duel${duels === 1 ? "" : "s"} saved in this browser`;
+    $("duel-count").textContent = duels < DUEL_GOAL
+      ? `${duels} of ${DUEL_GOAL} duels for a first ranking`
+      : `${duels} duels: your ranking is taking shape`;
+    $("meter-fill").style.width = Math.min(100, (duels / DUEL_GOAL) * 100) + "%";
+    $("use-ranking").classList.toggle("ready", duels >= DUEL_GOAL);
     $("duel-undo").disabled = duels === 0;
     $("duel-export").disabled = duels === 0;
     $("use-ranking").disabled = ranked.length === 0;
