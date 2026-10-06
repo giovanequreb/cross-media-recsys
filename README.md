@@ -6,7 +6,7 @@ Recommend **music** based on your taste in **movies and TV series**.
 
 Most recommenders stay inside one domain: they suggest songs because you liked other songs. This project tries the opposite: if you love a slow, melancholic sci-fi film, which tracks would fit that same mood? It is inspired by the Podiums app, where taste is captured through pairwise comparisons instead of star ratings.
 
-> **Status: work in progress.** The environment is set up and Level 1 works end to end: 238 movies/series and 548 tracks with five-facet descriptions, embeddings, a small weighted similarity model, a command-line recommender and a static web app. Levels 2 and 3 are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
+> **Status: work in progress.** The environment is set up and Level 1 works end to end: 993 movies/series and 548 tracks with five-facet descriptions, embeddings, a small weighted similarity model, a command-line recommender and a static web app. Levels 2 and 3 are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
 
 ## How it works
 
@@ -51,7 +51,7 @@ score = Σ over facets of  weight[facet] × cosine(title[facet], track[facet])
 
 Text similarity alone sometimes produces matches that are plainly wrong (a jazz film getting garage rock because both descriptions say "tense"). To fix that, a small neural network is trained on examples.
 
-[`data/curated.csv`](data/curated.csv) holds 2,464 (title, track) matches: for each of the 238 titles, about ten tracks hand-picked from the catalogue. They are **training data only**: nothing is looked up at recommendation time.
+[`data/curated.csv`](data/curated.csv) holds 2,464 (title, track) matches: for each of the 238 core titles, about ten tracks hand-picked from the catalogue. They are **training data only**: nothing is looked up at recommendation time. The 755 titles added later (see [Data](#data)) have descriptions but no curated picks: the network scores them from their descriptions alone, like any title it has not seen.
 
 [`src/train.py`](src/train.py) trains a **two-tower network** in PyTorch. One tower (a linear layer) turns a title's five description vectors (1,920 numbers) into 64 numbers; a second tower does the same for a track. Training pulls each title towards its picked tracks and away from the other 500-odd, with a cross-entropy loss over all tracks. Dropout and weight decay keep a network with about 250,000 weights from simply memorising 238 titles. The final score adds the network's score and the baseline score, each standardised first.
 
@@ -65,11 +65,11 @@ Tested on titles the network has not seen (5-fold cross-validation by title):
 
 | | Precision@10 | Recall@50 | Titles with no good track in the top 10 |
 | --- | --- | --- | --- |
-| Baseline (hand-set weights) | 0.288 | 0.615 | 4.2% |
+| Baseline (hand-set weights) | 0.287 | 0.607 | 5.1% |
 | Network alone | 0.325 | 0.690 | 8.4% |
-| **Network + baseline** | **0.373** | **0.739** | **3.4%** |
+| **Network + baseline** | **0.377** | **0.730** | **4.2%** |
 
-On the titles it was trained on, precision@10 is 0.80. That gap between 0.80 and 0.37 is the honest picture: the network has largely learned the examples it was shown, and carries over part of that to new titles. More and better examples are what would close it.
+On the titles it was trained on, precision@10 is 0.78. That gap between 0.78 and 0.38 is the honest picture: the network has largely learned the examples it was shown, and carries over part of that to new titles. More and better examples are what would close it.
 
 The curated matches were chosen by the same LLM that wrote the descriptions (Claude), from knowledge of the works, not by listeners. In effect the network distils a large model's judgement into a tiny one that runs anywhere. They are a stand-in for real feedback: ratings collected in the web app are meant to replace them.
 
@@ -191,7 +191,7 @@ Two things in the app go beyond the base model:
 - **Learning from your ratings.** After rating a few tracks for a selection, "Refine the list" re-ranks everything: tracks similar to the ones you liked move up, tracks similar to the ones you disliked move down, and the disliked ones are dropped. Similarity between tracks uses the same facets and weights as the model.
 - **Avoid near-duplicates.** The list is filled one track at a time, and a track very similar to one already chosen (top 5% of track pairs) is pushed down, so the eight results are not three versions of the same idea.
 
-`app/data.js` is generated; after changing descriptions, embeddings or `data/model.json`, rebuild it with `python src/export_app.py`.
+`app/data.js` (1.4 MB) and `app/facets.js` (4.3 MB, fetched only when someone unticks "Use the trained model" in Advanced) are generated; after changing descriptions, embeddings or `data/model.json`, rebuild them with `python src/export_app.py`. `python src/recommend.py "The Lion King (2019)"` takes a year when a name exists twice.
 
 ### Soundtrack check
 
@@ -212,7 +212,7 @@ python src/evaluate.py
 | Only `references` | 0.56 | 0.48 | 0.63 | 0.69 | 29.1 |
 | Equal weights | 0.38 | 0.31 | 0.42 | 0.53 | 57.1 |
 | Model weights, no hub correction | 0.48 | 0.40 | 0.54 | 0.62 | 31.8 |
-| **Model** (`data/model.json`) | **0.49** | **0.41** | **0.58** | **0.67** | **30.5** |
+| **Model** (`data/model.json`) | **0.49** | **0.41** | **0.59** | **0.64** | **29.3** |
 
 MRR is the mean reciprocal rank (1.0 = always first); Hit@5 is how often the track is in the top 5. The script also runs a grid search over the weights with 5-fold cross-validation by title.
 
@@ -221,7 +221,7 @@ What this check does and does not show:
 - **Plot is nearly useless** for matching music (0.07, about random), which supports giving it a small weight.
 - **Sound and setting carry real signal** (0.29 and 0.23 on their own). When `sound` was added as a fifth facet, on a smaller catalogue of 200 tracks, the model went from 0.61 to 0.68.
 - **A bigger catalogue makes the check harder.** With 200 tracks the model scored 0.68; with 548 there are many more wrong answers and it scores 0.49, still about forty times better than chance. In two cases out of three the right song is in the top 10 of 548.
-- **The hub correction helps a little** (0.48 → 0.49, Hit@10 0.62 → 0.67) on top of making results more varied.
+- **The hub correction helps a little** (0.48 → 0.49, Hit@10 0.62 → 0.64) on top of making results more varied.
 - **Two ideas that did not work**, kept out of the default model: the `tone` facet (energy and valence, 0.04 on its own, and it lowers the score at any weight above 0.05, measured on the smaller catalogue) and adding the director's name to the `references` text (0.61 → 0.56). Directors are stored and shown in the app, but not embedded.
 - **The embedding model matters.** Eight local models were compared on this check with the same descriptions and weights (before the `sound` facet was added, with 113 titles and 200 tracks):
 
@@ -246,17 +246,19 @@ Level 1 uses a small, hand-picked dataset (committed in `data/`):
 
 | File | Content | Source |
 | --- | --- | --- |
-| `data/titles.csv` | 238 movies and TV series: TMDB id, title, year, type, director (or creators, for series), genres, English overview | [TMDB API](https://developer.themoviedb.org/) |
+| `data/titles.csv` | 993 movies and TV series (238 chosen by hand, 755 of the most-voted on TMDB): TMDB id, title, year, type, director (or creators, for series), genres, English overview | [TMDB API](https://developer.themoviedb.org/) |
 | `data/tracks.csv` | 548 tracks: id, title, artist, album, popularity and audio features (`danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`) | [`maharshipandya/spotify-tracks-dataset`](https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset) on Hugging Face (BSD license) |
-| `data/descriptions.csv` | 786 descriptions, one per title and track, in five facets: `emotions`, `plot`, `setting`, `sound`, `references` (plus item type, id and name) | Written with an LLM (Claude) |
+| `data/descriptions.csv` | 1,541 descriptions, one per title and track, in five facets: `emotions`, `plot`, `setting`, `sound`, `references` (plus item type, id and name) | Written with an LLM (Claude) |
 | `data/curated.csv` | 2,464 hand-picked (title, track) matches, about ten per title, used to train the model | Picked by an LLM (Claude) |
 | `data/soundtrack_pairs.csv` | 126 (title, track) pairs where the track is famously used in the title | Hand-picked |
-| `data/embeddings.npz` | 384-d unit vectors stored as float16, shape (786 items, 5 facets, 384) | Built by `src/embed.py` |
+| `data/embeddings.npz` | 384-d unit vectors stored as float16, shape (1,541 items, 5 facets, 384) | Built by `src/embed.py` |
 | `data/title_tone.csv` | Energy and valence (0 to 1) of each title, for the experimental `tone` facet | Hand-set |
 | `data/model.json` | Baseline parameters: facet weights and hub correction | Hand-set |
 | `data/towers.npz` | Weights of the trained two-tower network | Written by `src/train.py` |
 
 The catalogue grew in steps: 20 titles and 50 tracks chosen to cover very different moods; then famous title/song pairs for the soundtrack check; then several batches of popular titles and of tracks across genres (classical, jazz, soul, disco, rock, metal, punk, new wave, hip-hop, pop, electronic, folk, country, Latin, reggae). Tracks are limited to what the source dataset contains.
+
+The 755 newest titles come from [`src/fetch_popular.py`](src/fetch_popular.py): the 520 movies and 240 series with the most votes on TMDB that were not in the catalogue yet (documentaries, talk shows, news and soaps left out), so they are the ones nearly everybody knows. TMDB numbers movies and series separately, so when a number clashes the series gets a `tv` prefix (`tv1402`). Their descriptions were written by an LLM in groups, with automatic checks (exactly three adjectives, and never the title itself, even before the colon). Like the rest, they are not independent of the model's evaluation: they were written by the same kind of model that judges them. In the app, "Surprise me" and the duels only draw from the 400 best-known titles, so friends are not asked about obscure series.
 
 To regenerate the files:
 
@@ -265,7 +267,8 @@ To regenerate the files:
 python src/build_tracks.py
 
 # Titles: needs a free TMDB API key in .env (copy .env.example to .env)
-python src/fetch_titles.py
+python src/fetch_titles.py            # the 238 core titles
+python src/fetch_popular.py           # then the most-voted ones, appended; descriptions are written separately
 
 # Embeddings: re-run after editing data/descriptions.csv
 python src/embed.py
@@ -297,6 +300,7 @@ cross-media-recsys/
 ├── app/
 │   ├── index.html       # static web app: pick titles, tune weights, rate tracks
 │   ├── data.js          # generated by src/export_app.py
+│   ├── facets.js        # per-facet similarities (4 MB), loaded only for hand-set weights
 │   ├── elo.js           # Elo rating and pair selection for the duels
 │   ├── config.js        # where ratings are sent (Supabase URL and publishable key)
 │   └── tmdb.svg         # TMDB attribution logo
@@ -306,6 +310,7 @@ cross-media-recsys/
 ├── src/
 │   ├── smoke_test.py    # checks the embedding model output shape
 │   ├── fetch_titles.py  # builds data/titles.csv from the TMDB API
+│   ├── fetch_popular.py # appends the most-voted TMDB titles to data/titles.csv
 │   ├── build_tracks.py  # builds data/tracks.csv from the Hugging Face dataset
 │   ├── embed.py         # builds data/embeddings.npz from the descriptions
 │   ├── model.py         # baseline scoring and the trained network's scoring
@@ -352,6 +357,7 @@ cross-media-recsys/
 - [x] Level 1: `sound` facet, experimental `tone` facet, directors, in-page Spotify player
 - [x] Level 1: web app published on GitHub Pages
 - [x] Level 1: catalogue grown to 238 titles and 548 tracks
+- [x] Level 1: 755 most-voted TMDB titles added (993 in all), described with an LLM
 - [x] Level 1: in-app learning from ratings and near-duplicate filter
 - [x] Level 1: two-tower neural network trained on 2,464 curated matches, cross-validated on unseen titles
 - [x] Level 2: feasibility check on Amazon Reviews 2023 (movie/music user overlap)
