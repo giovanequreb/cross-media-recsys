@@ -76,6 +76,29 @@
     .why { margin: 0 0 0 30px; color: var(--muted); font-size: 13px; }
     .why b { color: var(--text); font-weight: 500; }
 
+    .tabs { display: flex; gap: 8px; margin: 0 0 20px; }
+    .tab {
+      border: 1px solid var(--line); background: transparent; color: var(--muted);
+      padding: 8px 16px; border-radius: 999px; font: inherit; cursor: pointer;
+    }
+    .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+    [hidden] { display: none !important; }
+
+    .duel { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: stretch; }
+    @media (max-width: 560px) { .duel { grid-template-columns: 1fr; } .versus { text-align: center; } }
+    .versus { align-self: center; color: var(--muted); font-size: 13px; }
+    .card { display: flex; flex-direction: column; gap: 8px; }
+    .pick {
+      flex: 1; text-align: left; padding: 18px 14px; border-radius: 12px; cursor: pointer;
+      border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit;
+    }
+    .pick:hover, .pick:focus-visible { border-color: var(--accent); }
+    .pick strong { display: block; font-size: 18px; line-height: 1.25; margin-bottom: 6px; }
+    .pick span { color: var(--muted); font-size: 13px; display: block; }
+    .ranking { margin: 0; padding-left: 26px; }
+    .ranking li { padding: 4px 0; }
+    .ranking small { color: var(--muted); }
+
     footer { margin-top: 28px; color: var(--muted); font-size: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
     footer img { height: 12px; }
     footer a { color: var(--muted); }
@@ -84,9 +107,38 @@
 <body>
 <main>
   <h1>Cross-Media Recommender</h1>
-  <p class="lead">Pick the movies and series you like and get music that matches their emotions and pop-culture references.</p>
+  <p class="lead">Pick the movies and series you like, or rank them in head-to-head duels, and get music that matches their emotions and pop-culture references.</p>
 
-  <div class="layout">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-pick" aria-selected="true">Pick titles</button>
+    <button class="tab" role="tab" id="tab-duel" aria-selected="false">Duels</button>
+  </div>
+
+  <div class="layout" id="view-duel" hidden>
+    <section class="panel">
+      <h2>Which do you prefer?</h2>
+      <div class="duel" id="duel"></div>
+      <div class="row">
+        <span class="hint" id="duel-count" style="margin:0"></span>
+        <button class="link" id="duel-undo">Undo last duel</button>
+      </div>
+      <p class="hint">Choose the one you would rather watch again. If you have not seen one of them, say so and it is left out of your ranking.</p>
+    </section>
+    <section class="panel">
+      <h2>Your ranking</h2>
+      <ol class="ranking" id="ranking"></ol>
+      <div class="row">
+        <button class="link" id="use-ranking"></button>
+      </div>
+      <div class="row">
+        <button class="link" id="duel-export">Download duels (JSON)</button>
+        <button class="link" id="duel-reset">Reset duels</button>
+      </div>
+      <p class="hint">Ratings use Elo, the system behind chess rankings: beating a title that was ranked higher moves you up more than beating a weaker one. About three duels per title you know make the order reasonably stable.</p>
+    </section>
+  </div>
+
+  <div class="layout" id="view-pick">
     <div>
       <section class="panel">
         <h2>1 · What do you like?</h2>
@@ -132,6 +184,7 @@
 </main>
 
 <script src="data.js"></script>
+<script src="elo.js"></script>
 <script>
   const DATA = window.APP_DATA;
   const TOP = 8;
@@ -141,9 +194,14 @@
   const LEARNING_RATE = 0.6;    // how strongly ratings move the list
   const DIVERSITY = 0.35;       // penalty per unit of similarity above the near-duplicate threshold
   const STORAGE_KEY = "cross-media-feedback";
+  const DUEL_KEY = "cross-media-duels";
+  const RANKING_SIZE = 5;       // how many top-ranked titles "Get music from my ranking" uses
 
   const state = {
     selected: new Set(),
+    titleWeights: null,         // title id -> weight, set when the selection comes from the duel ranking
+    duels: loadDuels(),
+    pair: null,
     weights: { ...DATA.weights },
     hub: DATA.hubCorrection > 0,
     blind: false,
@@ -176,6 +234,13 @@
   function saveFeedback() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.feedback)); } catch { /* ignore */ }
   }
+  function loadDuels() {
+    const empty = { ratings: {}, games: {}, unseen: [], history: [] };
+    try { return { ...empty, ...JSON.parse(localStorage.getItem(DUEL_KEY)) }; } catch { return empty; }
+  }
+  function saveDuels() {
+    try { localStorage.setItem(DUEL_KEY, JSON.stringify(state.duels)); } catch { /* ignore */ }
+  }
 
   // Same formula as src/model.py: weighted facet similarities minus the hub term.
   function scoreMatrix() {
@@ -195,8 +260,12 @@
   function recommend() {
     const scores = scoreMatrix();
     const liked = DATA.titles.map((title, t) => (state.selected.has(title.id) ? t : -1)).filter((t) => t >= 0);
+    // Every liked title counts the same, unless the selection comes from the duel ranking:
+    // then a higher-ranked title counts more (its Elo strength).
+    const weightOf = (t) => state.titleWeights?.get(DATA.titles[t].id) ?? 1;
+    const totalWeight = liked.reduce((sum, t) => sum + weightOf(t), 0);
     const ranked = DATA.tracks
-      .map((track, k) => ({ track, index: k, score: liked.reduce((sum, t) => sum + scores[t][k], 0) / liked.length }))
+      .map((track, k) => ({ track, index: k, score: liked.reduce((sum, t) => sum + weightOf(t) * scores[t][k], 0) / totalWeight }))
       .sort((a, b) => b.score - a.score)
       .map((item, index) => ({ ...item, rank: index + 1, wildcard: false }));
     const top = ranked.slice(0, TOP);
@@ -285,6 +354,7 @@
         if (title.director) chip.title = (title.type === "tv" ? "Created by " : "Directed by ") + title.director;
         chip.onclick = () => {
           state.selected.has(title.id) ? state.selected.delete(title.id) : state.selected.add(title.id);
+          state.titleWeights = null;
           state.personal = false;
           render();
         };
@@ -293,7 +363,8 @@
     $("chips").replaceChildren(...chips);
     const count = state.selected.size;
     const chosen = DATA.titles.filter((title) => state.selected.has(title.id));
-    $("selection-count").textContent = chosen.map((title) => title.director ? `${title.title} — ${title.director}` : title.title).join(" · ");
+    $("selection-count").textContent = chosen.map((title) => title.director ? `${title.title} — ${title.director}` : title.title).join(" · ")
+      + (state.titleWeights ? " (weighted by your ranking)" : "");
     $("clear").disabled = count === 0;
   }
 
@@ -423,7 +494,7 @@
   function render() { renderChips(); renderResults(); }
 
   $("search").oninput = renderChips;
-  $("clear").onclick = () => { state.selected.clear(); state.personal = false; render(); };
+  $("clear").onclick = () => { state.selected.clear(); state.titleWeights = null; state.personal = false; render(); };
   $("diverse").onchange = (event) => { state.diverse = event.target.checked; renderResults(); };
   $("refine").onclick = () => { state.personal = true; renderResults(); };
   $("unrefine").onclick = () => { state.personal = false; renderResults(); };
@@ -436,11 +507,123 @@
     renderSliders();
     renderResults();
   };
-  $("export").onclick = () => {
-    const blob = new Blob([JSON.stringify(state.feedback, null, 2)], { type: "application/json" });
-    const link = element("a", { href: URL.createObjectURL(blob), download: "feedback.json" });
+  function download(filename, data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const link = element("a", { href: URL.createObjectURL(blob), download: filename });
     link.click();
     URL.revokeObjectURL(link.href);
+  }
+  $("export").onclick = () => download("feedback.json", state.feedback);
+
+  // ---- Duels: pairwise choices between titles, ranked with Elo (see elo.js) ----
+  const titleById = new Map(DATA.titles.map((title) => [title.id, title]));
+  const duelRating = (id) => state.duels.ratings[id] ?? Elo.START;
+
+  function drawPair() {
+    const seen = new Set(state.duels.history.map((duel) => [duel.winner, duel.loser].sort().join("|")));
+    const ids = DATA.titles.map((title) => title.id).filter((id) => !state.duels.unseen.includes(id));
+    state.pair = Elo.nextPair(ids, state.duels.ratings, state.duels.games, seen);
+  }
+
+  function choose(winner, loser) {
+    const { ratings, games, history } = state.duels;
+    const before = [duelRating(winner), duelRating(loser)];
+    [ratings[winner], ratings[loser]] = Elo.update(...before);
+    games[winner] = (games[winner] ?? 0) + 1;
+    games[loser] = (games[loser] ?? 0) + 1;
+    history.push({ winner, loser, before, at: new Date().toISOString() });
+    saveDuels();
+    drawPair();
+    renderDuel();
+  }
+
+  function undoDuel() {
+    const { ratings, games, history } = state.duels;
+    const last = history.pop();
+    if (!last) return;
+    [ratings[last.winner], ratings[last.loser]] = last.before;
+    for (const id of [last.winner, last.loser]) {
+      games[id] -= 1;
+      if (games[id] === 0) { delete games[id]; delete ratings[id]; }
+    }
+    saveDuels();
+    drawPair();
+    renderDuel();
+  }
+
+  function markUnseen(id) {
+    state.duels.unseen.push(id);
+    saveDuels();
+    drawPair();
+    renderDuel();
+  }
+
+  // Titles that have been in at least one duel, best first.
+  function rankedTitles() {
+    return DATA.titles
+      .filter((title) => state.duels.games[title.id] > 0 && !state.duels.unseen.includes(title.id))
+      .map((title) => ({ title, rating: duelRating(title.id), games: state.duels.games[title.id] }))
+      .sort((a, b) => b.rating - a.rating);
+  }
+
+  function duelCard(id, otherId) {
+    const title = titleById.get(id);
+    const kind = title.type === "tv" ? "Series" : "Movie";
+    const details = [element("span", { textContent: `${title.year} · ${kind}` })];
+    if (title.director) details.push(element("span", { textContent: (title.type === "tv" ? "Created by " : "Directed by ") + title.director }));
+    const pick = element("button", { className: "pick", type: "button" }, [element("strong", { textContent: title.title }), ...details]);
+    pick.onclick = () => choose(id, otherId);
+    const unseen = element("button", { className: "link", type: "button", textContent: "I haven't seen it" });
+    unseen.onclick = () => markUnseen(id);
+    return element("div", { className: "card" }, [pick, unseen]);
+  }
+
+  function renderDuel() {
+    if (!state.pair) drawPair();
+    $("duel").replaceChildren(...(state.pair
+      ? [duelCard(state.pair[0], state.pair[1]), element("span", { className: "versus", textContent: "vs" }), duelCard(state.pair[1], state.pair[0])]
+      : [element("p", { className: "empty", textContent: "No more titles to compare." })]));
+
+    const ranked = rankedTitles();
+    $("ranking").replaceChildren(...ranked.slice(0, 10).map(({ title, rating }) =>
+      element("li", {}, [title.title + " ", element("small", { textContent: `${title.year} · ${Math.round(rating)}` })])));
+    if (ranked.length === 0) $("ranking").replaceChildren(element("li", { className: "empty", style: "list-style:none;margin-left:-26px", textContent: "Choose between a few pairs to start your ranking." }));
+
+    const duels = state.duels.history.length;
+    $("duel-count").textContent = `${duels} duel${duels === 1 ? "" : "s"} saved in this browser`;
+    $("duel-undo").disabled = duels === 0;
+    $("duel-export").disabled = duels === 0;
+    $("use-ranking").disabled = ranked.length === 0;
+    $("use-ranking").textContent = ranked.length ? `Get music from my top ${Math.min(RANKING_SIZE, ranked.length)} →` : "Make a few choices first";
+  }
+
+  function useRanking() {
+    const top = rankedTitles().slice(0, RANKING_SIZE);
+    state.selected = new Set(top.map((item) => item.title.id));
+    state.titleWeights = new Map(top.map((item) => [item.title.id, Elo.strength(item.rating)]));
+    state.personal = false;
+    showTab("pick");
+  }
+
+  function showTab(name) {
+    $("view-pick").hidden = name !== "pick";
+    $("view-duel").hidden = name !== "duel";
+    $("tab-pick").setAttribute("aria-selected", name === "pick");
+    $("tab-duel").setAttribute("aria-selected", name === "duel");
+    if (name === "duel") renderDuel(); else render();
+  }
+
+  $("tab-pick").onclick = () => showTab("pick");
+  $("tab-duel").onclick = () => showTab("duel");
+  $("duel-undo").onclick = undoDuel;
+  $("use-ranking").onclick = useRanking;
+  $("duel-export").onclick = () => download("duels.json", state.duels);
+  $("duel-reset").onclick = () => {
+    if (!confirm("Delete all your duels and your ranking?")) return;
+    state.duels = { ratings: {}, games: {}, unseen: [], history: [] };
+    saveDuels();
+    state.pair = null;
+    renderDuel();
   };
 
   renderSliders();
