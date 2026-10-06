@@ -353,10 +353,12 @@
   <footer>
     <img src="tmdb.svg" alt="TMDB">
     <span>This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+    <span id="privacy" hidden>Your ratings are sent anonymously (a random id, no name) to help train the model.</span>
     <span>Track data: <a href="https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset">spotify-tracks-dataset</a>.</span>
   </footer>
 </main>
 
+<script src="config.js"></script>
 <script src="data.js"></script>
 <script src="elo.js"></script>
 <script>
@@ -413,6 +415,59 @@
   function saveFeedback() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.feedback)); } catch { /* ignore */ }
   }
+  // ---- Sending ratings to the shared database (Supabase), if app/config.js is filled in ----
+  // Every vote, change and undo is queued in the browser and sent in batches, so nothing is
+  // lost when the connection drops. The key in config.js can only add rows (supabase/schema.sql).
+  const CONFIG = window.APP_CONFIG || {};
+  const SYNC = Boolean(CONFIG.supabaseUrl && CONFIG.supabaseKey);
+  const OUTBOX_KEY = "cross-media-outbox";
+  const DEVICE_KEY = "cross-media-device";
+  let flushing = false;
+
+  // A random id kept in this browser, so one person's votes can be grouped. It is not tied to a name.
+  function deviceId() {
+    try {
+      let id = localStorage.getItem(DEVICE_KEY);
+      if (!id) {
+        id = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2) + Date.now().toString(36);
+        localStorage.setItem(DEVICE_KEY, id);
+      }
+      return id;
+    } catch { return "anonymous-" + Math.random().toString(36).slice(2); }
+  }
+  function loadOutbox() {
+    try { return JSON.parse(localStorage.getItem(OUTBOX_KEY)) || []; } catch { return []; }
+  }
+  function saveOutbox(rows) {
+    try { localStorage.setItem(OUTBOX_KEY, JSON.stringify(rows)); } catch { /* ignore */ }
+  }
+  function queueVote(trackId, vote, details = {}) {
+    if (!SYNC) return;
+    const titleIds = [...state.selected].sort();
+    saveOutbox([...loadOutbox(), {
+      device_id: deviceId(), title_key: titleIds.join(","), title_ids: titleIds, track_id: trackId, vote,
+      rank: details.rank ?? null, wildcard: details.wildcard ?? null, personalised: details.personalised ?? null,
+      model: state.trained ? "trained" : "manual", client_at: new Date().toISOString(),
+    }]);
+    clearTimeout(queueVote.timer);
+    queueVote.timer = setTimeout(flushOutbox, 800);
+  }
+  async function flushOutbox() {
+    const batch = loadOutbox();
+    if (!SYNC || flushing || batch.length === 0) return;
+    flushing = true;
+    try {
+      const response = await fetch(`${CONFIG.supabaseUrl}/rest/v1/votes`, {
+        method: "POST",
+        headers: { apikey: CONFIG.supabaseKey, "Content-Type": "application/json", Prefer: "return=minimal" },
+        body: JSON.stringify(batch),
+      });
+      // Sent, or rejected for good (a 4xx would be rejected again): either way, drop it from the queue.
+      if (response.ok || (response.status >= 400 && response.status < 500)) saveOutbox(loadOutbox().slice(batch.length));
+    } catch { /* offline: keep the queue, try again later */ }
+    flushing = false;
+  }
+
   function loadView() {
     try { return localStorage.getItem(VIEW_KEY) === "list" ? "list" : "swipe"; } catch { return "swipe"; }
   }
@@ -582,6 +637,8 @@
       });
     }
     saveFeedback();
+    const current = voteFor(trackId);
+    queueVote(trackId, current ? current.vote : "undone", { rank, wildcard, personalised: state.personal && !state.blind });
     refreshVotes();
   }
 
@@ -717,11 +774,15 @@
       const rated = state.feedback.length;
       $("results").replaceChildren(progress, element("div", { className: "done" }, [
         element("h3", { textContent: "That's the mixtape." }),
-        element("p", { textContent: `You have rated ${rated} song${rated === 1 ? "" : "s"} so far. Send your ratings to Adam: they teach the model what really fits.` }),
-        action("Send my ratings", () => shareRatings(), "big"),
+        element("p", { textContent: SYNC
+          ? `You have rated ${rated} song${rated === 1 ? "" : "s"}. Your ratings are sent automatically: thank you, they teach the model what really fits.`
+          : `You have rated ${rated} song${rated === 1 ? "" : "s"} so far. Send your ratings to Adam: they teach the model what really fits.` }),
+        SYNC
+          ? action("Pick another film", () => { state.selected.clear(); state.titleWeights = null; showStep("pick"); }, "big")
+          : action("Send my ratings", () => shareRatings(), "big"),
         element("div", { className: "actions center" }, [
           action("Copy my mixtape", (event) => copyMixtape(event.currentTarget)),
-          action("Pick another film", () => { state.selected.clear(); state.titleWeights = null; showStep("pick"); }),
+          ...(SYNC ? [] : [action("Pick another film", () => { state.selected.clear(); state.titleWeights = null; showStep("pick"); })]),
           ...(deck.history.length ? [action("Undo last", undoSwipe)] : []),
         ]),
       ]));
@@ -764,6 +825,7 @@
     const existing = voteFor(item.track.id);
     state.feedback = state.feedback.filter((entry) => entry !== existing);
     saveFeedback();
+    queueVote(item.track.id, "undone");
     refreshVotes();
     deck.pos -= 1;
     drawDeck();
@@ -1048,6 +1110,8 @@
     renderDuel();
   };
 
+  $("privacy").hidden = !SYNC;
+  flushOutbox();
   renderSliders();
   render();
 </script>

@@ -16,7 +16,8 @@ That formula, with hand-set weights, is the baseline. On top of it there is a
 trained model (see src/train.py): a small neural network with two "towers", one
 for titles and one for tracks. Each tower turns an item's description vectors
 into 64 numbers, and the network is trained so that a title ends up close to the
-tracks hand-picked for it in data/curated.csv. The final score adds the
+tracks hand-picked for it in data/curated.csv, and, when there are any, towards the tracks
+voters said fit and away from the ones they said do not (data/votes.csv). The final score adds the
 network's score and the baseline score, each put on the same scale first.
 
 The baseline parameters live in data/model.json, the network in data/towers.npz.
@@ -37,6 +38,10 @@ TONE_FEATURES = ["energy", "valence"]
 CURATED_PATH = PROJECT_ROOT / "data" / "curated.csv"
 TOWERS_PATH = PROJECT_ROOT / "data" / "towers.npz"
 MODEL_PATH = PROJECT_ROOT / "data" / "model.json"
+VOTES_PATH = PROJECT_ROOT / "data" / "votes.csv"  # downloaded by src/pull_votes.py, not committed
+POSITIVE_VOTES = {"up": 1.0, "partly": 0.5}  # "fits", "fits a little"
+NEGATIVE_VOTES = {"down": 1.0, "nearly": 0.5}  # "doesn't fit", "not far off"
+MAX_VOTE_WEIGHT = 3.0  # many friends agreeing counts more, but only up to this
 
 
 def load_model() -> tuple[dict[str, float], float]:
@@ -110,6 +115,33 @@ def load_curated(title_ids: list[str], track_ids: list[str]) -> np.ndarray:
     columns = [track_ids.index(track_id) for track_id in curated["track_id"]]
     picked[rows, columns] = True
     return picked
+
+
+def load_votes(title_ids: list[str], track_ids: list[str]) -> tuple[np.ndarray, np.ndarray]:
+    """Return (positive, negative) weights, each (titles, tracks), from the votes collected by the app.
+
+    Only votes given for a single title count (a vote for several titles at once cannot be
+    pinned on one of them). For each (device, title, track) the latest vote wins, so a change
+    of mind or an undo ("undone") replaces the earlier vote; "unknown" counts for nothing.
+    Returns zeros when there is no data/votes.csv yet.
+    """
+    positive = np.zeros((len(title_ids), len(track_ids)), dtype=np.float32)
+    negative = np.zeros_like(positive)
+    if not VOTES_PATH.exists():
+        return positive, negative
+    votes = pd.read_csv(VOTES_PATH, dtype=str).sort_values("created_at")
+    votes = votes.drop_duplicates(["device_id", "title_key", "track_id"], keep="last")
+    title_row = {title_id: row for row, title_id in enumerate(title_ids)}
+    track_column = {track_id: column for column, track_id in enumerate(track_ids)}
+    for vote in votes.itertuples():
+        row, column = title_row.get(vote.title_key), track_column.get(vote.track_id)
+        if row is None or column is None:  # several titles, or a title/track no longer in the catalogue
+            continue
+        if vote.vote in POSITIVE_VOTES:
+            positive[row, column] += POSITIVE_VOTES[vote.vote]
+        elif vote.vote in NEGATIVE_VOTES:
+            negative[row, column] += NEGATIVE_VOTES[vote.vote]
+    return np.minimum(positive, MAX_VOTE_WEIGHT), np.minimum(negative, MAX_VOTE_WEIGHT)
 
 
 def standardise(scores: np.ndarray) -> np.ndarray:
