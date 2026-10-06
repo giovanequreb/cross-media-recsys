@@ -306,7 +306,7 @@
     <section class="panel" id="step-pick">
       <h2>Which film or series do you love?</h2>
       <p class="sub">Pick one and I'll find songs from its world.</p>
-      <input type="search" id="search" placeholder="Search among 238 titles" aria-label="Search a movie or series">
+      <input type="search" id="search" placeholder="Search among all the titles" aria-label="Search a movie or series">
       <div class="chips" id="chips"></div>
       <div class="row">
         <button class="link" id="surprise">Surprise me</button>
@@ -374,6 +374,7 @@
   const VIEW_KEY = "cross-media-view";
   const DUEL_GOAL = 15;         // duels after which the ranking is worth using
   const SWIPE_DISTANCE = 100;   // pixels a card must travel to count as a decision
+  const FAMOUS = 400;           // titles come in order of fame, so "Surprise me" and the duels use the first ones
   const RANKING_SIZE = 5;       // how many top-ranked titles "Get music from my ranking" uses
 
   const state = {
@@ -395,7 +396,7 @@
   const $ = (id) => document.getElementById(id);
 
   // Similarities arrive as one base64 byte string per facet (titles x tracks, row by row).
-  const SIMILARITY = DATA.similarities.bytes.map((text) => Uint8Array.from(atob(text), (char) => char.charCodeAt(0)));
+  const decode = (text) => Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
   const TRACK_COUNT = DATA.tracks.length;
   const TRAINED = Uint8Array.from(atob(DATA.trained.bytes), (char) => char.charCodeAt(0));
   const TRACK_SIMILARITY = Uint8Array.from(atob(DATA.trackSimilarity.bytes), (char) => char.charCodeAt(0));
@@ -403,9 +404,24 @@
     const { low, high } = DATA.trackSimilarity;
     return low + (TRACK_SIMILARITY[a * TRACK_COUNT + b] / 255) * (high - low);
   }
+  // Per-facet similarities (titles x tracks, one byte each) are only needed for the hand-set
+  // weights in "Advanced", and they are the biggest part of the data, so facets.js loads on demand.
+  let FACETS = null;
+  function loadFacets() {
+    if (FACETS) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const script = element("script", { src: "facets.js" });
+      script.onload = () => {
+        const { low, high, bytes } = window.APP_FACETS;
+        FACETS = { low, high, data: bytes.map(decode) };
+        resolve();
+      };
+      script.onerror = reject;
+      document.head.append(script);
+    });
+  }
   function similarity(f, t, k) {
-    const { low, high } = DATA.similarities;
-    return low[f] + (SIMILARITY[f][t * TRACK_COUNT + k] / 255) * (high[f] - low[f]);
+    return FACETS.low[f] + (FACETS.data[f][t * TRACK_COUNT + k] / 255) * (FACETS.high[f] - FACETS.low[f]);
   }
 
   // localStorage can be unavailable (private windows): the app must still work.
@@ -923,7 +939,16 @@
   $("refine").onclick = () => { state.personal = true; renderResults(); };
   $("unrefine").onclick = () => { state.personal = false; renderResults(); };
   $("blind").onchange = (event) => { state.blind = event.target.checked; renderResults(); };
-  $("trained").onchange = (event) => { state.trained = event.target.checked; state.personal = false; renderSliders(); renderResults(); };
+  $("trained").onchange = async (event) => {
+    const useTrained = event.target.checked;
+    if (!useTrained) {
+      try { await loadFacets(); } catch { event.target.checked = true; return; } // offline: stay on the trained model
+    }
+    state.trained = useTrained;
+    state.personal = false;
+    renderSliders();
+    renderResults();
+  };
   $("hub").onchange = (event) => { state.hub = event.target.checked; renderResults(); };
   $("reset").onclick = () => {
     state.weights = { ...DATA.weights };
@@ -945,7 +970,7 @@
   };
 
   // One random title, for people who do not know where to start.
-  $("surprise").onclick = () => startWith(DATA.titles[Math.floor(Math.random() * DATA.titles.length)].id);
+  $("surprise").onclick = () => startWith(DATA.titles[Math.floor(Math.random() * FAMOUS)].id);
 
   // Copy a plain-text tracklist with Spotify links: the tracks you rated ++ or +, or the whole list if none.
   async function copyMixtape(button) {
@@ -1000,7 +1025,7 @@
 
   function drawPair() {
     const seen = new Set(state.duels.history.map((duel) => [duel.winner, duel.loser].sort().join("|")));
-    const ids = DATA.titles.map((title) => title.id).filter((id) => !state.duels.unseen.includes(id));
+    const ids = DATA.titles.slice(0, FAMOUS).map((title) => title.id).filter((id) => !state.duels.unseen.includes(id));
     state.pair = Elo.nextPair(ids, state.duels.ratings, state.duels.games, seen);
   }
 

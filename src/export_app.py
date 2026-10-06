@@ -19,6 +19,9 @@ from model import (
 
 DESCRIPTIONS_PATH = PROJECT_ROOT / "data" / "descriptions.csv"
 OUTPUT_PATH = PROJECT_ROOT / "app" / "data.js"
+# The per-facet similarities are the bulk of the data (about 3.6 MB) and only the hand-set
+# weights in "Advanced" need them, so they go in a second file the app loads on demand.
+FACETS_PATH = PROJECT_ROOT / "app" / "facets.js"
 
 
 def to_bytes(matrix: np.ndarray) -> tuple[float, float, str]:
@@ -77,8 +80,6 @@ def main() -> None:
              **descriptions.loc[item_id, shown_facets].to_dict()}
             for item_id, row in tracks.iterrows()
         ],
-        # similarities[facet] is a base64 string of titles x tracks bytes, row by row
-        "similarities": {"low": low, "high": high, "bytes": encoded},
         "trained": {"low": trained_low, "high": trained_high, "bytes": trained_bytes},
         # trackSimilarity is one base64 string of tracks x tracks bytes
         "trackSimilarity": {"low": track_low, "high": track_high, "mean": round(float(between_tracks.mean()), 4),
@@ -90,7 +91,11 @@ def main() -> None:
     # A .js file (not .json) so the page also works when opened straight from disk.
     OUTPUT_PATH.parent.mkdir(exist_ok=True)
     OUTPUT_PATH.write_text("window.APP_DATA = " + json.dumps(data, ensure_ascii=False) + ";\n", encoding="utf-8")
-    print(f"Saved {len(title_ids)} titles and {len(track_ids)} tracks to {OUTPUT_PATH.relative_to(PROJECT_ROOT)}")
+    # similarities[facet] is a base64 string of titles x tracks bytes, row by row
+    facets_data = {"low": low, "high": high, "bytes": encoded}
+    FACETS_PATH.write_text("window.APP_FACETS = " + json.dumps(facets_data) + ";\n", encoding="utf-8")
+    print(f"Saved {len(title_ids)} titles and {len(track_ids)} tracks to {OUTPUT_PATH.relative_to(PROJECT_ROOT)}"
+          f" and the per-facet similarities to {FACETS_PATH.relative_to(PROJECT_ROOT)}")
 
 
 if __name__ == "__main__":

@@ -79,7 +79,7 @@ jobs:
           echo "${{ steps.votes.outputs.count }}" > data/votes_count.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/towers.npz data/votes_count.txt app/data.js
+          git add data/towers.npz data/votes_count.txt app/data.js app/facets.js
           git commit -m "chore: retrain the model on ${{ steps.votes.outputs.count }} collected vote events"
           git push
           gh workflow run pages.yml
