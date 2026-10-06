@@ -10,27 +10,31 @@
   <style>
     /* Warm paper, ink and two spot colours, like a hand-printed gig poster. */
     :root {
-      --paper: #f1e8d6; --card: #fbf6ea; --ink: #231f1b; --muted: #6c6255; --line: #cfc3aa;
-      --red: #c4472b; --yellow: #e8b43c; --teal: #2d6a65; --pale-teal: #bcd9d2; --pale-red: #f0c9bc;
-      --shadow: #231f1b; --on-red: #fbf6ea;
+      --paper: #fff0d4; --card: #fffaf0; --ink: #1c1233; --muted: #675a7d; --line: #e6d3b0;
+      --red: #e63a2a; --yellow: #ffc61a; --teal: #12b886; --pale-teal: #b8f0dc; --pale-red: #ffd0c7;
+      --blue: #3d5afe; --pink: #ff5fa8;
+      --t1: #ffd0e1; --t2: #fff0a0; --t3: #bff2dd; --t4: #cddcff; --t5: #ffd7b0;
+      --shadow: #1c1233; --on-red: #fff;
       --display: "Fraunces", "Iowan Old Style", Georgia, serif;
       --body: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --paper: #1b1713; --card: #262019; --ink: #f1e7d3; --muted: #a79b88; --line: #4a4036;
-        --red: #e0694b; --yellow: #e8b43c; --teal: #6fb5ab; --pale-teal: #2d4b47; --pale-red: #5a3329;
-        --shadow: #000; --on-red: #1b1713;
+        --paper: #170f2b; --card: #241a44; --ink: #fff1d6; --muted: #b9acd3; --line: #3d2f66;
+        --red: #ff6b57; --yellow: #ffc61a; --teal: #3fe0b0; --pale-teal: #1d5a4a; --pale-red: #6b2a2a;
+        --t1: #4d2450; --t2: #4d4320; --t3: #1f4f45; --t4: #27386f; --t5: #5d3b22;
+        --shadow: #000; --on-red: #170f2b;
       }
+      :root h1 em { color: #1c1233; }
     }
     * { box-sizing: border-box; }
     body {
       margin: 0; color: var(--ink); background-color: var(--paper);
       /* paper grain: a tiny SVG noise tile */
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .32 0 0 0 0 .2 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-image: radial-gradient(circle at 12% -8%, rgba(255, 95, 168, .38), transparent 42%), radial-gradient(circle at 105% 6%, rgba(255, 198, 26, .5), transparent 38%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .32 0 0 0 0 .2 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
       font: 15px/1.55 var(--body);
     }
-    main { max-width: 480px; margin: 0 auto; padding: 22px 16px 112px; }
+    main { max-width: 480px; margin: 0 auto; padding: 22px 16px 48px; }
     [hidden] { display: none !important; }
 
     .masthead { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
@@ -41,7 +45,7 @@
       font: 700 clamp(26px, 8vw, 34px)/1 var(--display); margin: 0; letter-spacing: -0.03em;
       font-variation-settings: "SOFT" 100, "WONK" 1;
     }
-    h1 em { color: var(--red); font-style: italic; font-weight: 500; }
+    h1 em { color: var(--red); font-style: italic; font-weight: 500; background: linear-gradient(transparent 60%, var(--yellow) 60%); padding: 0 6px 0 2px; }
     h2 { font: italic 600 21px/1.2 var(--display); color: var(--ink); margin: 0 0 14px; }
 
     .tabs { display: flex; gap: 26px; margin: 0 0 24px; border-bottom: 2px solid var(--ink); }
@@ -50,7 +54,7 @@
       font: 600 17px var(--display); cursor: pointer; border-bottom: 5px solid transparent;
     }
     .tab:hover { color: var(--ink); }
-    .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--red); }
+    .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--pink); }
 
     .layout { display: grid; gap: 22px; }
     .panel {
@@ -73,11 +77,15 @@
     }
     .chip:nth-child(3n) { transform: rotate(-0.6deg); }
     .chip:nth-child(3n+1) { transform: rotate(0.5deg); }
-    .chip:hover { background: var(--yellow); color: #231f1b; }
+    .chip:nth-child(5n+1) { background: var(--t1); }
+    .chip:nth-child(5n+2) { background: var(--t2); }
+    .chip:nth-child(5n+3) { background: var(--t3); }
+    .chip:nth-child(5n+4) { background: var(--t4); }
+    .chip:nth-child(5n) { background: var(--t5); }
+    .chip:hover { background: var(--yellow); color: #1c1233; }
     .chip[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: var(--on-red); font-weight: 600; box-shadow: 2px 2px 0 var(--shadow); }
     .chip { text-align: left; }
     .chip small { opacity: 0.6; font-weight: 400; }
-    #selected .chip small:last-child { margin-left: 6px; opacity: 1; }
 
     .slider { display: grid; grid-template-columns: 96px 1fr 44px; align-items: center; gap: 10px; margin-bottom: 8px; }
     .slider span { text-transform: capitalize; font-family: var(--display); font-style: italic; }
@@ -164,7 +172,7 @@
 
     /* Swipe deck: one track at a time, like flicking through a record crate. */
     .deck-progress { text-align: center; color: var(--muted); font: italic 15px var(--display); margin: 0 0 14px; }
-    .stage { position: relative; height: 380px; margin: 0 auto; }
+    .stage { position: relative; height: 400px; margin: 0 auto; }
     .swipe-card {
       position: absolute; inset: 0; display: flex; flex-direction: column; gap: 8px; padding: 24px 22px 20px;
       background: var(--paper); border: 2px solid var(--ink); border-radius: 6px; box-shadow: 6px 6px 0 var(--shadow);
@@ -172,17 +180,26 @@
       transition: transform .25s ease-out, opacity .25s;
     }
     .swipe-card.dragging { transition: none; cursor: grabbing; }
-    .swipe-card.behind { background: var(--card); pointer-events: none; transform: rotate(-3deg) translateY(10px) scale(.96); }
-    .swipe-card.behind + .swipe-card.behind { transform: rotate(3.5deg) translateY(18px) scale(.93); }
-    .swipe-card h3 { font: 700 clamp(25px, 5vw, 32px)/1.1 var(--display); letter-spacing: -0.02em; margin: 6px 0 0; }
+    .swipe-card.behind { background: var(--t2); pointer-events: none; transform: rotate(-3deg) translateY(10px) scale(.96); }
+    .swipe-card.behind + .swipe-card.behind { background: var(--t4); transform: rotate(3.5deg) translateY(18px) scale(.93); }
+    .card-top { display: flex; gap: 16px; align-items: flex-start; }
+    .card-head { min-width: 0; padding-top: 4px; }
+    .cover {
+      flex: none; width: 128px; height: 128px; overflow: hidden; transform: rotate(-3deg);
+      border: 2px solid var(--ink); border-radius: 4px; box-shadow: 4px 4px 0 var(--shadow);
+      background: repeating-radial-gradient(circle at center, #1c1233 0 3px, #32265a 3px 6px);
+    }
+    .cover img { width: 100%; height: 100%; display: block; object-fit: cover; pointer-events: none; user-select: none; -webkit-user-drag: none; animation: fade .3s; }
+    @keyframes fade { from { opacity: 0; } }
+    .swipe-card h3 { font: 700 clamp(21px, 5.6vw, 26px)/1.1 var(--display); letter-spacing: -0.02em; margin: 0; }
     .swipe-card h3, .artist-line { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
     .swipe-card h3 { -webkit-line-clamp: 3; }
     .artist-line { -webkit-line-clamp: 2; }
     .artist-line { font: italic 18px var(--display); color: var(--muted); margin: 0; }
-    .mood { font: italic 600 18px/1.3 var(--display); margin: 14px 0 0; }
+    .mood { font: italic 600 18px/1.3 var(--display); margin: 12px 0 0; }
     .desc {
       font-size: 14px; color: var(--muted); margin: 0;
-      display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
     }
     .card-foot { margin-top: auto; }
     .stamp {
@@ -200,8 +217,14 @@
       font: 700 19px var(--body); box-shadow: 3px 3px 0 var(--shadow); transition: transform .1s, box-shadow .1s;
     }
     .deck-btn small { font: 400 11px var(--body); color: var(--muted); }
-    .deck-btn:hover { background: var(--yellow); color: #231f1b; }
-    .deck-btn:hover small { color: #3b332b; }
+    .deck-btn { color: #1c1233; }
+    .deck-btn small { color: inherit; opacity: .75; }
+    .deck-btn[data-vote="down"] { background: var(--red); color: #fff; }
+    .deck-btn[data-vote="nearly"] { background: #ffd7b0; }
+    .deck-btn[data-vote="unknown"] { background: #cddcff; }
+    .deck-btn[data-vote="partly"] { background: var(--yellow); }
+    .deck-btn[data-vote="up"] { background: var(--teal); }
+    .deck-btn:hover { filter: brightness(1.08) saturate(1.15); }
     .deck-btn:active { transform: translate(3px, 3px); box-shadow: none; }
     .deck-hint { text-align: center; }
     .done { text-align: center; padding: 36px 8px; }
@@ -221,18 +244,12 @@
     .actions { display: flex; gap: 16px; flex-wrap: wrap; }
 
     .sub { color: var(--muted); font: italic 16px var(--display); margin: -6px 0 14px; }
-    #selected:empty { display: none; }
-    #selected { margin-bottom: 14px; }
     .big {
       display: block; width: 100%; padding: 14px 18px; background: var(--red); color: var(--on-red); cursor: pointer;
       border: 2px solid var(--ink); border-radius: 6px; box-shadow: 4px 4px 0 var(--shadow); font: 700 18px var(--display);
     }
     .big:active { transform: translate(4px, 4px); box-shadow: none; }
-    .cta-bar {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; pointer-events: none;
-      padding: 28px 16px calc(14px + env(safe-area-inset-bottom)); background: linear-gradient(to top, var(--paper) 55%, transparent);
-    }
-    .cta-bar .big { max-width: 448px; margin: 0 auto; pointer-events: auto; }
+    .big:hover { background: var(--pink); color: #1c1233; }
     .deck-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
     .deck-titles { color: var(--muted); font: italic 16px var(--display); }
     .actions.center { justify-content: center; margin-top: 16px; }
@@ -257,7 +274,7 @@
       <circle cx="50" cy="50" r="34" fill="none" stroke="#4a4036" stroke-width="1"/>
       <circle cx="50" cy="50" r="28" fill="none" stroke="#4a4036" stroke-width="1"/>
       <path d="M50 8 A42 42 0 0 1 92 50" fill="none" stroke="#f1e8d6" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="50" cy="50" r="17" fill="#c4472b"/>
+      <circle cx="50" cy="50" r="17" fill="#ff4b3e"/>
       <circle cx="50" cy="50" r="3" fill="#f1e8d6"/>
     </svg>
     <h1>Cross-media<br><em>mixtape</em></h1>
@@ -297,14 +314,12 @@
 
   <div class="layout" id="view-pick">
     <section class="panel" id="step-pick">
-      <h2>Which films or series do you love?</h2>
-      <p class="sub">Pick a few and I'll find songs from their world.</p>
-      <div class="chips" id="selected"></div>
+      <h2>Which film or series do you love?</h2>
+      <p class="sub">Pick one and I'll find songs from its world.</p>
       <input type="search" id="search" placeholder="Search among 238 titles" aria-label="Search a movie or series">
       <div class="chips" id="chips"></div>
       <div class="row">
         <button class="link" id="surprise">Surprise me</button>
-        <button class="link" id="clear">Clear</button>
       </div>
     </section>
 
@@ -344,8 +359,6 @@
       </details>
     </section>
   </div>
-
-  <div class="cta-bar" id="cta-bar" hidden><button class="big" id="go"></button></div>
 
   <footer>
     <img src="tmdb.svg" alt="TMDB">
@@ -523,32 +536,22 @@
 
   function renderChips() {
     const query = $("search").value.trim().toLowerCase();
-    const toggle = (id) => {
-      state.selected.has(id) ? state.selected.delete(id) : state.selected.add(id);
-      state.titleWeights = null;
-      state.personal = false;
-      render();
-    };
-    const label = (title) => [title.title + " ", element("small", { textContent: title.year })];
-    // chosen titles stay on top as removable tags, so searching never hides them
-    const chosen = DATA.titles.filter((title) => state.selected.has(title.id)).map((title) => {
-      const tag = element("button", { className: "chip", type: "button" }, [...label(title), element("small", { textContent: "✕" })]);
-      tag.setAttribute("aria-pressed", "true");
-      tag.setAttribute("aria-label", `Remove ${title.title}`);
-      tag.onclick = () => toggle(title.id);
-      return tag;
-    });
-    $("selected").replaceChildren(...chosen);
-    const matches = DATA.titles.filter((title) => !state.selected.has(title.id) && title.title.toLowerCase().includes(query));
+    const matches = DATA.titles.filter((title) => title.title.toLowerCase().includes(query));
     const chips = matches.slice(0, query ? 30 : 12).map((title) => {
-      const chip = element("button", { className: "chip", type: "button" }, label(title));
-      chip.setAttribute("aria-pressed", "false");
+      const chip = element("button", { className: "chip", type: "button" }, [title.title + " ", element("small", { textContent: title.year })]);
       if (title.director) chip.title = (title.type === "tv" ? "Created by " : "Directed by ") + title.director;
-      chip.onclick = () => toggle(title.id);
+      chip.onclick = () => startWith(title.id);
       return chip;
     });
     $("chips").replaceChildren(...(chips.length ? chips : [element("p", { className: "hint", textContent: "Nothing found. Try another title." })]));
-    $("clear").hidden = state.selected.size === 0;
+  }
+
+  // One title at a time: tapping a title goes straight to its songs.
+  function startWith(id) {
+    state.selected = new Set([id]);
+    state.titleWeights = null;
+    state.personal = false;
+    showStep("deck");
   }
 
   function renderSliders() {
@@ -630,6 +633,20 @@
     return dy < -SWIPE_DISTANCE ? "partly" : dy > SWIPE_DISTANCE ? "unknown" : null;
   }
 
+  // Album covers come from Spotify's public oEmbed endpoint (no key needed), loaded when a card is about to be shown.
+  const COVERS = new Map();
+  function loadCover(track) {
+    if (!COVERS.has(track.id)) {
+      COVERS.set(track.id, fetch(`https://open.spotify.com/oembed?url=https://open.spotify.com/track/${track.id}`)
+        .then((response) => (response.ok ? response.json() : null))
+        .then((data) => data?.thumbnail_url ?? null)
+        .catch(() => null));
+    }
+    return COVERS.get(track.id);
+  }
+  // Every card gets one of five pastel tints, always the same for the same track.
+  const tintFor = (track) => 1 + [...track.id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 5;
+
   function swipeCard(item) {
     const { track } = item;
     const stamps = [["yes", "FITS"], ["no", "NOPE"], ["bit", "A BIT"], ["dunno", "?"]]
@@ -648,14 +665,22 @@
         loading: "lazy", allow: "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture",
       })] : []));
     };
+    const cover = element("div", { className: "cover" });
+    loadCover(track).then((url) => { if (url) cover.replaceChildren(element("img", { src: url, alt: `Cover of ${track.title}`, draggable: false })); });
     const card = element("article", { className: "swipe-card" }, [
       ...stamps,
-      element("h3", { textContent: track.title }),
-      element("p", { className: "artist-line", textContent: track.artist }),
+      element("div", { className: "card-top" }, [
+        cover,
+        element("div", { className: "card-head" }, [
+          element("h3", { textContent: track.title }),
+          element("p", { className: "artist-line", textContent: track.artist }),
+        ]),
+      ]),
       element("p", { className: "mood", textContent: track.emotions }),
       element("p", { className: "desc", textContent: `${track.sound} ${track.references}` }),
       element("div", { className: "card-foot" }, [play, player]),
     ]);
+    card.style.background = `var(--t${tintFor(track)})`;
     attachDrag(card);
     return card;
   }
@@ -715,18 +740,20 @@
         action("Send my ratings", () => shareRatings(), "big"),
         element("div", { className: "actions center" }, [
           action("Copy my mixtape", (event) => copyMixtape(event.currentTarget)),
-          action("Pick other films", () => { state.selected.clear(); state.titleWeights = null; showStep("pick"); }),
+          action("Pick another film", () => { state.selected.clear(); state.titleWeights = null; showStep("pick"); }),
           ...(deck.history.length ? [action("Undo last", undoSwipe)] : []),
         ]),
       ]));
       return;
     }
     // two blank cards peek out from behind the top one, like a stack
+    deck.queue.slice(deck.pos, deck.pos + 4).forEach((item) => loadCover(item.track).then((url) => { if (url) new Image().src = url; }));
     const behind = deck.queue.slice(deck.pos + 1, deck.pos + 3).reverse().map(() => element("div", { className: "swipe-card behind" }));
     const stage = element("div", { className: "stage" }, [...behind, swipeCard(deck.queue[deck.pos])]);
     const buttons = element("div", { className: "deck-buttons" }, DECK_BUTTONS.map(([vote, symbol, caption]) => {
       const button = element("button", { className: "deck-btn", type: "button" }, [symbol, element("small", { textContent: caption })]);
       button.setAttribute("aria-label", caption);
+      button.dataset.vote = vote;
       button.onclick = () => castVote(vote);
       return button;
     }));
@@ -836,15 +863,6 @@
   function render() {
     renderChips();
     if (state.step === "deck") renderResults();
-    updateCta();
-  }
-
-  // Two screens: choose titles, then rate tracks. The big button appears once a title is chosen.
-  function updateCta() {
-    const show = !$("view-pick").hidden && state.step === "pick" && state.selected.size > 0;
-    const count = state.selected.size;
-    $("cta-bar").hidden = !show;
-    $("go").textContent = `Find songs for ${count} title${count === 1 ? "" : "s"} →`;
   }
 
   function showStep(step) {
@@ -853,13 +871,10 @@
     $("step-deck").hidden = state.step !== "deck";
     $("deck-titles").textContent = DATA.titles.filter((title) => state.selected.has(title.id)).map((title) => title.title).join(" · ");
     if (state.step === "deck") renderResults(); else renderChips();
-    updateCta();
     window.scrollTo(0, 0);
   }
 
   $("search").oninput = renderChips;
-  $("clear").onclick = () => { state.selected.clear(); state.titleWeights = null; state.personal = false; render(); };
-  $("go").onclick = () => showStep("deck");
   $("change").onclick = () => showStep("pick");
   $("diverse").onchange = (event) => { state.diverse = event.target.checked; renderResults(); };
   $("refine").onclick = () => { state.personal = true; renderResults(); };
@@ -886,16 +901,8 @@
     renderResults();
   };
 
-  // Three random titles, for people who do not know where to start.
-  $("surprise").onclick = () => {
-    const pool = [...DATA.titles];
-    const picked = [];
-    while (picked.length < 3) picked.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0].id);
-    state.selected = new Set(picked);
-    state.titleWeights = null;
-    state.personal = false;
-    showStep("deck");
-  };
+  // One random title, for people who do not know where to start.
+  $("surprise").onclick = () => startWith(DATA.titles[Math.floor(Math.random() * DATA.titles.length)].id);
 
   // Copy a plain-text tracklist with Spotify links: the tracks you rated ++ or +, or the whole list if none.
   async function copyMixtape(button) {
@@ -1045,7 +1052,6 @@
     $("tab-pick").setAttribute("aria-selected", name === "pick");
     $("tab-duel").setAttribute("aria-selected", name === "duel");
     if (name === "duel") renderDuel(); else showStep(state.step);
-    updateCta();
   }
 
   $("tab-pick").onclick = () => showTab("pick");
