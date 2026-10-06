@@ -10,28 +10,30 @@
   <style>
     /* Warm paper, ink and two spot colours, like a hand-printed gig poster. */
     :root {
-      --paper: #fff0d4; --card: #fffaf0; --ink: #1c1233; --muted: #675a7d; --line: #e6d3b0;
-      --red: #e63a2a; --yellow: #ffc61a; --teal: #12b886; --pale-teal: #b8f0dc; --pale-red: #ffd0c7;
-      --blue: #3d5afe; --pink: #ff5fa8;
-      --t1: #ffd0e1; --t2: #fff0a0; --t3: #bff2dd; --t4: #cddcff; --t5: #ffd7b0;
-      --shadow: #1c1233; --on-red: #fff;
+      --paper: #f6f1ff; --card: #ffffff; --ink: #1e1b3a; --muted: #6b6590; --line: #e0d7f5;
+      --red: #5b3df5;            /* the one strong colour: links, main buttons, numbers */
+      --bad: #e5484d;            /* only for "doesn't fit" */
+      --yellow: #ffc9a8;         /* peach: highlights and hovers */
+      --teal: #1fa37a; --pale-teal: #d4f7ea; --pale-red: #ffe0cf; --pink: #b8a1ff;
+      --t1: #e6dcff; --t2: #d4f7ea; --t3: #ffe0cf; --t4: #d6ebff; --t5: #ffdceb;
+      --shadow: #2a2160; --on-red: #ffffff;
       --display: "Fraunces", "Iowan Old Style", Georgia, serif;
       --body: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --paper: #170f2b; --card: #241a44; --ink: #fff1d6; --muted: #b9acd3; --line: #3d2f66;
-        --red: #ff6b57; --yellow: #ffc61a; --teal: #3fe0b0; --pale-teal: #1d5a4a; --pale-red: #6b2a2a;
-        --t1: #4d2450; --t2: #4d4320; --t3: #1f4f45; --t4: #27386f; --t5: #5d3b22;
-        --shadow: #000; --on-red: #170f2b;
+        --paper: #14112b; --card: #1f1b3d; --ink: #f2eeff; --muted: #a9a2d0; --line: #38306a;
+        --red: #a99bff; --bad: #ff7a80; --yellow: #ffc9a8; --teal: #5fe0b4; --pale-teal: #1d4a40; --pale-red: #5a3a2a; --pink: #7b61ff;
+        --t1: #2d2560; --t2: #1d4a40; --t3: #5a3a2a; --t4: #1f3d63; --t5: #5a2a45;
+        --shadow: #000; --on-red: #14112b;
       }
-      :root h1 em { color: #1c1233; }
+      :root h1 em { color: #1e1b3a; }
     }
     * { box-sizing: border-box; }
     body {
       margin: 0; color: var(--ink); background-color: var(--paper);
       /* paper grain: a tiny SVG noise tile */
-      background-image: radial-gradient(circle at 12% -8%, rgba(255, 95, 168, .38), transparent 42%), radial-gradient(circle at 105% 6%, rgba(255, 198, 26, .5), transparent 38%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .32 0 0 0 0 .2 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-image: radial-gradient(circle at 10% -8%, rgba(184, 161, 255, .45), transparent 42%), radial-gradient(circle at 105% 6%, rgba(159, 240, 207, .5), transparent 38%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .32 0 0 0 0 .2 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
       font: 15px/1.55 var(--body);
     }
     main { max-width: 480px; margin: 0 auto; padding: 22px 16px 48px; }
@@ -121,7 +123,7 @@
     .vote[aria-pressed="true"].up { background: var(--teal); border-color: var(--teal); color: var(--card); }
     .vote[aria-pressed="true"].partly { background: var(--pale-teal); }
     .vote[aria-pressed="true"].nearly { background: var(--pale-red); }
-    .vote[aria-pressed="true"].down { background: var(--red); border-color: var(--red); color: var(--on-red); }
+    .vote[aria-pressed="true"].down { background: var(--bad); border-color: var(--bad); color: #fff; }
     .vote[aria-pressed="true"].unknown { background: var(--muted); border-color: var(--muted); color: var(--card); }
     .play {
       border: 1.5px solid var(--ink); background: transparent; color: var(--ink); border-radius: 3px;
@@ -207,8 +209,8 @@
       font: 800 22px var(--body); letter-spacing: 0.06em; opacity: 0; pointer-events: none;
     }
     .stamp.yes { top: 20px; left: 16px; color: var(--teal); border-color: var(--teal); transform: rotate(-10deg); }
-    .stamp.no { top: 20px; right: 16px; color: var(--red); border-color: var(--red); transform: rotate(10deg); }
-    .stamp.bit { top: 16px; left: 50%; margin-left: -34px; color: #8a6200; border-color: var(--yellow); }
+    .stamp.no { top: 20px; right: 16px; color: var(--bad); border-color: var(--bad); transform: rotate(10deg); }
+    .stamp.bit { top: 16px; left: 50%; margin-left: -34px; color: #d9611f; border-color: #d9611f; }
     .stamp.dunno { bottom: 70px; left: 50%; margin-left: -22px; color: var(--muted); border-color: var(--muted); }
     .deck-buttons { display: flex; justify-content: center; gap: 8px; margin-top: 22px; }
     .deck-btn {
@@ -217,13 +219,13 @@
       font: 700 19px var(--body); box-shadow: 3px 3px 0 var(--shadow); transition: transform .1s, box-shadow .1s;
     }
     .deck-btn small { font: 400 11px var(--body); color: var(--muted); }
-    .deck-btn { color: #1c1233; }
+    .deck-btn { color: #1e1b3a; }
     .deck-btn small { color: inherit; opacity: .75; }
-    .deck-btn[data-vote="down"] { background: var(--red); color: #fff; }
-    .deck-btn[data-vote="nearly"] { background: #ffd7b0; }
-    .deck-btn[data-vote="unknown"] { background: #cddcff; }
-    .deck-btn[data-vote="partly"] { background: var(--yellow); }
-    .deck-btn[data-vote="up"] { background: var(--teal); }
+    .deck-btn[data-vote="down"] { background: #ffb8c6; }
+    .deck-btn[data-vote="nearly"] { background: #ffd9bd; }
+    .deck-btn[data-vote="unknown"] { background: #d6ebff; }
+    .deck-btn[data-vote="partly"] { background: #e6dcff; }
+    .deck-btn[data-vote="up"] { background: #9ff0cf; }
     .deck-btn:hover { filter: brightness(1.08) saturate(1.15); }
     .deck-btn:active { transform: translate(3px, 3px); box-shadow: none; }
     .deck-hint { text-align: center; }
@@ -249,7 +251,7 @@
       border: 2px solid var(--ink); border-radius: 6px; box-shadow: 4px 4px 0 var(--shadow); font: 700 18px var(--display);
     }
     .big:active { transform: translate(4px, 4px); box-shadow: none; }
-    .big:hover { background: var(--pink); color: #1c1233; }
+    .big:hover { background: var(--pink); color: #1e1b3a; }
     .deck-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
     .deck-titles { color: var(--muted); font: italic 16px var(--display); }
     .actions.center { justify-content: center; margin-top: 16px; }
@@ -269,13 +271,13 @@
 <main>
   <header class="masthead">
     <svg class="vinyl" viewBox="0 0 100 100" aria-hidden="true">
-      <circle cx="50" cy="50" r="48" fill="#231f1b"/>
-      <circle cx="50" cy="50" r="40" fill="none" stroke="#4a4036" stroke-width="1"/>
-      <circle cx="50" cy="50" r="34" fill="none" stroke="#4a4036" stroke-width="1"/>
-      <circle cx="50" cy="50" r="28" fill="none" stroke="#4a4036" stroke-width="1"/>
-      <path d="M50 8 A42 42 0 0 1 92 50" fill="none" stroke="#f1e8d6" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="50" cy="50" r="17" fill="#ff4b3e"/>
-      <circle cx="50" cy="50" r="3" fill="#f1e8d6"/>
+      <circle cx="50" cy="50" r="48" fill="#1e1b3a"/>
+      <circle cx="50" cy="50" r="40" fill="none" stroke="#4a4580" stroke-width="1"/>
+      <circle cx="50" cy="50" r="34" fill="none" stroke="#4a4580" stroke-width="1"/>
+      <circle cx="50" cy="50" r="28" fill="none" stroke="#4a4580" stroke-width="1"/>
+      <path d="M50 8 A42 42 0 0 1 92 50" fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="17" fill="#7b61ff"/>
+      <circle cx="50" cy="50" r="3" fill="#ffffff"/>
     </svg>
     <h1>Cross-media<br><em>mixtape</em></h1>
   </header>
