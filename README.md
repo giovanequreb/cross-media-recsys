@@ -6,7 +6,7 @@ Recommend **music** based on your taste in **movies and TV series**.
 
 Most recommenders stay inside one domain: they suggest songs because you liked other songs. This project tries the opposite: if you love a slow, melancholic sci-fi film, which tracks would fit that same mood? It is inspired by the Podiums app, where taste is captured through pairwise comparisons instead of star ratings.
 
-> **Status: work in progress.** The environment is set up and Level 1 works end to end: 993 movies/series and 548 tracks with five-facet descriptions, embeddings, a small weighted similarity model, a command-line recommender and a static web app. Levels 2 and 3 are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
+> **Status: work in progress.** The environment is set up and Level 1 works end to end: 993 movies/series and 998 tracks with five-facet descriptions, embeddings, a small weighted similarity model, a command-line recommender and a static web app. Levels 2 and 3 are not built yet. See the [roadmap](#roadmap) for what exists and what is coming.
 
 ## How it works
 
@@ -51,7 +51,7 @@ score = Σ over facets of  weight[facet] × cosine(title[facet], track[facet])
 
 Text similarity alone sometimes produces matches that are plainly wrong (a jazz film getting garage rock because both descriptions say "tense"). To fix that, a small neural network is trained on examples.
 
-[`data/curated.csv`](data/curated.csv) holds 2,464 (title, track) matches: for each of the 238 core titles, about ten tracks hand-picked from the catalogue. They are **training data only**: nothing is looked up at recommendation time. The 755 titles added later (see [Data](#data)) have descriptions but no curated picks: the network scores them from their descriptions alone, like any title it has not seen.
+[`data/curated.csv`](data/curated.csv) holds 4,959 (title, track) matches: about ten tracks hand-picked for each of the 238 core titles in the first round and, in a second round, about five core titles picked for every track (all 998 tracks have at least one match, 49 of the first 548 had none before). They are **training data only**: nothing is looked up at recommendation time. The 755 titles added later (see [Data](#data)) have descriptions but no curated picks: the network scores them from their descriptions alone, like any title it has not seen.
 
 [`src/train.py`](src/train.py) trains a **two-tower network** in PyTorch. One tower (a linear layer) turns a title's five description vectors (1,920 numbers) into 64 numbers; a second tower does the same for a track. Training pulls each title towards its picked tracks and away from the other 500-odd, with a cross-entropy loss over all tracks. Dropout and weight decay keep a network with about 250,000 weights from simply memorising 238 titles. The final score adds the network's score and the baseline score, each standardised first.
 
@@ -65,11 +65,11 @@ Tested on titles the network has not seen (5-fold cross-validation by title):
 
 | | Precision@10 | Recall@50 | Titles with no good track in the top 10 |
 | --- | --- | --- | --- |
-| Baseline (hand-set weights) | 0.287 | 0.607 | 5.1% |
-| Network alone | 0.325 | 0.690 | 8.4% |
-| **Network + baseline** | **0.377** | **0.730** | **4.2%** |
+| Baseline (hand-set weights) | 0.292 | 0.423 | 5.5% |
+| Network alone | 0.348 | 0.501 | 4.6% |
+| **Network + baseline** | **0.391** | **0.536** | **2.1%** |
 
-On the titles it was trained on, precision@10 is 0.78. That gap between 0.78 and 0.38 is the honest picture: the network has largely learned the examples it was shown, and carries over part of that to new titles. More and better examples are what would close it.
+On the titles it was trained on, precision@10 is 0.82. That gap between 0.82 and 0.39 is the honest picture: the network has largely learned the examples it was shown, and carries over part of that to new titles. More and better examples are what would close it.
 
 The curated matches were chosen by the same LLM that wrote the descriptions (Claude), from knowledge of the works, not by listeners. In effect the network distils a large model's judgement into a tiny one that runs anywhere. They are a stand-in for real feedback: ratings collected in the web app are meant to replace them.
 
@@ -191,7 +191,7 @@ Two things in the app go beyond the base model:
 - **Learning from your ratings.** After rating a few tracks for a selection, "Refine the list" re-ranks everything: tracks similar to the ones you liked move up, tracks similar to the ones you disliked move down, and the disliked ones are dropped. Similarity between tracks uses the same facets and weights as the model.
 - **Avoid near-duplicates.** The list is filled one track at a time, and a track very similar to one already chosen (top 5% of track pairs) is pushed down, so the eight results are not three versions of the same idea.
 
-`app/data.js` (1.4 MB) and `app/facets.js` (4.3 MB, fetched only when someone unticks "Use the trained model" in Advanced) are generated; after changing descriptions, embeddings or `data/model.json`, rebuild them with `python src/export_app.py`. `python src/recommend.py "The Lion King (2019)"` takes a year when a name exists twice.
+`app/data.js` (3.1 MB, 2.1 MB compressed) and `app/facets.js` (7.9 MB, fetched only when someone unticks "Use the trained model" in Advanced) are generated; after changing descriptions, embeddings or `data/model.json`, rebuild them with `python src/export_app.py`. `python src/recommend.py "The Lion King (2019)"` takes a year when a name exists twice.
 
 ### Soundtrack check
 
@@ -201,18 +201,18 @@ This check measures the **baseline** (hand-set weights), not the trained model, 
 python src/evaluate.py
 ```
 
-| Setting | MRR | Hit@1 | Hit@5 | Hit@10 | Mean rank (of 548) |
+| Setting | MRR | Hit@1 | Hit@5 | Hit@10 | Mean rank (of 998) |
 | --- | --- | --- | --- | --- | --- |
-| Random guess | 0.01 | | | | 274 |
-| Only `tone` | 0.02 | 0.00 | 0.01 | 0.02 | 203.6 |
-| Only `plot` | 0.02 | 0.00 | 0.02 | 0.04 | 232.3 |
-| Only `emotions` | 0.12 | 0.06 | 0.17 | 0.23 | 159.5 |
-| Only `setting` | 0.23 | 0.18 | 0.28 | 0.32 | 131.2 |
-| Only `sound` | 0.29 | 0.18 | 0.43 | 0.48 | 79.6 |
-| Only `references` | 0.56 | 0.48 | 0.63 | 0.69 | 29.1 |
-| Equal weights | 0.38 | 0.31 | 0.42 | 0.53 | 57.1 |
-| Model weights, no hub correction | 0.48 | 0.40 | 0.54 | 0.62 | 31.8 |
-| **Model** (`data/model.json`) | **0.49** | **0.41** | **0.59** | **0.64** | **29.3** |
+| Random guess | 0.01 | | | | 499 |
+| Only `tone` | 0.01 | 0.00 | 0.01 | 0.01 | 384.5 |
+| Only `plot` | 0.01 | 0.00 | 0.02 | 0.02 | 419.7 |
+| Only `emotions` | 0.09 | 0.04 | 0.13 | 0.19 | 287.7 |
+| Only `setting` | 0.22 | 0.18 | 0.26 | 0.30 | 231.3 |
+| Only `sound` | 0.28 | 0.17 | 0.41 | 0.48 | 93.7 |
+| Only `references` | 0.53 | 0.44 | 0.62 | 0.67 | 41.0 |
+| Equal weights | 0.37 | 0.30 | 0.41 | 0.48 | 86.9 |
+| Model weights, no hub correction | 0.47 | 0.40 | 0.53 | 0.61 | 40.8 |
+| **Model** (`data/model.json`) | **0.47** | **0.39** | **0.56** | **0.62** | **47.0** |
 
 MRR is the mean reciprocal rank (1.0 = always first); Hit@5 is how often the track is in the top 5. The script also runs a grid search over the weights with 5-fold cross-validation by title.
 
@@ -220,8 +220,8 @@ What this check does and does not show:
 
 - **Plot is nearly useless** for matching music (0.07, about random), which supports giving it a small weight.
 - **Sound and setting carry real signal** (0.29 and 0.23 on their own). When `sound` was added as a fifth facet, on a smaller catalogue of 200 tracks, the model went from 0.61 to 0.68.
-- **A bigger catalogue makes the check harder.** With 200 tracks the model scored 0.68; with 548 there are many more wrong answers and it scores 0.49, still about forty times better than chance. In two cases out of three the right song is in the top 10 of 548.
-- **The hub correction helps a little** (0.48 → 0.49, Hit@10 0.62 → 0.64) on top of making results more varied.
+- **A bigger catalogue makes the check harder.** With 200 tracks the model scored 0.68, with 548 it scored 0.49 and with 998 it scores 0.47: more wrong answers to choose from, not a worse model (the last 450 tracks were added for variety, not to make this number go up). It is still about forty times better than chance, and in three cases out of five the right song is in the top 10 of 998.
+- **The hub correction no longer clearly helps on this check** (MRR 0.47 either way, Hit@5 0.53 → 0.56, but mean rank 40.8 → 47.0). It stays because it also makes the lists more varied.
 - **Two ideas that did not work**, kept out of the default model: the `tone` facet (energy and valence, 0.04 on its own, and it lowers the score at any weight above 0.05, measured on the smaller catalogue) and adding the director's name to the `references` text (0.61 → 0.56). Directors are stored and shown in the app, but not embedded.
 - **The embedding model matters.** Eight local models were compared on this check with the same descriptions and weights (before the `sound` facet was added, with 113 titles and 200 tracks):
 
@@ -247,11 +247,11 @@ Level 1 uses a small, hand-picked dataset (committed in `data/`):
 | File | Content | Source |
 | --- | --- | --- |
 | `data/titles.csv` | 993 movies and TV series (238 chosen by hand, 755 of the most-voted on TMDB): TMDB id, title, year, type, director (or creators, for series), genres, English overview | [TMDB API](https://developer.themoviedb.org/) |
-| `data/tracks.csv` | 548 tracks: id, title, artist, album, popularity and audio features (`danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`) | [`maharshipandya/spotify-tracks-dataset`](https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset) on Hugging Face (BSD license) |
-| `data/descriptions.csv` | 1,541 descriptions, one per title and track, in five facets: `emotions`, `plot`, `setting`, `sound`, `references` (plus item type, id and name) | Written with an LLM (Claude) |
-| `data/curated.csv` | 2,464 hand-picked (title, track) matches, about ten per title, used to train the model | Picked by an LLM (Claude) |
+| `data/tracks.csv` | 998 tracks: id, title, artist, album, popularity and audio features (`danceability`, `energy`, `valence`, `acousticness`, `instrumentalness`, `tempo`) | [`maharshipandya/spotify-tracks-dataset`](https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset) on Hugging Face (BSD license) |
+| `data/descriptions.csv` | 1,991 descriptions, one per title and track, in five facets: `emotions`, `plot`, `setting`, `sound`, `references` (plus item type, id and name) | Written with an LLM (Claude) |
+| `data/curated.csv` | 4,959 (title, track) matches used to train the model: about ten tracks per core title, then about five core titles per track | Picked by an LLM (Claude) |
 | `data/soundtrack_pairs.csv` | 126 (title, track) pairs where the track is famously used in the title | Hand-picked |
-| `data/embeddings.npz` | 384-d unit vectors stored as float16, shape (1,541 items, 5 facets, 384) | Built by `src/embed.py` |
+| `data/embeddings.npz` | 384-d unit vectors stored as float16, shape (1,991 items, 5 facets, 384) | Built by `src/embed.py` |
 | `data/title_tone.csv` | Energy and valence (0 to 1) of each title, for the experimental `tone` facet | Hand-set |
 | `data/model.json` | Baseline parameters: facet weights and hub correction | Hand-set |
 | `data/towers.npz` | Weights of the trained two-tower network | Written by `src/train.py` |
@@ -260,11 +260,14 @@ The catalogue grew in steps: 20 titles and 50 tracks chosen to cover very differ
 
 The 755 newest titles come from [`src/fetch_popular.py`](src/fetch_popular.py): the 520 movies and 240 series with the most votes on TMDB that were not in the catalogue yet (documentaries, talk shows, news and soaps left out), so they are the ones nearly everybody knows. TMDB numbers movies and series separately, so when a number clashes the series gets a `tv` prefix (`tv1402`). Their descriptions were written by an LLM in groups, with automatic checks (exactly three adjectives, and never the title itself, even before the colon). Like the rest, they are not independent of the model's evaluation: they were written by the same kind of model that judges them. In the app, "Surprise me" and the duels only draw from the 400 best-known titles, so friends are not asked about obscure series.
 
+The 450 newest tracks were chosen among the most popular of the Hugging Face dataset (well-known songs of many eras and genres, at most two per artist; their Spotify ids are in [`data/added_track_ids.txt`](data/added_track_ids.txt) and [`src/add_tracks.py`](src/add_tracks.py) appends them). They were described and matched to titles the same way as the titles were. Adding tracks does **not** make the model more precise by itself: it gives more choice to the listener, and the numbers above get harder because there are more wrong answers. What improves the network is more matches, which is why every new track got about five curated titles. These are LLM labels, not listeners': real votes (see the voting pipeline above) are what will check them.
+
 To regenerate the files:
 
 ```bash
 # Tracks: downloads the raw dataset to data/raw/ (git-ignored) and extracts the subset
 python src/build_tracks.py
+python src/add_tracks.py              # then 450 more, by id (data/added_track_ids.txt)
 
 # Titles: needs a free TMDB API key in .env (copy .env.example to .env)
 python src/fetch_titles.py            # the 238 core titles
@@ -311,6 +314,7 @@ cross-media-recsys/
 │   ├── smoke_test.py    # checks the embedding model output shape
 │   ├── fetch_titles.py  # builds data/titles.csv from the TMDB API
 │   ├── fetch_popular.py # appends the most-voted TMDB titles to data/titles.csv
+│   ├── add_tracks.py    # appends more tracks to data/tracks.csv from a list of ids
 │   ├── build_tracks.py  # builds data/tracks.csv from the Hugging Face dataset
 │   ├── embed.py         # builds data/embeddings.npz from the descriptions
 │   ├── model.py         # baseline scoring and the trained network's scoring
@@ -358,8 +362,9 @@ cross-media-recsys/
 - [x] Level 1: web app published on GitHub Pages
 - [x] Level 1: catalogue grown to 238 titles and 548 tracks
 - [x] Level 1: 755 most-voted TMDB titles added (993 in all), described with an LLM
+- [x] Level 1: 450 more tracks (998 in all), described and matched to the core titles
 - [x] Level 1: in-app learning from ratings and near-duplicate filter
-- [x] Level 1: two-tower neural network trained on 2,464 curated matches, cross-validated on unseen titles
+- [x] Level 1: two-tower neural network trained on curated matches (2,464 at first, 4,959 now), cross-validated on unseen titles
 - [x] Level 2: feasibility check on Amazon Reviews 2023 (movie/music user overlap)
 - [ ] Level 2: train on Amazon Reviews (movies + CDs)
 - [x] Level 3: movie duels ranked with Elo, feeding the recommendations
