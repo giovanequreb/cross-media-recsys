@@ -237,3 +237,758 @@ tmdb_id,title,energy,valence
 30991,Cowboy Bebop,0.70,0.40
 890,Neon Genesis Evangelion,0.65,0.15
 1429,Attack on Titan,0.95,0.10
+24428,The Avengers,0.90,0.70
+19995,Avatar,0.65,0.65
+293660,Deadpool,0.80,0.60
+299536,Avengers: Infinity War,0.85,0.20
+1726,Iron Man,0.75,0.70
+122,The Lord of the Rings: The Return of the King,0.85,0.60
+11324,Shutter Island,0.55,0.10
+99861,Avengers: Age of Ultron,0.85,0.50
+49026,The Dark Knight Rises,0.80,0.20
+121,The Lord of the Rings: The Two Towers,0.80,0.30
+271110,Captain America: Civil War,0.80,0.40
+672,Harry Potter and the Chamber of Secrets,0.60,0.55
+315635,Spider-Man: Homecoming,0.75,0.80
+284052,Doctor Strange,0.70,0.55
+68721,Iron Man 3,0.75,0.65
+70160,The Hunger Games,0.70,0.20
+673,Harry Potter and the Prisoner of Azkaban,0.60,0.45
+283995,Guardians of the Galaxy Vol. 2,0.75,0.80
+1771,Captain America: The First Avenger,0.70,0.65
+272,Batman Begins,0.70,0.25
+634649,Spider-Man: No Way Home,0.80,0.50
+10195,Thor,0.70,0.65
+674,Harry Potter and the Goblet of Fire,0.70,0.40
+12445,Harry Potter and the Deathly Hallows: Part 2,0.85,0.40
+297761,Suicide Squad,0.85,0.35
+135397,Jurassic World,0.80,0.55
+286217,The Martian,0.55,0.75
+557,Spider-Man,0.70,0.65
+102899,Ant-Man,0.65,0.80
+675,Harry Potter and the Order of the Phoenix,0.65,0.30
+767,Harry Potter and the Half-Blood Prince,0.50,0.30
+297762,Wonder Woman,0.75,0.60
+140607,Star Wars: The Force Awakens,0.85,0.65
+12444,Harry Potter and the Deathly Hallows: Part 1,0.45,0.20
+346364,It,0.75,0.20
+100402,Captain America: The Winter Soldier,0.80,0.30
+585,"Monsters, Inc.",0.70,0.90
+49051,The Hobbit: An Unexpected Journey,0.65,0.70
+259316,Fantastic Beasts and Where to Find Them,0.60,0.60
+497,The Green Mile,0.40,0.25
+281957,The Revenant,0.55,0.10
+383498,Deadpool 2,0.80,0.65
+209112,Batman v Superman: Dawn of Justice,0.80,0.15
+9806,The Incredibles,0.75,0.80
+1930,The Amazing Spider-Man,0.70,0.55
+2062,Ratatouille,0.55,0.85
+1891,The Empire Strikes Back,0.75,0.35
+101299,The Hunger Games: Catching Fire,0.75,0.25
+76338,Thor: The Dark World,0.70,0.55
+381288,Split,0.65,0.10
+18785,The Hangover,0.80,0.80
+269149,Zootopia,0.70,0.85
+198663,The Maze Runner,0.80,0.25
+205596,The Imitation Game,0.40,0.25
+207703,Kingsman: The Secret Service,0.80,0.70
+1124,The Prestige,0.50,0.20
+429617,Spider-Man: Far From Home,0.75,0.65
+58,Pirates of the Caribbean: Dead Man's Chest,0.80,0.65
+335983,Venom,0.80,0.40
+640,Catch Me If You Can,0.65,0.75
+240832,Lucy,0.80,0.40
+333339,Ready Player One,0.85,0.70
+1892,Return of the Jedi,0.80,0.75
+6479,I Am Legend,0.45,0.15
+299537,Captain Marvel,0.75,0.70
+75656,Now You See Me,0.70,0.65
+72190,World War Z,0.90,0.15
+131631,The Hunger Games: Mockingjay - Part 1,0.55,0.15
+558,Spider-Man 2,0.75,0.55
+177572,Big Hero 6,0.70,0.75
+330459,Rogue One: A Star Wars Story,0.75,0.30
+181808,Star Wars: The Last Jedi,0.75,0.45
+127585,X-Men: Days of Future Past,0.80,0.40
+49521,Man of Steel,0.80,0.35
+20352,Despicable Me,0.75,0.90
+118,Charlie and the Chocolate Factory,0.65,0.65
+10193,Toy Story 3,0.65,0.65
+1893,Star Wars: Episode I - The Phantom Menace,0.75,0.55
+321612,Beauty and the Beast,0.55,0.80
+752,V for Vendetta,0.70,0.20
+285,Pirates of the Caribbean: At World's End,0.80,0.55
+559,Spider-Man 3,0.70,0.40
+122917,The Hobbit: The Battle of the Five Armies,0.80,0.35
+447332,A Quiet Place,0.55,0.15
+273248,The Hateful Eight,0.45,0.20
+920,Cars,0.65,0.85
+137113,Edge of Tomorrow,0.90,0.45
+393,Kill Bill: Vol. 2,0.55,0.35
+863,Toy Story 2,0.70,0.80
+1895,Star Wars: Episode III - Revenge of the Sith,0.85,0.20
+324786,Hacksaw Ridge,0.65,0.25
+1865,Pirates of the Caribbean: On Stranger Tides,0.70,0.60
+607,Men in Black,0.70,0.85
+297802,Aquaman,0.80,0.65
+218,The Terminator,0.80,0.15
+1271,300,0.90,0.30
+12155,Alice in Wonderland,0.55,0.55
+10528,Sherlock Holmes,0.75,0.65
+353486,Jumanji: Welcome to the Jungle,0.75,0.80
+102382,The Amazing Spider-Man 2,0.75,0.40
+10191,How to Train Your Dragon,0.70,0.80
+1894,Star Wars: Episode II - Attack of the Clones,0.75,0.45
+76600,Avatar: The Way of Water,0.70,0.60
+425,Ice Age,0.65,0.80
+324552,John Wick: Chapter 2,0.90,0.25
+57158,The Hobbit: The Desolation of Smaug,0.80,0.50
+546554,Knives Out,0.50,0.65
+363088,Ant-Man and the Wasp,0.65,0.80
+274870,Passengers,0.45,0.40
+62177,Brave,0.65,0.70
+240,The Godfather Part II,0.40,0.20
+165,Back to the Future Part II,0.80,0.70
+350,The Devil Wears Prada,0.60,0.70
+246655,X-Men: Apocalypse,0.80,0.40
+4922,The Curious Case of Benjamin Button,0.30,0.40
+162,Edward Scissorhands,0.30,0.45
+277834,Moana,0.75,0.85
+87827,Life of Pi,0.45,0.45
+141052,Justice League,0.80,0.45
+260513,Incredibles 2,0.75,0.80
+530915,1917,0.65,0.15
+102651,Maleficent,0.55,0.40
+190859,American Sniper,0.50,0.15
+49538,X-Men: First Class,0.75,0.55
+194662,Birdman or (The Unexpected Virtue of Ignorance),0.75,0.30
+68726,Pacific Rim,0.90,0.65
+809,Shrek 2,0.80,0.85
+157350,Divergent,0.75,0.35
+70981,Prometheus,0.60,0.15
+131634,The Hunger Games: Mockingjay - Part 2,0.70,0.15
+296096,Me Before You,0.30,0.40
+146233,Prisoners,0.50,0.05
+19908,Zombieland,0.80,0.65
+72105,Ted,0.65,0.75
+82690,Wreck-It Ralph,0.75,0.85
+490132,Green Book,0.45,0.70
+228150,Fury,0.75,0.10
+1724,The Incredible Hulk,0.75,0.30
+138843,The Conjuring,0.65,0.10
+61791,Rise of the Planet of the Apes,0.65,0.30
+399055,The Shape of Water,0.30,0.55
+166426,Pirates of the Caribbean: Dead Men Tell No Tales,0.75,0.60
+14161,2012,0.90,0.30
+2048,"I, Robot",0.75,0.40
+351286,Jurassic World: Fallen Kingdom,0.80,0.35
+9502,Kung Fu Panda,0.75,0.85
+73,American History X,0.55,0.05
+771,Home Alone,0.70,0.85
+127380,Finding Dory,0.55,0.75
+82693,Silver Linings Playbook,0.60,0.60
+38757,Tangled,0.65,0.85
+23483,Kick-Ass,0.85,0.60
+8358,Cast Away,0.35,0.35
+1858,Transformers,0.90,0.60
+36657,X-Men,0.70,0.50
+216015,Fifty Shades of Grey,0.40,0.40
+119450,Dawn of the Planet of the Apes,0.65,0.20
+49530,In Time,0.75,0.35
+8681,Taken,0.85,0.15
+604,The Matrix Reloaded,0.90,0.35
+812,Aladdin,0.70,0.90
+93456,Despicable Me 2,0.75,0.90
+76203,12 Years a Slave,0.45,0.05
+18,The Fifth Element,0.80,0.70
+458156,John Wick: Chapter 3 - Parabellum,0.90,0.20
+953,Madagascar,0.75,0.90
+1949,Zodiac,0.45,0.15
+75612,Oblivion,0.55,0.30
+196,Back to the Future Part III,0.65,0.80
+13223,Gran Torino,0.35,0.35
+291805,Now You See Me 2,0.70,0.70
+510,One Flew Over the Cuckoo's Nest,0.45,0.25
+411,"The Chronicles of Narnia: The Lion, the Witch and the Wardrobe",0.60,0.60
+600,Full Metal Jacket,0.55,0.10
+629,The Usual Suspects,0.50,0.30
+51876,Limitless,0.80,0.50
+310,Bruce Almighty,0.60,0.80
+222935,The Fault in Our Stars,0.30,0.40
+338952,Fantastic Beasts: The Crimes of Grindelwald,0.60,0.35
+497698,Black Widow,0.75,0.35
+854,The Mask,0.85,0.85
+8844,Jumanji,0.80,0.70
+577922,Tenet,0.85,0.25
+45243,The Hangover Part II,0.80,0.70
+2080,X-Men Origins: Wolverine,0.80,0.30
+62211,Monsters University,0.65,0.80
+652,Troy,0.80,0.30
+787,Mr. & Mrs. Smith,0.75,0.70
+168259,Furious 7,0.90,0.70
+206647,Spectre,0.65,0.40
+197,Braveheart,0.75,0.30
+580489,Venom: Let There Be Carnage,0.80,0.50
+453,A Beautiful Mind,0.40,0.50
+343668,Kingsman: The Golden Circle,0.80,0.65
+89,Indiana Jones and the Last Crusade,0.80,0.80
+82992,Fast & Furious 6,0.90,0.65
+293167,Kong: Skull Island,0.85,0.40
+211672,Minions,0.75,0.90
+64688,21 Jump Street,0.75,0.75
+266856,The Theory of Everything,0.30,0.55
+294254,Maze Runner: The Scorch Trials,0.85,0.20
+1593,Night at the Museum,0.65,0.80
+359940,"Three Billboards Outside Ebbing, Missouri",0.55,0.25
+41154,Men in Black 3,0.70,0.75
+679,Aliens,0.85,0.20
+59967,Looper,0.65,0.25
+36658,X2,0.75,0.40
+181812,Star Wars: The Rise of Skywalker,0.80,0.55
+791373,Zack Snyder's Justice League,0.75,0.30
+502356,The Super Mario Bros. Movie,0.80,0.90
+58574,Sherlock Holmes: A Game of Shadows,0.75,0.60
+605,The Matrix Revolutions,0.85,0.35
+56292,Mission: Impossible - Ghost Protocol,0.85,0.65
+301528,Toy Story 4,0.60,0.75
+495764,Birds of Prey (and the Fantabulous Emancipation of One Harley Quinn),0.80,0.70
+337339,The Fate of the Furious,0.90,0.60
+608,Men in Black II,0.65,0.80
+772,Home Alone 2: Lost in New York,0.70,0.85
+420818,The Lion King,0.60,0.65
+453395,Doctor Strange in the Multiverse of Madness,0.80,0.35
+10020,Beauty and the Beast,0.55,0.85
+1402,The Pursuit of Happyness,0.40,0.45
+405774,Bird Box,0.55,0.10
+399566,Godzilla vs. Kong,0.85,0.60
+420817,Aladdin,0.75,0.85
+566525,Shang-Chi and the Legend of the Ten Rings,0.80,0.60
+602,Independence Day,0.85,0.65
+392044,Murder on the Orient Express,0.40,0.35
+13475,Star Trek,0.80,0.70
+515001,Jojo Rabbit,0.45,0.55
+110415,Snowpiercer,0.70,0.15
+10674,Mulan,0.65,0.75
+381284,Hidden Figures,0.55,0.75
+82702,How to Train Your Dragon 2,0.75,0.60
+36668,X-Men: The Last Stand,0.80,0.30
+17654,District 9,0.65,0.15
+9479,The Nightmare Before Christmas,0.50,0.65
+283366,Miss Peregrine's Home for Peculiar Children,0.55,0.45
+70,Million Dollar Baby,0.35,0.15
+262500,Insurgent,0.75,0.30
+454626,Sonic the Hedgehog,0.85,0.85
+76170,The Wolverine,0.70,0.30
+950,Ice Age: The Meltdown,0.65,0.80
+8960,Hancock,0.65,0.55
+330457,Frozen II,0.65,0.70
+287947,Shazam!,0.75,0.80
+3933,Corpse Bride,0.50,0.55
+564,The Mummy,0.75,0.65
+389,12 Angry Men,0.35,0.30
+399579,Alita: Battle Angel,0.80,0.50
+568124,Encanto,0.75,0.80
+2501,The Bourne Identity,0.75,0.35
+87,Indiana Jones and the Temple of Doom,0.85,0.50
+176,Saw,0.80,0.05
+591,The Da Vinci Code,0.55,0.25
+337404,Cruella,0.80,0.55
+107,Snatch,0.80,0.55
+954,Mission: Impossible,0.75,0.40
+13183,Watchmen,0.60,0.15
+316029,The Greatest Showman,0.80,0.85
+156022,The Equalizer,0.65,0.25
+9738,Fantastic Four,0.65,0.75
+550988,Free Guy,0.75,0.85
+9741,Unbreakable,0.35,0.20
+318846,The Big Short,0.65,0.30
+124905,Godzilla,0.75,0.25
+810,Shrek the Third,0.65,0.75
+281338,War for the Planet of the Apes,0.60,0.15
+177677,Mission: Impossible - Rogue Nation,0.80,0.55
+180,Minority Report,0.70,0.30
+436969,The Suicide Squad,0.85,0.50
+9487,A Bug's Life,0.65,0.85
+18239,The Twilight Saga: New Moon,0.35,0.20
+54138,Star Trek Into Darkness,0.85,0.40
+474350,It Chapter Two,0.65,0.20
+264644,Room,0.35,0.25
+68724,Elysium,0.75,0.25
+646380,Don't Look Up,0.50,0.30
+126889,Alien: Covenant,0.60,0.10
+138832,We're the Millers,0.65,0.80
+300668,Annihilation,0.50,0.15
+512200,Jumanji: The Next Level,0.75,0.80
+39254,Real Steel,0.75,0.65
+664413,365 Days,0.50,0.35
+74,War of the Worlds,0.75,0.10
+533535,Deadpool & Wolverine,0.90,0.65
+106,Predator,0.85,0.20
+50646,"Crazy, Stupid, Love.",0.50,0.75
+45269,The King's Speech,0.30,0.55
+348350,Solo: A Star Wars Story,0.75,0.65
+122906,About Time,0.35,0.80
+50620,The Twilight Saga: Breaking Dawn - Part 2,0.65,0.55
+330,The Lost World: Jurassic Park,0.80,0.40
+14836,Coraline,0.50,0.35
+109439,The Hangover Part III,0.75,0.50
+524434,Eternals,0.60,0.45
+45612,Source Code,0.70,0.35
+259693,The Conjuring 2,0.65,0.10
+8373,Transformers: Revenge of the Fallen,0.90,0.50
+50619,The Twilight Saga: Breaking Dawn - Part 1,0.35,0.40
+63,Twelve Monkeys,0.55,0.15
+353081,Mission: Impossible - Fallout,0.90,0.35
+24021,The Twilight Saga: Eclipse,0.45,0.30
+76492,Hotel Transylvania,0.75,0.85
+569094,Spider-Man: Across the Spider-Verse,0.90,0.60
+359724,Ford v Ferrari,0.80,0.60
+47971,xXx: Return of Xander Cage,0.90,0.70
+50014,The Help,0.40,0.60
+450465,Glass,0.50,0.20
+152532,Dallas Buyers Club,0.45,0.25
+464052,Wonder Woman 1984,0.70,0.65
+217,Indiana Jones and the Kingdom of the Crystal Skull,0.75,0.60
+315162,Puss in Boots: The Last Wish,0.75,0.75
+254128,San Andreas,0.90,0.40
+137,Groundhog Day,0.45,0.75
+68734,Argo,0.60,0.35
+87101,Terminator Genisys,0.80,0.35
+38356,Transformers: Dark of the Moon,0.90,0.55
+4951,10 Things I Hate About You,0.65,0.85
+435,The Day After Tomorrow,0.85,0.25
+508943,Luca,0.55,0.90
+51497,Fast Five,0.85,0.70
+187,Sin City,0.70,0.15
+8355,Ice Age: Dawn of the Dinosaurs,0.70,0.80
+158015,The Purge,0.70,0.10
+402900,Ocean's Eight,0.55,0.80
+616037,Thor: Love and Thunder,0.80,0.75
+314365,Spotlight,0.35,0.20
+594,The Terminal,0.35,0.70
+91314,Transformers: Age of Extinction,0.90,0.50
+290250,The Nice Guys,0.65,0.65
+333371,10 Cloverfield Lane,0.55,0.15
+170,28 Days Later,0.80,0.10
+447365,Guardians of the Galaxy Vol. 3,0.70,0.55
+38700,Bad Boys for Life,0.85,0.70
+22970,The Cabin in the Woods,0.60,0.35
+268,Batman,0.65,0.45
+396535,Train to Busan,0.90,0.15
+10764,Quantum of Solace,0.80,0.25
+466282,To All the Boys I've Loved Before,0.35,0.85
+615457,Nobody,0.80,0.55
+315837,Ghost in the Shell,0.60,0.25
+187017,22 Jump Street,0.75,0.80
+254,King Kong,0.75,0.45
+137106,The Lego Movie,0.85,0.95
+35,The Simpsons Movie,0.65,0.80
+49013,Cars 2,0.80,0.80
+4011,Beetlejuice,0.65,0.65
+198184,Chappie,0.65,0.40
+328111,The Secret Life of Pets,0.75,0.85
+693134,Dune: Part Two,0.85,0.25
+278927,The Jungle Book,0.60,0.65
+4638,Hot Fuzz,0.75,0.75
+339846,Baywatch,0.65,0.80
+2503,The Bourne Ultimatum,0.85,0.35
+1979,Fantastic Four: Rise of the Silver Surfer,0.70,0.65
+335797,Sing,0.80,0.90
+336843,Maze Runner: The Death Cure,0.85,0.25
+561,Constantine,0.65,0.20
+10144,The Little Mermaid,0.65,0.90
+2105,American Pie,0.70,0.75
+1372,Blood Diamond,0.70,0.15
+537915,After,0.35,0.40
+1954,The Butterfly Effect,0.55,0.10
+338970,Tomb Raider,0.80,0.50
+50544,Friends with Benefits,0.55,0.80
+116745,The Secret Life of Walter Mitty,0.50,0.75
+340666,Nocturnal Animals,0.40,0.10
+27578,The Expendables,0.90,0.55
+8871,How the Grinch Stole Christmas,0.65,0.80
+2502,The Bourne Supremacy,0.80,0.25
+337167,Fifty Shades Freed,0.40,0.55
+256591,Focus,0.60,0.70
+406997,Wonder,0.35,0.80
+345940,The Meg,0.70,0.50
+8363,Superbad,0.65,0.75
+584,2 Fast 2 Furious,0.85,0.70
+58595,Snow White and the Huntsman,0.65,0.25
+603692,John Wick: Chapter 4,0.90,0.25
+458723,Us,0.65,0.15
+44115,127 Hours,0.50,0.30
+1091,The Thing,0.60,0.05
+404368,Ralph Breaks the Internet,0.80,0.75
+57800,Ice Age: Continental Drift,0.75,0.80
+487558,BlacKkKlansman,0.65,0.35
+4232,Scream,0.70,0.35
+121856,Assassin's Creed,0.75,0.25
+339964,Valerian and the City of a Thousand Planets,0.75,0.65
+257344,Pixels,0.70,0.75
+214756,Ted 2,0.65,0.70
+20526,TRON: Legacy,0.80,0.40
+300669,Don't Breathe,0.65,0.10
+4247,Scary Movie,0.75,0.75
+49444,Kung Fu Panda 2,0.80,0.70
+163,Ocean's Twelve,0.55,0.75
+9693,Children of Men,0.65,0.10
+10192,Shrek Forever After,0.65,0.75
+312221,Creed,0.75,0.65
+395992,Life,0.70,0.10
+7191,Cloverfield,0.85,0.10
+408,Snow White and the Seven Dwarfs,0.45,0.85
+11970,Hercules,0.75,0.85
+331,Jurassic Park III,0.80,0.40
+96721,Rush,0.85,0.50
+619264,The Platform,0.55,0.05
+13804,Fast & Furious,0.85,0.40
+766507,Prey,0.70,0.30
+341174,Fifty Shades Darker,0.40,0.45
+718930,Bullet Train,0.80,0.65
+587,Big Fish,0.40,0.65
+32657,Percy Jackson & the Olympians: The Lightning Thief,0.75,0.65
+384018,Fast & Furious Presents: Hobbs & Shaw,0.90,0.65
+1824,50 First Dates,0.45,0.85
+1734,The Mummy Returns,0.80,0.60
+168672,American Hustle,0.65,0.55
+310131,The Witch,0.35,0.05
+363676,Sully,0.45,0.45
+59436,Midnight in Paris,0.35,0.75
+9615,The Fast and the Furious: Tokyo Drift,0.80,0.65
+75780,Jack Reacher,0.65,0.30
+44912,Green Lantern,0.75,0.55
+956,Mission: Impossible III,0.80,0.45
+385128,F9,0.90,0.65
+223702,Sausage Party,0.70,0.55
+14574,The Boy in the Striped Pyjamas,0.25,0.05
+955,Mission: Impossible II,0.80,0.60
+44826,Hugo,0.40,0.65
+7326,Juno,0.35,0.70
+65754,The Girl with the Dragon Tattoo,0.55,0.10
+505642,Black Panther: Wakanda Forever,0.65,0.30
+282035,The Mummy,0.80,0.25
+18240,The Proposal,0.40,0.85
+324852,Despicable Me 3,0.75,0.90
+616,The Last Samurai,0.55,0.35
+8909,Wanted,0.85,0.40
+9339,Click,0.45,0.55
+398978,The Irishman,0.30,0.20
+62213,Dark Shadows,0.55,0.50
+427641,Rampage,0.85,0.60
+49519,The Croods,0.75,0.80
+322,Mystic River,0.35,0.05
+38055,Megamind,0.75,0.80
+109424,Captain Phillips,0.70,0.15
+83542,Cloud Atlas,0.50,0.50
+520763,A Quiet Place Part II,0.65,0.20
+1487,Hellboy,0.70,0.45
+49018,Insidious,0.65,0.05
+10527,Madagascar: Escape 2 Africa,0.75,0.90
+302946,The Accountant,0.55,0.30
+2649,The Game,0.60,0.30
+2668,Sleepy Hollow,0.60,0.25
+10201,Yes Man,0.65,0.85
+295693,The Boss Baby,0.75,0.85
+508,Love Actually,0.50,0.85
+492188,Marriage Story,0.30,0.25
+37735,Easy A,0.55,0.80
+447404,Pokémon Detective Pikachu,0.65,0.75
+13448,Angels & Demons,0.65,0.30
+257211,The Intern,0.35,0.80
+158852,Tomorrowland,0.65,0.75
+296,Terminator 3: Rise of the Machines,0.85,0.25
+454983,The Kissing Booth,0.45,0.85
+37135,Tarzan,0.75,0.80
+150689,Cinderella,0.45,0.80
+68735,Warcraft,0.80,0.35
+11688,The Emperor's New Groove,0.80,0.90
+18360,Night at the Museum: Battle of the Smithsonian,0.70,0.80
+6957,The 40 Year-Old Virgin,0.60,0.80
+527774,Raya and the Last Dragon,0.70,0.65
+419704,Ad Astra,0.35,0.20
+1933,The Others,0.35,0.10
+296098,Bridge of Spies,0.35,0.40
+3131,Gangs of New York,0.65,0.15
+195589,Neighbors,0.80,0.75
+100,"Lock, Stock and Two Smoking Barrels",0.80,0.55
+370172,No Time to Die,0.75,0.30
+11321,Seven Pounds,0.30,0.25
+567,Rear Window,0.40,0.55
+206487,Predestination,0.35,0.20
+380,Rain Man,0.35,0.65
+9543,Prince of Persia: The Sands of Time,0.80,0.65
+46195,Rio,0.85,0.95
+345,Eyes Wide Shut,0.35,0.20
+76163,The Expendables 2,0.90,0.55
+28178,Hachi: A Dog's Tale,0.20,0.35
+44896,Rango,0.60,0.65
+320288,Dark Phoenix,0.75,0.20
+98566,Teenage Mutant Ninja Turtles,0.85,0.70
+439079,The Nun,0.55,0.05
+364,Batman Returns,0.65,0.30
+39514,RED,0.70,0.75
+37686,Super 8,0.65,0.55
+507086,Jurassic World Dominion,0.75,0.55
+81188,Rise of the Guardians,0.65,0.75
+166428,How to Train Your Dragon: The Hidden World,0.65,0.60
+436270,Black Adam,0.80,0.40
+11224,Cinderella,0.40,0.85
+82675,Taken 2,0.80,0.15
+188927,Star Trek Beyond,0.80,0.65
+381283,mother!,0.60,0.05
+11544,Lilo & Stitch,0.65,0.85
+534,Terminator Salvation,0.80,0.15
+76757,Jupiter Ascending,0.70,0.55
+60304,Hansel & Gretel: Witch Hunters,0.80,0.45
+7446,Tropic Thunder,0.80,0.65
+661374,Glass Onion: A Knives Out Mystery,0.55,0.70
+117263,Olympus Has Fallen,0.85,0.20
+293863,The Age of Adaline,0.30,0.55
+1576,Resident Evil,0.85,0.15
+676,Pearl Harbor,0.70,0.30
+335787,Uncharted,0.80,0.70
+927,Gremlins,0.70,0.60
+782,Gattaca,0.40,0.40
+9737,Bad Boys,0.80,0.70
+270303,It Follows,0.50,0.10
+337401,Mulan,0.70,0.55
+184,Jackie Brown,0.55,0.60
+53182,300: Rise of an Empire,0.90,0.25
+1368,First Blood,0.65,0.15
+tv1402,The Walking Dead,0.60,0.10
+63174,Lucifer,0.55,0.65
+69050,Riverdale,0.55,0.35
+76479,The Boys,0.80,0.25
+71712,The Good Doctor,0.35,0.70
+85271,WandaVision,0.40,0.30
+1418,The Big Bang Theory,0.45,0.85
+84958,Loki,0.55,0.50
+60735,The Flash,0.70,0.70
+75006,The Umbrella Academy,0.65,0.55
+18165,The Vampire Diaries,0.55,0.35
+76669,Elite,0.70,0.40
+88396,The Falcon and the Winter Soldier,0.70,0.45
+48866,The 100,0.75,0.20
+31910,Naruto Shippūden,0.85,0.55
+1622,Supernatural,0.70,0.35
+81356,Sex Education,0.50,0.75
+1408,House,0.55,0.35
+44217,Vikings,0.75,0.25
+85937,Demon Slayer: Kimetsu no Yaiba,0.85,0.45
+94997,House of the Dragon,0.65,0.20
+77169,Cobra Kai,0.80,0.60
+71912,The Witcher,0.70,0.30
+1412,Arrow,0.70,0.25
+1413,American Horror Story,0.65,0.10
+2288,Prison Break,0.75,0.30
+46260,Naruto,0.80,0.65
+95557,INVINCIBLE,0.75,0.30
+1100,How I Met Your Mother,0.55,0.80
+37680,Suits,0.55,0.60
+1405,Dexter,0.55,0.30
+37854,One Piece,0.80,0.80
+61889,Marvel's Daredevil,0.75,0.15
+65930,My Hero Academia,0.85,0.65
+62715,Dragon Ball Super,0.90,0.70
+62286,Fear the Walking Dead,0.55,0.10
+12637,Rebelde,0.75,0.80
+82883,The Act,0.35,0.10
+62104,The Seven Deadly Sins,0.80,0.65
+13916,Death Note,0.55,0.15
+2190,South Park,0.70,0.65
+1434,Family Guy,0.70,0.70
+246,Avatar: The Last Airbender,0.70,0.65
+12971,Dragon Ball Z,0.90,0.55
+70785,Anne with an E,0.40,0.65
+2004,Malcolm in the Middle,0.70,0.70
+5920,The Mentalist,0.50,0.55
+34524,Teen Wolf,0.75,0.40
+91363,What If...?,0.65,0.55
+65334,Miraculous: Tales of Ladybug & Cat Noir,0.75,0.85
+95479,JUJUTSU KAISEN,0.85,0.25
+4604,Smallville,0.55,0.60
+99966,All of Us Are Dead,0.85,0.10
+62688,Supergirl,0.70,0.75
+4613,Band of Brothers,0.65,0.20
+2734,Law & Order: Special Victims Unit,0.45,0.15
+124364,FROM,0.50,0.10
+105214,Dark Desire,0.60,0.35
+63926,One-Punch Man,0.80,0.65
+90462,Chucky,0.65,0.25
+86831,"Love, Death & Robots",0.75,0.30
+60797,Scorpion,0.65,0.60
+4057,Criminal Minds,0.55,0.15
+48891,Brooklyn Nine-Nine,0.65,0.90
+78191,You,0.50,0.20
+46331,Under the Dome,0.55,0.20
+84773,The Lord of the Rings: The Rings of Power,0.65,0.40
+615,Futurama,0.60,0.70
+1403,Marvel's Agents of S.H.I.E.L.D.,0.65,0.55
+88329,Hawkeye,0.65,0.75
+79242,Chilling Adventures of Sabrina,0.60,0.25
+60708,Gotham,0.65,0.20
+2691,Two and a Half Men,0.50,0.75
+43348,Pablo Escobar: The Drug Lord,0.65,0.15
+92749,Moon Knight,0.65,0.35
+46952,The Blacklist,0.65,0.35
+74577,The End of the F***ing World,0.55,0.35
+46896,The Originals,0.65,0.30
+39351,Grimm,0.60,0.30
+40075,Gravity Falls,0.60,0.70
+1911,Bones,0.50,0.55
+110492,Peacemaker,0.80,0.65
+79744,The Rookie,0.60,0.65
+1421,Modern Family,0.50,0.85
+34307,Shameless,0.60,0.55
+12609,Dragon Ball,0.70,0.80
+57243,Doctor Who,0.65,0.55
+108978,Reacher,0.70,0.30
+69478,The Handmaid's Tale,0.45,0.05
+60622,Fargo,0.50,0.35
+71886,Siren,0.55,0.35
+80213,The Purge,0.65,0.10
+1409,Sons of Anarchy,0.70,0.20
+19614,It,0.60,0.15
+67178,Marvel's The Punisher,0.80,0.10
+73586,Yellowstone,0.60,0.30
+1425,House of Cards,0.45,0.15
+52814,Halo,0.75,0.30
+387,SpongeBob SquarePants,0.80,0.95
+15260,Adventure Time,0.65,0.80
+80020,Super Dragon Ball Heroes,0.85,0.70
+106379,Fallout,0.65,0.35
+104877,Love Is in the Air,0.40,0.80
+67915,Guardian: The Lonely and Great God,0.35,0.55
+67744,MINDHUNTER,0.35,0.10
+115036,The Book of Boba Fett,0.60,0.45
+71728,Young Sheldon,0.45,0.85
+40008,Hannibal,0.45,0.05
+46296,Spartacus,0.80,0.20
+79460,Legacies,0.60,0.55
+56570,Outlander,0.60,0.45
+60866,iZombie,0.60,0.65
+113988,DAHMER - Monster: The Jeffrey Dahmer Story,0.30,0.05
+63639,The Expanse,0.55,0.25
+80752,See,0.60,0.30
+69740,Ozark,0.50,0.10
+1705,Fringe,0.55,0.35
+67335,Sin senos sí hay paraíso,0.65,0.35
+1424,Orange Is the New Black,0.55,0.55
+75450,Titans,0.70,0.25
+72844,The Haunting of Hill House,0.45,0.05
+75219,9-1-1,0.80,0.55
+31917,Pretty Little Liars,0.60,0.40
+110316,Alice in Borderland,0.80,0.15
+153312,Tulsa King,0.50,0.60
+95057,Superman & Lois,0.55,0.70
+125988,Silo,0.45,0.15
+90802,The Sandman,0.45,0.30
+62127,Marvel's Iron Fist,0.65,0.35
+112888,True Beauty,0.45,0.85
+38472,Marvel's Jessica Jones,0.55,0.15
+1407,Homeland,0.55,0.15
+1639,Heroes,0.60,0.50
+96677,Lupin,0.65,0.70
+58841,Chicago P.D.,0.75,0.25
+92783,She-Hulk: Attorney at Law,0.55,0.75
+61374,Tokyo Ghoul,0.65,0.10
+31911,Fullmetal Alchemist: Brotherhood,0.75,0.55
+16997,The Pacific,0.60,0.10
+62710,Blindspot,0.70,0.30
+1981,Charmed,0.60,0.70
+4614,NCIS,0.55,0.55
+39272,Once Upon a Time,0.55,0.65
+62455,Locked Up,0.75,0.20
+tv1892,The Fresh Prince of Bel-Air,0.70,0.90
+70881,Boruto: Naruto Next Generations,0.80,0.70
+62643,DC's Legends of Tomorrow,0.70,0.75
+1437,Firefly,0.60,0.55
+71914,The Wheel of Time,0.60,0.40
+1400,Seinfeld,0.45,0.75
+1433,American Dad!,0.65,0.75
+71915,Good Omens,0.55,0.65
+44006,Chicago Fire,0.75,0.55
+33880,The Legend of Korra,0.70,0.55
+4194,Star Wars: The Clone Wars,0.80,0.50
+68421,Altered Carbon,0.70,0.25
+92830,Obi-Wan Kenobi,0.60,0.35
+102903,Control Z,0.65,0.35
+120089,SPY x FAMILY,0.65,0.90
+1395,Gossip Girl,0.55,0.65
+114410,Chainsaw Man,0.85,0.35
+31132,Regular Show,0.70,0.80
+107113,Only Murders in the Building,0.40,0.70
+30984,Bleach,0.80,0.40
+60572,Pokémon,0.75,0.90
+83867,Andor,0.55,0.25
+73223,Black Clover,0.85,0.65
+46298,Hunter x Hunter,0.75,0.55
+95594,Fast & Furious Spy Racers,0.80,0.80
+18347,Community,0.55,0.80
+45782,Sword Art Online,0.75,0.55
+1411,Person of Interest,0.65,0.30
+1419,Castle,0.50,0.75
+10545,True Blood,0.65,0.35
+693,Desperate Housewives,0.55,0.70
+11250,Pasión de Gavilanes,0.55,0.45
+12697,Dragon Ball GT,0.80,0.65
+35610,InuYasha,0.65,0.55
+67198,Star Trek: Discovery,0.65,0.55
+62126,Marvel's Luke Cage,0.70,0.45
+66573,The Good Place,0.50,0.85
+47,El Chavo del Ocho,0.60,0.85
+45950,High School DxD,0.75,0.60
+74428,Rosario Tijeras (Mexico),0.65,0.30
+61550,Marvel's Agent Carter,0.55,0.65
+47640,The Strain,0.65,0.10
+63333,The Last Kingdom,0.70,0.30
+89641,Love Alarm,0.35,0.65
+60573,Silicon Valley,0.45,0.55
+127532,Solo Leveling,0.85,0.40
+45871,Locked Up: The Oasis,0.75,0.40
+90260,I Am Not Okay with This,0.55,0.30
+105248,Cyberpunk: Edgerunners,0.85,0.15
+2038,Drake & Josh,0.65,0.90
+31586,La Reina del Sur,0.65,0.30
+68507,His Dark Materials,0.55,0.40
+85949,Star Trek: Picard,0.45,0.40
+111110,ONE PIECE,0.75,0.80
+100883,Never Have I Ever,0.55,0.75
+76121,DARLING in the FRANXX,0.75,0.40
+61664,Sense8,0.55,0.65
+8592,Parks and Recreation,0.55,0.90
+75758,Lost in Space,0.65,0.55
+114868,Record of Ragnarok,0.85,0.35
+1606,Ghost Whisperer,0.35,0.45
+93741,Jurassic World Camp Cretaceous,0.75,0.55
+126308,Shōgun,0.45,0.30
+4629,Stargate SG-1,0.65,0.65
+32798,Hawaii Five-0,0.80,0.65
+2098,Batman: The Animated Series,0.60,0.30
+73375,Tom Clancy's Jack Ryan,0.70,0.25
+1415,Elementary,0.45,0.55
+1973,24,0.85,0.15
+63401,We Bare Bears,0.55,0.90
+1972,Battlestar Galactica,0.65,0.15
+79696,Manifest,0.50,0.35
+655,Star Trek: The Next Generation,0.40,0.65
+16420,Boys Over Flowers,0.55,0.70
+85723,Raised by Wolves,0.50,0.15
+92685,The Owl House,0.60,0.75
+46639,American Gods,0.55,0.30
+4686,Ben 10,0.80,0.80
+93740,Foundation,0.40,0.30
+117581,Ginny & Georgia,0.55,0.50
+46786,Bates Motel,0.45,0.10
+62046,Scream Queens,0.65,0.55
+61617,Over the Garden Wall,0.35,0.50
+64464,11.22.63,0.50,0.30
+61056,How to Get Away with Murder,0.70,0.20
+62264,Ash vs Evil Dead,0.85,0.50
+249042,Adolescence,0.40,0.05
+86031,Dr. STONE,0.75,0.80
+39340,2 Broke Girls,0.60,0.80
+37606,The Amazing World of Gumball,0.80,0.85
+124834,Heartstopper,0.35,0.90
+77606,The Boss Baby: Back in Business,0.75,0.85

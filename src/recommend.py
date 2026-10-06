@@ -17,15 +17,24 @@ from model import TITLES_PATH, TRACKS_PATH, trained_score_matrix
 
 
 def find_title(titles: pd.DataFrame, query: str) -> pd.Series:
-    """Return the title row matching the query (case-insensitive, exact match first)."""
+    """Return the title row matching the query (case-insensitive, exact match first).
+
+    Some names exist twice (a film and its remake): add the year to pick one, e.g. "Aladdin (2019)".
+    """
+    year = None
+    if query.endswith(")") and query[-6:-5] == "(" and query[-5:-1].isdigit():
+        query, year = query[:-6].strip(), query[-5:-1]
     names = titles["title"].str.casefold()
     matches = titles[names == query.casefold()]
     if matches.empty:
         matches = titles[names.str.contains(query.casefold(), regex=False)]
+    if year is not None:
+        matches = matches[matches["year"].astype(str) == year]
     if len(matches) != 1:
-        available = ", ".join(titles["title"])
-        problem = "not found" if matches.empty else "ambiguous"
-        raise SystemExit(f"Title {query!r} is {problem}. Available titles: {available}")
+        if matches.empty:
+            raise SystemExit(f"Title {query!r} is not in data/titles.csv.")
+        options = ", ".join(f"{row.title} ({row.year})" for row in matches.head(10).itertuples())
+        raise SystemExit(f"Title {query!r} is ambiguous: add the year, for example one of: {options}")
     return matches.iloc[0]
 
 
