@@ -30,20 +30,19 @@
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .32 0 0 0 0 .2 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
       font: 15px/1.55 var(--body);
     }
-    main { max-width: 1100px; margin: 0 auto; padding: 36px 16px 56px; }
+    main { max-width: 480px; margin: 0 auto; padding: 22px 16px 112px; }
     [hidden] { display: none !important; }
 
-    .masthead { display: flex; align-items: center; gap: 22px; margin-bottom: 8px; }
-    .vinyl { width: 92px; height: 92px; flex: none; animation: spin 14s linear infinite; }
+    .masthead { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .vinyl { width: 52px; height: 52px; flex: none; animation: spin 14s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     @media (prefers-reduced-motion: reduce) { .vinyl { animation: none; } }
     h1 {
-      font: 700 clamp(34px, 6vw, 56px)/1 var(--display); margin: 0; letter-spacing: -0.03em;
+      font: 700 clamp(26px, 8vw, 34px)/1 var(--display); margin: 0; letter-spacing: -0.03em;
       font-variation-settings: "SOFT" 100, "WONK" 1;
     }
     h1 em { color: var(--red); font-style: italic; font-weight: 500; }
     h2 { font: italic 600 21px/1.2 var(--display); color: var(--ink); margin: 0 0 14px; }
-    .lead { font: italic 400 19px/1.45 var(--display); color: var(--muted); margin: 6px 0 26px; max-width: 52ch; }
 
     .tabs { display: flex; gap: 26px; margin: 0 0 24px; border-bottom: 2px solid var(--ink); }
     .tab {
@@ -53,13 +52,12 @@
     .tab:hover { color: var(--ink); }
     .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--red); }
 
-    .layout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 26px; align-items: start; }
-    @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+    .layout { display: grid; gap: 22px; }
     .panel {
       background: var(--card); border: 2px solid var(--ink); border-radius: 6px; padding: 20px;
       box-shadow: 6px 6px 0 var(--shadow);
     }
-    .panel + .panel { margin-top: 26px; }
+    .layout > .panel { margin-top: 0; }
 
     input[type="search"] {
       width: 100%; padding: 8px 2px; margin-bottom: 14px; border: none; border-bottom: 2px solid var(--ink);
@@ -67,16 +65,19 @@
     }
     input[type="search"]::placeholder { color: var(--muted); font-style: italic; }
     input[type="search"]:focus { outline: none; border-bottom-color: var(--red); }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; max-height: 340px; overflow-y: auto; padding: 2px 4px 4px 2px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 2px 4px 4px 2px; }
+    .chips:empty { display: none; }
     .chip {
       border: 1.5px solid var(--ink); background: transparent; color: var(--ink);
-      padding: 4px 11px; border-radius: 3px; font: 15px var(--body); cursor: pointer;
+      padding: 7px 10px; border-radius: 3px; font: 14px var(--body); cursor: pointer;
     }
     .chip:nth-child(3n) { transform: rotate(-0.6deg); }
     .chip:nth-child(3n+1) { transform: rotate(0.5deg); }
     .chip:hover { background: var(--yellow); color: #231f1b; }
     .chip[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: var(--on-red); font-weight: 600; box-shadow: 2px 2px 0 var(--shadow); }
+    .chip { text-align: left; }
     .chip small { opacity: 0.6; font-weight: 400; }
+    #selected .chip small:last-child { margin-left: 6px; opacity: 1; }
 
     .slider { display: grid; grid-template-columns: 96px 1fr 44px; align-items: center; gap: 10px; margin-bottom: 8px; }
     .slider span { text-transform: capitalize; font-family: var(--display); font-style: italic; }
@@ -163,8 +164,7 @@
 
     /* Swipe deck: one track at a time, like flicking through a record crate. */
     .deck-progress { text-align: center; color: var(--muted); font: italic 15px var(--display); margin: 0 0 14px; }
-    .stage { position: relative; height: 430px; max-width: 420px; margin: 0 auto; }
-    @media (max-width: 560px) { .stage { height: 470px; } }
+    .stage { position: relative; height: 380px; margin: 0 auto; }
     .swipe-card {
       position: absolute; inset: 0; display: flex; flex-direction: column; gap: 8px; padding: 24px 22px 20px;
       background: var(--paper); border: 2px solid var(--ink); border-radius: 6px; box-shadow: 6px 6px 0 var(--shadow);
@@ -175,11 +175,14 @@
     .swipe-card.behind { background: var(--card); pointer-events: none; transform: rotate(-3deg) translateY(10px) scale(.96); }
     .swipe-card.behind + .swipe-card.behind { transform: rotate(3.5deg) translateY(18px) scale(.93); }
     .swipe-card h3 { font: 700 clamp(25px, 5vw, 32px)/1.1 var(--display); letter-spacing: -0.02em; margin: 6px 0 0; }
+    .swipe-card h3, .artist-line { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+    .swipe-card h3 { -webkit-line-clamp: 3; }
+    .artist-line { -webkit-line-clamp: 2; }
     .artist-line { font: italic 18px var(--display); color: var(--muted); margin: 0; }
     .mood { font: italic 600 18px/1.3 var(--display); margin: 14px 0 0; }
     .desc {
       font-size: 14px; color: var(--muted); margin: 0;
-      display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+      display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
     }
     .card-foot { margin-top: auto; }
     .stamp {
@@ -190,9 +193,9 @@
     .stamp.no { top: 20px; right: 16px; color: var(--red); border-color: var(--red); transform: rotate(10deg); }
     .stamp.bit { top: 16px; left: 50%; margin-left: -34px; color: #8a6200; border-color: var(--yellow); }
     .stamp.dunno { bottom: 70px; left: 50%; margin-left: -22px; color: var(--muted); border-color: var(--muted); }
-    .deck-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+    .deck-buttons { display: flex; justify-content: center; gap: 8px; margin-top: 22px; }
     .deck-btn {
-      display: flex; flex-direction: column; align-items: center; gap: 2px; width: 66px; padding: 8px 0 6px; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; max-width: 70px; min-width: 0; padding: 10px 0 8px; cursor: pointer;
       border: 2px solid var(--ink); border-radius: 6px; background: var(--card); color: var(--ink);
       font: 700 19px var(--body); box-shadow: 3px 3px 0 var(--shadow); transition: transform .1s, box-shadow .1s;
     }
@@ -217,6 +220,29 @@
     @media (prefers-reduced-motion: reduce) { .pick { animation: none; } .swipe-card { transition: none; } }
     .actions { display: flex; gap: 16px; flex-wrap: wrap; }
 
+    .sub { color: var(--muted); font: italic 16px var(--display); margin: -6px 0 14px; }
+    #selected:empty { display: none; }
+    #selected { margin-bottom: 14px; }
+    .big {
+      display: block; width: 100%; padding: 14px 18px; background: var(--red); color: var(--on-red); cursor: pointer;
+      border: 2px solid var(--ink); border-radius: 6px; box-shadow: 4px 4px 0 var(--shadow); font: 700 18px var(--display);
+    }
+    .big:active { transform: translate(4px, 4px); box-shadow: none; }
+    .cta-bar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; pointer-events: none;
+      padding: 28px 16px calc(14px + env(safe-area-inset-bottom)); background: linear-gradient(to top, var(--paper) 55%, transparent);
+    }
+    .cta-bar .big { max-width: 448px; margin: 0 auto; pointer-events: auto; }
+    .deck-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+    .deck-titles { color: var(--muted); font: italic 16px var(--display); }
+    .actions.center { justify-content: center; margin-top: 16px; }
+    .done .big { margin-top: 18px; }
+    .keys { display: none; }
+    @media (hover: hover) and (pointer: fine) { .keys { display: inline; } }
+    .advanced { margin-top: 24px; border-top: 1.5px dashed var(--line); padding-top: 12px; }
+    .advanced summary { cursor: pointer; color: var(--muted); font: italic 15px var(--display); }
+    .advanced > *:not(summary) { margin-top: 14px; }
+
     footer { margin-top: 36px; color: var(--muted); font-size: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border-top: 2px solid var(--ink); padding-top: 14px; }
     footer img { height: 12px; }
     footer a { color: var(--muted); }
@@ -236,10 +262,8 @@
     </svg>
     <h1>Cross-media<br><em>mixtape</em></h1>
   </header>
-  <p class="lead">Tell me which films and series you love, and I'll dig out the songs that belong in their world.</p>
-
   <div class="tabs" role="tablist">
-    <button class="tab" role="tab" id="tab-pick" aria-selected="true">Pick titles</button>
+    <button class="tab" role="tab" id="tab-pick" aria-selected="true">Songs</button>
     <button class="tab" role="tab" id="tab-duel" aria-selected="false">Duels</button>
   </div>
 
@@ -247,64 +271,81 @@
     <section class="panel">
       <h2>Which would you rather rewatch?</h2>
       <div class="duel" id="duel"></div>
+      <div class="meter" aria-hidden="true"><span id="meter-fill"></span></div>
       <div class="row">
         <span class="hint" id="duel-count" style="margin:0"></span>
-        <button class="link" id="duel-undo">Undo last duel</button>
+        <button class="link" id="duel-undo">Undo</button>
       </div>
-      <div class="meter" aria-hidden="true"><span id="meter-fill"></span></div>
-      <p class="hint">Tap a ticket, or press <b>←</b> or <b>→</b>. <b>Z</b> undoes. If you have not seen one of them, say so and it is left out of your ranking.</p>
+      <p class="hint">Tap one. Not seen it? Say so and it stays out of your ranking.<span class="keys"> Keys: ← →, Z undoes.</span></p>
     </section>
     <section class="panel">
-      <h2>Your personal top list</h2>
+      <h2>Your top list</h2>
       <ol class="ranking" id="ranking"></ol>
       <div class="row">
         <button class="link" id="use-ranking"></button>
       </div>
-      <div class="row">
-        <button class="link" id="duel-export">Download duels (JSON)</button>
-        <button class="link" id="duel-reset">Reset duels</button>
-      </div>
-      <p class="hint">Ratings use Elo, the system behind chess rankings: beating a title that was ranked higher moves you up more than beating a weaker one. About three duels per title you know make the order reasonably stable.</p>
+      <details class="advanced">
+        <summary>Advanced</summary>
+        <p class="hint">Ratings use Elo, the system behind chess rankings: beating a title that was ranked higher moves you up more than beating a weaker one. About three duels per title you know make the order reasonably stable.</p>
+        <div class="row">
+          <button class="link" id="duel-export">Download duels (JSON)</button>
+          <button class="link" id="duel-reset">Reset duels</button>
+        </div>
+      </details>
     </section>
   </div>
 
   <div class="layout" id="view-pick">
-    <div>
-      <section class="panel">
-        <h2>1 · What have you loved lately?</h2>
-        <input type="search" id="search" placeholder="Search a movie or series" aria-label="Search a movie or series">
-        <div class="chips" id="chips"></div>
-        <div class="row">
-          <span class="hint" id="selection-count" style="margin:0"></span>
-          <span class="actions"><button class="link" id="surprise">Surprise me</button><button class="link" id="clear">Clear selection</button></span>
-        </div>
-      </section>
-
-      <section class="panel">
-        <h2>2 · What should count?</h2>
-        <label class="check" style="margin-bottom:12px"><input type="checkbox" id="trained" checked> Use the trained model</label>
-        <div id="sliders"></div>
-        <div class="row">
-          <label class="check"><input type="checkbox" id="hub"> Hide tracks that fit everything</label>
-          <button class="link" id="reset">Reset to model defaults</button>
-        </div>
-        <p class="hint">The trained model is a small neural network that learned from example matches. Untick it to mix the facets by hand instead: weights are normalised to 100%, and <b>tone</b> (energy and positivity) is experimental.</p>
-      </section>
-    </div>
-
-    <section class="panel">
-      <h2>3 · Your mixtape</h2>
-      <label class="check" style="margin-bottom:8px"><input type="checkbox" id="blind"> Rating mode: shuffled, with a few wildcards</label>
-      <label class="check" style="margin-bottom:8px"><input type="checkbox" id="diverse" checked> Avoid near-duplicates</label>
-      <div class="row" style="margin:0 0 14px"><button class="link" id="view-toggle"></button><button class="link" id="refine"></button><button class="link" id="unrefine">Back to the model's list</button></div>
-      <p class="legend" id="legend"><b>++</b> fits · <b>+</b> fits a little · <b>−</b> not far off · <b>−−</b> doesn't fit · <b>?</b> don't know it</p>
-      <div id="results"></div>
+    <section class="panel" id="step-pick">
+      <h2>Which films or series do you love?</h2>
+      <p class="sub">Pick a few and I'll find songs from their world.</p>
+      <div class="chips" id="selected"></div>
+      <input type="search" id="search" placeholder="Search among 238 titles" aria-label="Search a movie or series">
+      <div class="chips" id="chips"></div>
       <div class="row">
-        <span class="hint" id="feedback-count" style="margin:0"></span>
-        <span class="actions"><button class="link" id="copy-mixtape">Copy my mixtape</button><button class="link" id="export">Download feedback (JSON)</button></span>
+        <button class="link" id="surprise">Surprise me</button>
+        <button class="link" id="clear">Clear</button>
       </div>
     </section>
+
+    <section class="panel" id="step-deck" hidden>
+      <div class="deck-top">
+        <span class="deck-titles" id="deck-titles"></span>
+        <button class="link" id="change">Change</button>
+      </div>
+      <p class="legend" id="legend" hidden><b>++</b> fits · <b>+</b> fits a little · <b>−</b> not far off · <b>−−</b> doesn't fit · <b>?</b> don't know it</p>
+      <div id="results"></div>
+
+      <details class="advanced">
+        <summary>Advanced</summary>
+        <div>
+          <label class="check" style="margin-bottom:8px"><input type="checkbox" id="blind" checked> Rating mode: shuffled, with a few wildcards</label>
+          <label class="check" style="margin-bottom:8px"><input type="checkbox" id="diverse" checked> Avoid near-duplicates</label>
+          <label class="check"><input type="checkbox" id="trained" checked> Use the trained model</label>
+        </div>
+        <div id="sliders"></div>
+        <label class="check"><input type="checkbox" id="hub"> Hide tracks that fit everything</label>
+        <p class="hint">The trained model is a small neural network that learned from example matches. Untick it to mix the facets by hand instead: weights are normalised to 100%, and <b>tone</b> (energy and positivity) is experimental.</p>
+        <div class="row">
+          <button class="link" id="reset">Reset to model defaults</button>
+          <button class="link" id="view-toggle"></button>
+        </div>
+        <div class="row">
+          <button class="link" id="refine"></button>
+          <button class="link" id="unrefine">Back to the model's list</button>
+        </div>
+        <div class="row">
+          <span class="hint" id="feedback-count" style="margin:0"></span>
+        </div>
+        <div class="row">
+          <button class="link" id="copy-mixtape">Copy my mixtape</button>
+          <button class="link" id="export">Download feedback (JSON)</button>
+        </div>
+      </details>
+    </section>
   </div>
+
+  <div class="cta-bar" id="cta-bar" hidden><button class="big" id="go"></button></div>
 
   <footer>
     <img src="tmdb.svg" alt="TMDB">
@@ -337,7 +378,8 @@
     pair: null,
     weights: { ...DATA.weights },
     hub: DATA.hubCorrection > 0,
-    blind: false,
+    blind: true,                // rating mode: shuffled list with a few lower-ranked wildcards
+    step: "pick",              // "pick" (choose titles) or "deck" (rate tracks)
     diverse: true,
     trained: true,
     view: loadView(),           // "swipe" (one card at a time) or "list"
@@ -481,28 +523,32 @@
 
   function renderChips() {
     const query = $("search").value.trim().toLowerCase();
-    const chips = DATA.titles
-      .filter((title) => title.title.toLowerCase().includes(query))
-      .map((title) => {
-        const chip = element("button", { className: "chip", type: "button" }, [
-          title.title + " ", element("small", { textContent: title.year }),
-        ]);
-        chip.setAttribute("aria-pressed", state.selected.has(title.id));
-        if (title.director) chip.title = (title.type === "tv" ? "Created by " : "Directed by ") + title.director;
-        chip.onclick = () => {
-          state.selected.has(title.id) ? state.selected.delete(title.id) : state.selected.add(title.id);
-          state.titleWeights = null;
-          state.personal = false;
-          render();
-        };
-        return chip;
-      });
-    $("chips").replaceChildren(...chips);
-    const count = state.selected.size;
-    const chosen = DATA.titles.filter((title) => state.selected.has(title.id));
-    $("selection-count").textContent = chosen.map((title) => title.director ? `${title.title} — ${title.director}` : title.title).join(" · ")
-      + (state.titleWeights ? " (weighted by your ranking)" : "");
-    $("clear").disabled = count === 0;
+    const toggle = (id) => {
+      state.selected.has(id) ? state.selected.delete(id) : state.selected.add(id);
+      state.titleWeights = null;
+      state.personal = false;
+      render();
+    };
+    const label = (title) => [title.title + " ", element("small", { textContent: title.year })];
+    // chosen titles stay on top as removable tags, so searching never hides them
+    const chosen = DATA.titles.filter((title) => state.selected.has(title.id)).map((title) => {
+      const tag = element("button", { className: "chip", type: "button" }, [...label(title), element("small", { textContent: "✕" })]);
+      tag.setAttribute("aria-pressed", "true");
+      tag.setAttribute("aria-label", `Remove ${title.title}`);
+      tag.onclick = () => toggle(title.id);
+      return tag;
+    });
+    $("selected").replaceChildren(...chosen);
+    const matches = DATA.titles.filter((title) => !state.selected.has(title.id) && title.title.toLowerCase().includes(query));
+    const chips = matches.slice(0, query ? 30 : 12).map((title) => {
+      const chip = element("button", { className: "chip", type: "button" }, label(title));
+      chip.setAttribute("aria-pressed", "false");
+      if (title.director) chip.title = (title.type === "tv" ? "Created by " : "Directed by ") + title.director;
+      chip.onclick = () => toggle(title.id);
+      return chip;
+    });
+    $("chips").replaceChildren(...(chips.length ? chips : [element("p", { className: "hint", textContent: "Nothing found. Try another title." })]));
+    $("clear").hidden = state.selected.size === 0;
   }
 
   function renderSliders() {
@@ -575,7 +621,7 @@
   // The "not far off" vote (-) has a button only. Vote names are the ones stored in feedback.json.
   const deck = { queue: [], pos: 0, total: 0, history: [], busy: false };
   const DECK_BUTTONS = [
-    ["down", "−−", "no"], ["nearly", "−", "not far"], ["unknown", "?", "don't know"], ["partly", "+", "a bit"], ["up", "++", "fits"],
+    ["down", "✕", "no"], ["nearly", "−", "close"], ["unknown", "?", "dunno"], ["partly", "+", "a bit"], ["up", "♥", "fits"],
   ];
   const FLY = { up: [900, -80], down: [-900, -80], partly: [0, -900], unknown: [0, 900], nearly: [-700, 300] };
 
@@ -655,14 +701,23 @@
 
   function drawDeck() {
     const remaining = deck.queue.length - deck.pos;
-    const progress = element("p", { className: "deck-progress", textContent: `${deck.total - remaining} of ${deck.total} rated` });
+    const progress = element("p", { className: "deck-progress", textContent: `${deck.total - remaining} of ${deck.total}` });
+    const action = (text, handler, className = "link") => {
+      const node = element("button", { className, type: "button", textContent: text });
+      node.onclick = handler;
+      return node;
+    };
     if (remaining <= 0) {
-      const undo = element("button", { className: "link", type: "button", textContent: "Undo last" });
-      undo.onclick = undoSwipe;
+      const rated = state.feedback.length;
       $("results").replaceChildren(progress, element("div", { className: "done" }, [
-        element("h3", { textContent: "That's the whole mixtape." }),
-        element("p", { textContent: "Refine the list with your ratings, copy your favourites, or pick other titles." }),
-        ...(deck.history.length ? [undo] : []),
+        element("h3", { textContent: "That's the mixtape." }),
+        element("p", { textContent: `You have rated ${rated} song${rated === 1 ? "" : "s"} so far. Send your ratings to Adam: they teach the model what really fits.` }),
+        action("Send my ratings", () => shareRatings(), "big"),
+        element("div", { className: "actions center" }, [
+          action("Copy my mixtape", (event) => copyMixtape(event.currentTarget)),
+          action("Pick other films", () => { state.selected.clear(); state.titleWeights = null; showStep("pick"); }),
+          ...(deck.history.length ? [action("Undo last", undoSwipe)] : []),
+        ]),
       ]));
       return;
     }
@@ -675,7 +730,8 @@
       button.onclick = () => castVote(vote);
       return button;
     }));
-    const hint = element("p", { className: "hint deck-hint", textContent: "Swipe the card, or use the keys: → fits · ← no · ↑ a bit · ↓ don't know · Z undo" });
+    const hint = element("p", { className: "hint deck-hint", textContent: "Swipe the card, or tap a button." },
+      [element("span", { className: "keys", textContent: " Keys: ← → ↑ ↓, Z undoes." })]);
     $("results").replaceChildren(progress, stage, buttons, hint);
   }
 
@@ -777,10 +833,34 @@
     refreshVotes();
   }
 
-  function render() { renderChips(); renderResults(); }
+  function render() {
+    renderChips();
+    if (state.step === "deck") renderResults();
+    updateCta();
+  }
+
+  // Two screens: choose titles, then rate tracks. The big button appears once a title is chosen.
+  function updateCta() {
+    const show = !$("view-pick").hidden && state.step === "pick" && state.selected.size > 0;
+    const count = state.selected.size;
+    $("cta-bar").hidden = !show;
+    $("go").textContent = `Find songs for ${count} title${count === 1 ? "" : "s"} →`;
+  }
+
+  function showStep(step) {
+    state.step = step === "deck" && state.selected.size > 0 ? "deck" : "pick";
+    $("step-pick").hidden = state.step !== "pick";
+    $("step-deck").hidden = state.step !== "deck";
+    $("deck-titles").textContent = DATA.titles.filter((title) => state.selected.has(title.id)).map((title) => title.title).join(" · ");
+    if (state.step === "deck") renderResults(); else renderChips();
+    updateCta();
+    window.scrollTo(0, 0);
+  }
 
   $("search").oninput = renderChips;
   $("clear").onclick = () => { state.selected.clear(); state.titleWeights = null; state.personal = false; render(); };
+  $("go").onclick = () => showStep("deck");
+  $("change").onclick = () => showStep("pick");
   $("diverse").onchange = (event) => { state.diverse = event.target.checked; renderResults(); };
   $("refine").onclick = () => { state.personal = true; renderResults(); };
   $("unrefine").onclick = () => { state.personal = false; renderResults(); };
@@ -814,11 +894,11 @@
     state.selected = new Set(picked);
     state.titleWeights = null;
     state.personal = false;
-    render();
+    showStep("deck");
   };
 
   // Copy a plain-text tracklist with Spotify links: the tracks you rated ++ or +, or the whole list if none.
-  $("copy-mixtape").onclick = async () => {
+  async function copyMixtape(button) {
     const key = [...state.selected].sort().join(",");
     const liked = state.feedback
       .filter((item) => item.titleIds.join(",") === key && (item.vote === "up" || item.vote === "partly"))
@@ -828,10 +908,26 @@
     const names = DATA.titles.filter((title) => state.selected.has(title.id)).map((title) => title.title).join(", ");
     const text = `Mixtape for ${names}\n\n` + tracks.map((track, i) =>
       `${i + 1}. ${track.title} — ${track.artist}\n   https://open.spotify.com/track/${track.id}`).join("\n");
-    const button = $("copy-mixtape");
+    const label = button.textContent;
     try { await navigator.clipboard.writeText(text); button.textContent = "Copied!"; } catch { button.textContent = "Couldn't copy"; }
-    setTimeout(() => { button.textContent = "Copy my mixtape"; }, 1800);
-  };
+    setTimeout(() => { button.textContent = label; }, 1800);
+  }
+  $("copy-mixtape").onclick = (event) => copyMixtape(event.currentTarget);
+
+  // On a phone this opens the share sheet (WhatsApp, Messages, ...) with feedback.json attached;
+  // where file sharing is not supported, the file is downloaded instead.
+  async function shareRatings() {
+    const file = new File([JSON.stringify(state.feedback, null, 2)], "feedback.json", { type: "application/json" });
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: "My ratings", text: "My ratings for Adam's cross-media mixtape" });
+        return;
+      } catch (error) {
+        if (error.name === "AbortError") return;
+      }
+    }
+    download("feedback.json", state.feedback);
+  }
 
   // Keyboard: arrows rate the card or choose a duel, Z undoes.
   document.addEventListener("keydown", (event) => {
@@ -918,7 +1014,7 @@
       : [element("p", { className: "empty", textContent: "No more titles to compare." })]));
 
     const ranked = rankedTitles();
-    $("ranking").replaceChildren(...ranked.slice(0, 10).map(({ title, rating }) =>
+    $("ranking").replaceChildren(...ranked.slice(0, 5).map(({ title, rating }) =>
       element("li", {}, [title.title + " ", element("small", { textContent: `${title.year} · ${Math.round(rating)}` })])));
     if (ranked.length === 0) $("ranking").replaceChildren(element("li", { className: "empty", style: "list-style:none;margin-left:-26px", textContent: "Choose between a few pairs to start your ranking." }));
 
@@ -939,6 +1035,7 @@
     state.selected = new Set(top.map((item) => item.title.id));
     state.titleWeights = new Map(top.map((item) => [item.title.id, Elo.strength(item.rating)]));
     state.personal = false;
+    state.step = "deck";
     showTab("pick");
   }
 
@@ -947,7 +1044,8 @@
     $("view-duel").hidden = name !== "duel";
     $("tab-pick").setAttribute("aria-selected", name === "pick");
     $("tab-duel").setAttribute("aria-selected", name === "duel");
-    if (name === "duel") renderDuel(); else render();
+    if (name === "duel") renderDuel(); else showStep(state.step);
+    updateCta();
   }
 
   $("tab-pick").onclick = () => showTab("pick");
