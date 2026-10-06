@@ -35,7 +35,8 @@ Piano in tre livelli:
 cross-media-recsys/
 ├── data/            # titles.csv (film/serie), tracks.csv (brani), descriptions.csv (descrizioni in 3 parti), curated.csv (abbinamenti scelti a mano, per l'allenamento), towers.npz (pesi della rete), soundtrack_pairs.csv (coppie film/brano), embeddings.npz (vettori), model.json (parametri del modello), raw/ (download grezzi, ignorata da git)
 ├── src/             # smoke_test.py, fetch_titles.py, build_tracks.py, embed.py, model.py, train.py, recommend.py, evaluate.py, export_app.py, check_overlap.py
-├── app/             # index.html (web app statica), data.js (generato), tmdb.svg
+├── app/             # index.html (web app statica), data.js (generato), elo.js (Elo e scelta delle coppie), tmdb.svg
+├── tests/           # elo.test.js (node tests/elo.test.js)
 ├── notebooks/       # esperimenti esplorativi
 ├── requirements.txt
 ├── .env.example     # modello per la chiave TMDB (.env è ignorato da git)
@@ -82,6 +83,7 @@ Da Claude Code → chat. Adam incolla questa sezione nella chat.
   - [x] `src/recommend.py` usa il modello allenato. `src/evaluate.py` misura ancora solo la **base** sulle coppie film/colonna sonora, perché quelle coppie sono dentro `curated.csv`.
   - [x] Nell'app: casella "Use the trained model" attiva di default; togliendola tornano gli slider e la formula di base. Ogni voto salva `model` (`trained` o `manual`). Penalità dei quasi-doppioni ridotta a 0.35.
   - [x] Ordine dei comandi dopo una modifica ai dati: `src/embed.py` → `src/train.py` → `src/export_app.py`.
+- Fatto (**Livello 3, primo passo**, 2026-10-06): scheda **Duels** nell'app, stile Podiums. Decisioni di Adam: si confrontano film contro film, classifica con Elo (K=32, partenza 1000), dati solo nel browser (`localStorage`, chiave `cross-media-duels`, export `duels.json`). La coppia successiva è un titolo con pochi duelli contro uno di rating simile, mai la stessa coppia due volte; "I haven't seen it" esclude il titolo; si può annullare l'ultimo duello. "Get music from my top 5" seleziona i 5 migliori e li pesa con la forza Elo `10^(rating/400)` nella media dei punteggi (`state.titleWeights` in `index.html`). Logica pura in `app/elo.js`, testata con `node tests/elo.test.js`. Non fatto: duelli tra brani, Bradley-Terry, backend multi-utente.
 - Fatto (app web):
   - [x] `app/index.html`: pagina statica senza backend e senza dipendenze (HTML + CSS + JS in un file). Si scelgono i titoli, uno slider per ogni parte della descrizione cambia i pesi in tempo reale, una casella attiva la correzione hub, ogni brano ha il link a Spotify e i pulsanti 👍/👎. La formula in JS è la stessa di `src/model.py`.
   - [x] Pulsante **Listen** su ogni brano: apre il player di Spotify (anteprima) dentro la pagina; votare non ricarica la lista, quindi il brano continua a suonare. Sotto ogni brano si leggono emozioni, suono e riferimenti. Il regista compare accanto al titolo selezionato e nel tooltip di ogni film.
@@ -162,3 +164,4 @@ Una riga per passo completato: data, cosa, commit.
 - 2026-10-05 — Modello allenato su 2.464 abbinamenti curati (`data/curated.csv`, `src/train.py`): precision@10 su film mai visti da 0.288 a 0.365.
 - 2026-10-05 — Tolto il bonus ai brani scelti a mano; rete neurale a due torri (PyTorch) al posto della regressione: precision@10 su film mai visti 0.373.
 - 2026-10-06 — Pulizia per il portfolio: README corretto (URL, numeri vecchi, struttura, stack), aggiunta licenza MIT per il codice.
+- 2026-10-06 — Livello 3, primo passo: duelli tra film con Elo nell'app (`app/elo.js`, `tests/elo.test.js`).
